@@ -1,7 +1,19 @@
 package ch.so.agi.cccservice.messages;
 
-import ch.so.agi.cccservice.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class SelectedMessage extends AbstractMessage  {
-    private JsonObject context_list;
+    private JsonNode context_list;
+
+    public SelectedMessage() {
+        super("selected");
+    }
+
+    public JsonNode getContext_list() {
+        return context_list;
+    }
+
+    public void setContext_list(JsonNode context_list) {
+        this.context_list = context_list;
+    }
 }
