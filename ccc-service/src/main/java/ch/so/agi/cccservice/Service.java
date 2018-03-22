@@ -28,4 +28,7 @@ public class Service {
     public void selected(SelectedMessage msg) {
         
     }
+    public void dataWritten(DataWrittenMessage msg) {
+
+    }
 }
