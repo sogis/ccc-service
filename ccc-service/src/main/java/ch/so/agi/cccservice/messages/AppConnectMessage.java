@@ -1,4 +1,6 @@
-package ch.so.agi.cccservice;
+package ch.so.agi.cccservice.messages;
+
+import ch.so.agi.cccservice.SessionId;
 
 public class AppConnectMessage extends AbstractMessage {
    private SessionId session;

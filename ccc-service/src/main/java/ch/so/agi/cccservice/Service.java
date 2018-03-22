@@ -1,34 +1,36 @@
 package ch.so.agi.cccservice;
 
+import ch.so.agi.cccservice.messages.*;
+
 public class Service {
-    public void appConnect(AppConnectMessage msg) {
+    public void appConnect(SessionState state, AppConnectMessage msg) {
         
     }
-    public void gisConnect(GisConnectMessage msg) {
+    public void gisConnect(SessionState state, GisConnectMessage msg) {
         
     }
-    public void ready(ReadyMessage msg) {
+    public void ready(SessionState state, ReadyMessage msg) {
         
     }
-    public void create(CreateMessage msg) {
+    public void create(SessionState state, CreateMessage msg) {
         
     }
-    public void edit(EditMessage msg) {
+    public void edit(SessionState state, EditMessage msg) {
         
     }
-    public void show(ShowMessage msg) {
+    public void show(SessionState state, ShowMessage msg) {
         
     }
-    public void cancel(CancelMessage msg) {
+    public void cancel(SessionState state, CancelMessage msg) {
         
     }
-    public void changed(ChangedMessage msg) {
+    public void changed(SessionState state, ChangedMessage msg) {
         
     }
-    public void selected(SelectedMessage msg) {
+    public void selected(SessionState state, SelectedMessage msg) {
         
     }
-    public void dataWritten(DataWrittenMessage msg) {
+    public void dataWritten(SessionState state, DataWrittenMessage msg) {
 
     }
 }

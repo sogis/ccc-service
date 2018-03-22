@@ -6,7 +6,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-public class MyHandler extends TextWebSocketHandler {
+public class SocketHandler extends TextWebSocketHandler {
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 
@@ -19,13 +19,10 @@ public class MyHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
         // The WebSocket has been opened
-
         // I might save this session object so that I can send messages to it outside of this method
-
         // Let's send the first message
 
         session.sendMessage(new TextMessage("You are now connected to the server. This is the first message."));
-
     }
 
     @Override
