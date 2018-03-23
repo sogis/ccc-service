@@ -1,32 +1,35 @@
 package ch.so.agi.cccservice;
 
+import java.sql.Timestamp;
+
 /**
  * Handles Sessions with their state and their names for application and GIS
  */
 public class SessionState {
     private String appName;
+    private Boolean appConnected = false;
+    private long appConnectTime;
     private String gisName;
-    private String state;
+    private Boolean gisConnected = false;
+    private long gisConnectTime;
+    private Boolean readySent = false;
+    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-    public static final String CONNECTED_TO_APP = "connected to app";
-    public static final String CONNECTED_TO_GIS = "connected to gis";
-    public static final String READY = "ready";
 
-    /**
-     * gets state of connection of a specific SessionState
-     * @return connectionsstate
-     */
-    public String getState() {
-        return state;
+    public void addAppConnection(String clientName){
+        this.appName = clientName;
+        appConnected = true;
+        appConnectTime = timestamp.getTime();
     }
 
-    /**
-     * sets state of connection
-     * @param state of connection
-     */
-    public void setState(String state) {
-        //prüfen, ob korrekter State übergeben wird?
-        this.state = state;
+    public void addGisConnection(String clientName){
+        this.gisName = clientName;
+        gisConnected = true;
+        gisConnectTime = timestamp.getTime();
+    }
+
+    public void setConnectionsToReady(){
+        readySent = true;
     }
 
     /**
@@ -38,14 +41,6 @@ public class SessionState {
     }
 
     /**
-     * sets application name
-     * @param appName name of application
-     */
-    public void setAppName(String appName){
-        this.appName = appName;
-    }
-
-    /**
      * gets GIS name
      * @return name of GIS
      */
@@ -53,12 +48,23 @@ public class SessionState {
         return gisName;
     }
 
-    /**
-     * sets gis name
-     * @param gisName name of gis
-     */
-    public void setGisName(String gisName) {
-        this.gisName = gisName;
+    public Boolean isAppConnected(){
+        return appConnected;
     }
 
+    public Boolean isGisConnected(){
+        return gisConnected;
+    }
+
+    public Boolean isReadySent(){
+        return readySent;
+    }
+
+    public long getAppConnectTime() {
+        return appConnectTime;
+    }
+
+    public long getGisConnectTime(){
+        return gisConnectTime;
+    }
 }

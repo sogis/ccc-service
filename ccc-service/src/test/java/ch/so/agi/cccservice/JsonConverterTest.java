@@ -23,7 +23,7 @@ public class JsonConverterTest {
         JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(appConnectMessage);
 
-        assertTrue(resultingJson.equals("{\"method\":\"appConnect\"," +
+        assertTrue(resultingJson.equals("{\"method\":\"handleAppConnect\"," +
                                         "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                                         "\"clientName\":\"Axioma Mandant AfU\"," +
                                         "\"apiVersion\":\"1.0\"}"));
@@ -32,7 +32,7 @@ public class JsonConverterTest {
 
     @Test
     public void stringToAppConnectMessage() throws IOException, MethodeException {
-        String json = "{\"method\":\"appConnect\"," +
+        String json = "{\"method\":\"handleAppConnect\"," +
                       "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                       "\"clientName\":\"Axioma Mandant AfU\"," +
                       "\"apiVersion\":\"1.0\"}";
@@ -50,7 +50,7 @@ public class JsonConverterTest {
         JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(gisConnectMessage);
 
-        assertTrue(resultingJson.equals("{\"method\":\"gisConnect\"," +
+        assertTrue(resultingJson.equals("{\"method\":\"handleGisConnect\"," +
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Web GIS Client\"," +
                 "\"apiVersion\":\"1.0\"}"));
@@ -58,7 +58,7 @@ public class JsonConverterTest {
 
     @Test
     public void stringToGisConnectMessage() throws IOException, MethodeException {
-        String json = "{\"method\":\"gisConnect\"," +
+        String json = "{\"method\":\"handleGisConnect\"," +
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Web GIS Client\"," +
                 "\"apiVersion\":\"1.0\"}";
@@ -210,7 +210,7 @@ public class JsonConverterTest {
 
     @Test (expected = JsonEOFException.class)
     public void corruptJsonEofTest() throws IOException, MethodeException {
-        String json = "{\"method\":\"appConnect\"," +
+        String json = "{\"method\":\"handleAppConnect\"," +
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\""; //Es fehlt die letzte Klammer }
@@ -230,7 +230,7 @@ public class JsonConverterTest {
 
     @Test (expected = JsonParseException.class)
     public void corruptJsonTest() throws IOException, MethodeException {
-        String json = "{\"method\":\"appConnect\"," +
+        String json = "{\"method\":\"handleAppConnect\"," +
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientNameAxioma Mandant AfU\"," + //Hier ist doch was faul...
                 "\"apiVersion\":\"1.0\"}";

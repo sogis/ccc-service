@@ -38,14 +38,14 @@ public class JsonConverter {
          } catch (NullPointerException e) {
              throw new MethodeException("No methode found in given JSON");
          }
-         if (obj.get("method").asText().equals("appConnect")) {
+         if (obj.get("method").asText().equals("handleAppConnect")) {
             AppConnectMessage appConnectMessage  = new AppConnectMessage();
             appConnectMessage.setApiVersion(obj.get("apiVersion").asText());
             appConnectMessage.setClientName(obj.get("clientName").asText());
             appConnectMessage.setSession(new SessionId(obj.get("session").asText()));
             return appConnectMessage;
          }
-         if (obj.get("method").asText().equals("gisConnect")) {
+         if (obj.get("method").asText().equals("handleGisConnect")) {
              GisConnectMessage gisConnectMessage  = new GisConnectMessage();
              gisConnectMessage.setApiVersion(obj.get("apiVersion").asText());
              gisConnectMessage.setClientName(obj.get("clientName").asText());

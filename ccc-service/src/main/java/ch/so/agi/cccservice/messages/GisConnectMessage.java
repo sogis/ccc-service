@@ -8,7 +8,7 @@ public class GisConnectMessage extends AbstractMessage {
     private String apiVersion;
 
     public GisConnectMessage() {
-        super("gisConnect");
+        super("handleGisConnect");
     }
 
     public SessionId getSession() {

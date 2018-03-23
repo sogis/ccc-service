@@ -7,6 +7,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
+import static java.lang.Math.abs;
+
 /**
  *
  */
@@ -23,28 +25,28 @@ public class Service {
     }
 
     /**
-     * When Application sents appConnect the SessionState will be set to connected to app
+     * When Application sents handleAppConnect the SessionState will be set to connected to app
      * @param msg AppConnectMessage
      * @throws Exception when there is no session in the sessionPool with the same sessionID
      */
-    public void appConnect(AppConnectMessage msg) throws Exception{
+    public void handleAppConnect(AppConnectMessage msg) throws Exception{
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
 
-        checkApiVersion(apiVersion,sessionId, sender, "appConnect");
+        checkApiVersion(apiVersion,sessionId, sender, "handleAppConnect");
 
-        SessionState appSessionState = sessionPool.getSession(sessionId);
+        SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (appSessionState != null) {
-            String appState = appSessionState.getState();
-            if (appState != null) {
-                sender.sendMessageToApp(sessionId, new ErrorMessage(504, "Die Session besteht bereits."));
-                throw new IllegalStateException("Connection already exists.");
+        if (sessionState != null) {
+            if (!sessionState.isAppConnected()){
+                sessionState.addAppConnection(clientName);
+                if (sessionState.isGisConnected()){
+                    checkForSessionTimeOut(sessionState, sessionId);
+                }
             } else {
-                appSessionState.setState(appSessionState.CONNECTED_TO_APP);
-                appSessionState.setAppName(clientName);
+                throw new ServiceException(504, "Application is already connected.");
             }
         } else {
             throw new Exception("No Session with sessionID " + sessionId.getSessionId() + " in sessionPool ");
@@ -58,44 +60,69 @@ public class Service {
      * @param sender to send ErrorMessage to the correct Client
      * @param connectionTyp to send ErrorMessage to the correct Client
      */
-    private void checkApiVersion(String apiVersion, SessionId sessionId, SocketSender sender, String connectionTyp){
-        if (!"1.0".equals(apiVersion)){
-            ErrorMessage errorMessage = new ErrorMessage(505, "Die API-Version " + apiVersion +
-                    " wird nicht unterstützt. Muss API-Version 1.0 sein.");
-            if (connectionTyp.equals("appConnect")) {
-                sender.sendMessageToApp(sessionId, errorMessage);
-                //ToDo: Programmabbruch? --> SessionID aus SessionPool entfernen?
-            } else if (connectionTyp.equals("gisConnect")){
-                sender.sendMessageToGis(sessionId, errorMessage);
-                //ToDo: Programmabbruch? --> session aus sessionPool entfernen?
-            }
+    private void checkApiVersion(String apiVersion, SessionId sessionId, SocketSender sender, String connectionTyp)
+            throws ServiceException{
 
-            throw new IllegalArgumentException("Wrong API-Version used. Used API-Version: " + apiVersion);
+        if (!"1.0".equals(apiVersion)){
+            throw new ServiceException(505, "Die API-Version " + apiVersion +
+                    " wird nicht unterstützt. Muss API-Version 1.0 sein.");
         }
     }
 
     /**
-     * When GIS sents gisConnect the SessionState will be set to connected to gis
+     *
+     * @param sessionState
+     * @param sessionId
+     * @throws ServiceException
+     */
+    private void checkForSessionTimeOut(SessionState sessionState, SessionId sessionId) throws ServiceException{
+        long timeDifference = getTimeDifference(sessionState);
+
+        if (timeDifference > 60 * 1000){
+            throw new ServiceException(506, "Session-Timeout");
+        } else {
+            //ToDo: readyMessage definieren
+            ReadyMessage readyMessage = new ReadyMessage();
+            sendReady(sessionId, readyMessage);
+        }
+    }
+
+    /**
+     *
+     * @param sessionState
+     * @return
+     */
+    private long getTimeDifference(SessionState sessionState){
+        long appConnectTime = sessionState.getAppConnectTime();
+        long gisConnectTime = sessionState.getGisConnectTime();
+
+        return abs(appConnectTime-gisConnectTime);
+    }
+
+
+
+    /**
+     * When GIS sents handleGisConnect the SessionState will be set to connected to gis
      * @param msg
      */
-    public void gisConnect(GisConnectMessage msg) {
+    public void handleGisConnect(GisConnectMessage msg) throws ServiceException {
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
 
-        checkApiVersion(apiVersion, sessionId, sender, "gisConnect");
+        checkApiVersion(apiVersion, sessionId, sender, "handleGisConnect");
 
-        SessionState appSessionState = sessionPool.getSession(sessionId);
+        SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (appSessionState != null) {
-            String appState = appSessionState.getState();
-            if (appState != appSessionState.CONNECTED_TO_APP) {
-                //ToDo: Error --> Verbindung besteht bereits oder appConnect fehlt
+        if (sessionState != null) {
+            if (!sessionState.isGisConnected()){
+                sessionState.addGisConnection(clientName);
+                if (sessionState.isAppConnected()){
+                    checkForSessionTimeOut(sessionState, sessionId);
+                }
             } else {
-                appSessionState.setState(appSessionState.CONNECTED_TO_GIS);
-                appSessionState.setGisName(clientName);
-
+                throw new ServiceException(504, "Application is already connected.");
             }
         } else {
             //ToDo: Errormessage -> keine Session im Sessionpool gefunden
@@ -104,27 +131,20 @@ public class Service {
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * When connections to both client exist, send them sendReady-Message.
+     * @param sessionId sessionID of this specific connection
+     * @param msg Ready-Message
      * @throws Exception
      */
-    public void ready(SessionId sessionId, ReadyMessage msg) throws Exception {
-        WebSocketSession appWebSocket = sessionPool.getAppWebSocketSession(sessionId);
-        WebSocketSession gisWebSocket = sessionPool.getGisWebSocketSession(sessionId);
+    private void sendReady(SessionId sessionId, ReadyMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
-
-
-        String readyTextMessage = jsonConverter.messageToString(msg);
-        TextMessage textMessage = new TextMessage(readyTextMessage);
 
         //ToDo: Verbindungsunterbruch abfangen?
         //ToDo: Wie testen ohne Verbindung?
-        appWebSocket.sendMessage(textMessage);
-        gisWebSocket.sendMessage(textMessage);
+        sender.sendMessageToApp(sessionId, msg);
+        sender.sendMessageToGis(sessionId, msg);
 
-        System.out.println(textMessage);
-        sessionState.setState(sessionState.READY);
+        sessionState.setConnectionsToReady();
 
         
     }
@@ -192,21 +212,4 @@ public class Service {
 
     }
 
-    /**
-     *
-     * @param webSocketSession
-     * @param msg
-     */
-    public void sendError(WebSocketSession webSocketSession, ErrorMessage msg){
-
-        /* ToDo: erstellen
-        //ErrorMessage umwandeln
-        String errorMessage = null;
-        TextMessage errorTextMessage = new TextMessage(errorMessage);
-        try {
-            webSocketSession.sendMessage(errorTextMessage);
-        } catch (IOException e) {
-            throw new
-        }*/
-    }
 }
