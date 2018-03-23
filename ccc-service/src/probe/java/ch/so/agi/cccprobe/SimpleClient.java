@@ -4,25 +4,34 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class SimpleClient {
 
-    public static void main(String argv[]) throws Exception {
-        String sentence;
-        String modifiedSentence;
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
-        Socket clientSocket = new Socket("localhost", 8080);
-        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    public static void main(String[] args) {
+        try {
+            // open websocket
+            final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("ws://localhost:8080/myHandler"));
 
-        sentence = "{\"method\":\"appConnect\"," +
-                "    \"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
-                "    \"clientName\":\"Axioma Mandant AfU\"," +
-                "    \"apiVersion\":\"1.0\"}";
-        outToServer.writeBytes(sentence + '\n');
-        modifiedSentence = inFromServer.readLine();
-        System.out.println(modifiedSentence);
-        clientSocket.close();
+            // add listener
+            clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
+                public void handleMessage(String message) {
+                    System.out.println(message);
+                }
+            });
+
+            // send message to websocket
+            clientEndPoint.sendMessage("{'event':'addChannel','channel':'ok_btccny_ticker'}");
+
+            // wait 5 seconds for messages from websocket
+            Thread.sleep(5000);
+
+        } catch (InterruptedException ex) {
+            System.err.println("InterruptedException exception: " + ex.getMessage());
+        } catch (URISyntaxException ex) {
+            System.err.println("URISyntaxException exception: " + ex.getMessage());
+        }
     }
 }
