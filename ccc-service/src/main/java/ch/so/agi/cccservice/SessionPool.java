@@ -4,6 +4,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 
+/**
+ * Administrates Sessions (Id, WebSocketSession, SessionStates)
+ */
 public class SessionPool {
     private HashMap<SessionId, SessionState> sessionStates = new HashMap<>();
     private HashMap<SessionId, WebSocketSession> idToAppSocket = new HashMap<>();
@@ -11,6 +14,12 @@ public class SessionPool {
     private HashMap<WebSocketSession, SessionId> socketToId = new HashMap<>();
 
 
+    /**
+     * Adds a SessionId with its SessionState to the sessionStates-Hashmap
+     * @param sessionId of connection
+     * @param sessionState of sessionId
+     * @throws IllegalArgumentException thrown on already existing sessionId in sessionStates-HashMap
+     */
     public void addSession(SessionId sessionId, SessionState sessionState) throws IllegalArgumentException {
         if (sessionStates.get(sessionId) == null) {
             sessionStates.put(sessionId, sessionState);
@@ -19,10 +28,20 @@ public class SessionPool {
         }
     }
 
+    /**
+     * Returns SessionState of specific Session
+     * @param sessionId specific Session
+     * @return SessionState of specific Session
+     */
     public SessionState getSession(SessionId sessionId) {
         return sessionStates.get(sessionId);
     }
 
+    /**
+     * Adds WebSocketSession of the application to the SessionId in the idToAppSocket-Hashmap and the socketToId-Hashmap
+     * @param sessionId of specific connection
+     * @param webSocketSession of application
+     */
     public void addAppWebSocketSession(SessionId sessionId, WebSocketSession webSocketSession) {
 
         if (idToAppSocket.get(sessionId) == null) {
@@ -40,6 +59,11 @@ public class SessionPool {
         }
     }
 
+    /**
+     * Adds WebSocketSession of the GIS to the SessionId in the idToGisSocket-Hashmap and the socketToId-Hashmap
+     * @param sessionId of specific connection
+     * @param webSocketSession of GIS
+     */
     public void addGisWebSocketSession(SessionId sessionId, WebSocketSession webSocketSession) {
         if (idToGisSocket.get(sessionId) == null) {
             idToGisSocket.put(sessionId, webSocketSession);
@@ -56,18 +80,37 @@ public class SessionPool {
         }
     }
 
+    /**
+     * Gets WebSocketSession of Application of a specific SessionId
+     * @param sessionId specific Connection
+     * @return WebsocketSession of Application
+     */
     public WebSocketSession getAppWebSocketSession(SessionId sessionId) {
         return idToAppSocket.get(sessionId);
     }
 
+    /**
+     * Gets WebSocketSession of GIS of a specific SessionId
+     * @param sessionId specific Connection
+     * @return WebSocketSession of GIS
+     */
     public WebSocketSession getGisWebSocketSession(SessionId sessionId) {
         return idToGisSocket.get(sessionId);
     }
 
+    /**
+     * Gets SessionId of either a WebSocketSession of an application or of a WebSocketSession of GIS
+     * @param webSocketSession either of application or GIS
+     * @return SessionID of Connection
+     */
     public SessionId getSessionId(WebSocketSession webSocketSession) {
         return socketToId.get(webSocketSession);
     }
 
+    /**
+     * Removes closed Session in the Sessionpool (in all Hashmaps)
+     * @param sessionId to remove
+     */
     public void removeSession(SessionId sessionId) {
         WebSocketSession gisSocket = idToGisSocket.get(sessionId);
         WebSocketSession appSocket = idToAppSocket.get(sessionId);
@@ -77,11 +120,11 @@ public class SessionPool {
 
         if (gisSessionId != null){
             socketToId.remove(gisSocket);
-        } //Fehlermeldung falls nicht existiert?
+        } //ToDo: Fehlermeldung falls nicht existiert?
 
         if (appSessionId != null){
             socketToId.remove(appSocket);
-        }//Fehlermeldung falls nicht existiert?
+        }//ToDo: Fehlermeldung falls nicht existiert?
 
         if (sessionState != null) {
             sessionStates.remove(sessionId);
@@ -91,10 +134,10 @@ public class SessionPool {
 
         if (gisSocket != null){
             idToGisSocket.remove(sessionId);
-        } //Fehlermeldung falls nicht existiert?
+        } //ToDo: Fehlermeldung falls nicht existiert?
 
         if (appSocket != null){
             idToAppSocket.remove(sessionId);
-        }//Fehlermeldung falls nicht existiert?
+        }//ToDo: Fehlermeldung falls nicht existiert?
     }
 }

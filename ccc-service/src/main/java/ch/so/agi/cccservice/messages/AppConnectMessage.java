@@ -8,7 +8,7 @@ public class AppConnectMessage extends AbstractMessage {
    private String apiVersion;
 
    public AppConnectMessage() {
-      super("appConnect");
+      super("handleAppConnect");
    }
 
    public SessionId getSession() {

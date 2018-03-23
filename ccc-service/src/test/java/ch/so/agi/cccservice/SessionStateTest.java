@@ -1,74 +1,78 @@
 package ch.so.agi.cccservice;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class SessionStateTest {
+    private String expectedGisName = "GIS-Name";
+    private String expectedAppName = "App-Name";
 
-    @Test
-    public void getState() {
-        SessionState sessionState = new SessionState();
-
-    }
-
-    @Test
-    public void setState() {
-        SessionState sessionState = new SessionState();
-
-        sessionState.setState(sessionState.CONNECTED_TO_APP);
-
-        String state = sessionState.getState();
-
-        Assert.assertEquals(sessionState.CONNECTED_TO_APP, state);
-    }
-
-    @Test
-    public void getAppName() {
-    }
-
-    @Test
-    public void setAppName() {
-        String expectedAppName = "App-Name";
-        SessionState sessionState = new SessionState();
-
-        sessionState.setAppName(expectedAppName);
-
-        String appName = sessionState.getAppName();
-
-        Assert.assertEquals(expectedAppName, appName);
-    }
-
-    @Test
-    public void getGisName() {
-    }
-
-    @Test
-    public void setGisName() {
-        String expectedGisName = "GIS-Name";
-        SessionState sessionState = new SessionState();
-
-        sessionState.setGisName(expectedGisName);
-
-        String gisName = sessionState.getGisName();
-
-        Assert.assertEquals(expectedGisName, gisName);
-    }
 
     @Test
     public void gisNameEqualsNotAppName() {
-        String expectedGisName = "GIS-Name";
-        String expectedAppName = "App-Name";
         SessionState sessionState = new SessionState();
 
-        sessionState.setAppName(expectedAppName);
-        sessionState.setGisName(expectedGisName);
+        sessionState.addAppConnection(expectedAppName);
+        sessionState.addGisConnection(expectedGisName);
 
         String gisName = sessionState.getGisName();
         String appName = sessionState.getAppName();
 
         Assert.assertNotEquals(expectedAppName, gisName);
         Assert.assertNotEquals(expectedGisName, appName);
+    }
+
+    @Test
+    public void addAppConnection() {
+        SessionState sessionState = new SessionState();
+
+        sessionState.addAppConnection(expectedAppName);
+
+        Assert.assertEquals(expectedAppName, sessionState.getAppName());
+        Assert.assertTrue(sessionState.isAppConnected());
+        Assert.assertFalse(sessionState.isGisConnected());
+        Assert.assertFalse(sessionState.isReadySent());
+
+    }
+
+    @Test
+    public void addGisConnection() {
+        SessionState sessionState = new SessionState();
+
+        sessionState.addGisConnection(expectedGisName);
+
+        Assert.assertEquals(expectedGisName, sessionState.getGisName());
+        Assert.assertTrue(sessionState.isGisConnected());
+        Assert.assertFalse(sessionState.isAppConnected());
+        Assert.assertFalse(sessionState.isReadySent());
+    }
+
+    @Test
+    public void setConnectionsToReady() {
+        SessionState sessionState = new SessionState();
+
+        sessionState.setConnectionsToReady();
+
+        Assert.assertTrue(sessionState.isReadySent());
+    }
+
+    @Test
+    public void getAppConnectTime() {
+        SessionState sessionState = new SessionState();
+        sessionState.addAppConnection(expectedAppName);
+
+        Assert.assertTrue(sessionState.getAppConnectTime() > 0);
+    }
+
+    @Test
+    public void getGisConnectTime() {
+
+        SessionState sessionState = new SessionState();
+        sessionState.addGisConnection(expectedGisName);
+
+        Assert.assertTrue(sessionState.getGisConnectTime() > 0);
     }
 }
