@@ -1,5 +1,6 @@
 package ch.so.agi.cccservice;
 
+import ch.so.agi.cccservice.messages.AbstractMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
@@ -31,7 +32,15 @@ public class SocketHandler extends TextWebSocketHandler {
 
         // A message has been received
 
+        JsonConverter jsonConverter = new JsonConverter();
+
         System.out.println("Message received: " + textMessage.getPayload());
+
+        AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
+
+        //Klasse handleMessage, welche aufgrund der Message die entsprechende Methode vom Service ausführt
+        //wenn appConnect --> websocketsession to sessionPool hinzufügen
+        //wenn gisConnect --> websocketsession to sessionPool hinzufügen
 
     }
 

@@ -42,6 +42,8 @@ public class Service {
         if (sessionState != null) {
             if (!sessionState.isAppConnected()){
                 sessionState.addAppConnection(clientName);
+                /*todo: von wo erhalten wir die websocketsession, welche im sessionPool abgespeichert wird?
+                sessionPool.addAppWebSocketSession(sessionId,  );*/
                 if (sessionState.isGisConnected()){
                     checkForSessionTimeOut(sessionState, sessionId);
                 }
@@ -49,7 +51,8 @@ public class Service {
                 throw new ServiceException(504, "Application is already connected.");
             }
         } else {
-            throw new Exception("No Session with sessionID " + sessionId.getSessionId() + " in sessionPool ");
+            sessionPool.addSession(sessionId, new SessionState());
+            //todo: websocketSession im sessionpool speichern.
         }
     }
 
@@ -81,7 +84,6 @@ public class Service {
         if (timeDifference > 60 * 1000){
             throw new ServiceException(506, "Session-Timeout");
         } else {
-            //ToDo: readyMessage definieren
             ReadyMessage readyMessage = new ReadyMessage();
             sendReady(sessionId, readyMessage);
         }
@@ -125,7 +127,7 @@ public class Service {
                 throw new ServiceException(504, "Application is already connected.");
             }
         } else {
-            //ToDo: Errormessage -> keine Session im Sessionpool gefunden
+            sessionPool.addSession(sessionId, new SessionState());
         }
         
     }
@@ -141,7 +143,6 @@ public class Service {
         msg.setApiVersion("1.0");
 
         //ToDo: Verbindungsunterbruch abfangen?
-        //ToDo: Wie testen ohne Verbindung?
         sender.sendMessageToApp(sessionId, msg);
         sender.sendMessageToGis(sessionId, msg);
 

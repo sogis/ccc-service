@@ -57,8 +57,6 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
         GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);

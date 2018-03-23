@@ -28,10 +28,9 @@ public class SocketSenderImpl implements SocketSender {
             String messageString = jsonConverter.messageToString(message);
 
             TextMessage textMessage = new TextMessage(messageString);
-            SocketHandler socketHandler = new SocketHandler();
 
             try {
-                socketHandler.handleTextMessage(webSocketSession, textMessage);
+                webSocketSession.sendMessage(textMessage);
             } catch (Exception e) {
                 throw new ServiceException(503, "Could not send message : " + messageString + " to " + clientName +".");
             }
