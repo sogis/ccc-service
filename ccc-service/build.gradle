@@ -30,3 +30,30 @@ dependencies {
 	testCompile("org.springframework.boot:spring-boot-starter-test:2.0.0.RELEASE")
 }
 
+sourceSets {
+	main {
+		java {
+			srcDir 'src/java'
+		}
+		resources {
+			srcDir 'src/resources'
+		}
+	}
+	test {
+		java {
+			srcDir 'test/java'
+		}
+		resources {
+			srcDir 'test/resources'
+		}
+	}
+	probe {
+		java {
+			srcDir 'probe/java'
+		}
+		resources {
+			srcDir 'probe/resources'
+		}
+	}
+}
+
