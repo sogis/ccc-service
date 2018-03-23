@@ -96,7 +96,7 @@ public class Service {
         long appConnectTime = sessionState.getAppConnectTime();
         long gisConnectTime = sessionState.getGisConnectTime();
 
-        return abs(appConnectTime-gisConnectTime);
+        return abs( appConnectTime - gisConnectTime);
     }
 
 
@@ -138,6 +138,7 @@ public class Service {
      */
     private void sendReady(SessionId sessionId, ReadyMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
+        msg.setApiVersion("1.0");
 
         //ToDo: Verbindungsunterbruch abfangen?
         //ToDo: Wie testen ohne Verbindung?

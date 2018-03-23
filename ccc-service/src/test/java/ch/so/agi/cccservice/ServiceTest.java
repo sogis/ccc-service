@@ -1,11 +1,13 @@
 package ch.so.agi.cccservice;
 
+import ch.so.agi.cccservice.messages.AbstractMessage;
 import ch.so.agi.cccservice.messages.AppConnectMessage;
 import ch.so.agi.cccservice.messages.GisConnectMessage;
-import ch.so.agi.cccservice.messages.ReadyMessage;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ServiceTest {
 
@@ -14,9 +16,9 @@ public class ServiceTest {
     private String expectedGisName = "GIS-Name";
     private String sessionString = "{123-456-789-0}";
     private String apiVersion = "1.0";
-    private SocketSender socketSender = new SocketSenderDummy();
+    private SocketSenderDummy socketSender = new SocketSenderDummy();
 
-@Ignore
+
     @Test
     public void appConnect() throws Exception {
         SessionId sessionId = new SessionId(sessionString);
@@ -30,11 +32,12 @@ public class ServiceTest {
 
         service.handleAppConnect(appConnectMessage);
 
-       /* String state = sessionState.getState();
         String appName = sessionState.getAppName();
 
-        Assert.assertEquals(sessionState.CONNECTED_TO_APP, state);
-        Assert.assertEquals(expectedAppName,appName);*/
+        Assert.assertTrue(sessionState.isAppConnected());
+        Assert.assertFalse(sessionState.isGisConnected());
+        Assert.assertFalse(sessionState.isReadySent());
+        Assert.assertEquals(expectedAppName,appName);
 
     }
 
@@ -47,7 +50,6 @@ public class ServiceTest {
         return appConnectMessage;
     }
 
-    @Ignore
     @Test
     public void gisConnect() throws Exception {
         SessionId sessionId = new SessionId(sessionString);
@@ -61,16 +63,14 @@ public class ServiceTest {
 
         sessionPool.addSession(sessionId, sessionState);
 
-        service.handleAppConnect(appConnectMessage);
         service.handleGisConnect(gisConnectMessage);
-/*
-        String state = sessionState.getState();
-        String appName = sessionState.getAppName();
+
         String gisName = sessionState.getGisName();
 
-        Assert.assertEquals(sessionState.CONNECTED_TO_GIS, state);
-        Assert.assertEquals(expectedAppName,appName);
-        Assert.assertEquals(expectedGisName, gisName);*/
+        Assert.assertTrue(sessionState.isGisConnected());
+        Assert.assertFalse(sessionState.isAppConnected());
+        Assert.assertFalse(sessionState.isReadySent());
+        Assert.assertEquals(expectedGisName, gisName);
     }
 
     private GisConnectMessage generateGisConnectMessage(SessionId sessionId, String apiVersion){
@@ -83,9 +83,57 @@ public class ServiceTest {
     }
 
 
-    @Ignore
     @Test
-    public void ready() throws Exception {
+    public void readySentToApp() throws Exception {
+        SessionId sessionId = new SessionId(sessionString);
+        JsonConverter jsonConverter = new JsonConverter();
+
+        SessionState sessionState = new SessionState();
+        Service service = new Service(sessionPool, socketSender);
+
+        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+
+        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+
+        sessionPool.addSession(sessionId, sessionState);
+
+        service.handleAppConnect(appConnectMessage);
+        service.handleGisConnect(gisConnectMessage);
+
+        List<AbstractMessage> appMessages = socketSender.getAppMessages();
+
+        Assert.assertTrue(appMessages.size() == 1);
+        String appMessage = jsonConverter.messageToString(appMessages.get(0));
+
+        Assert.assertEquals(appMessage, "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}");
+    }
+
+    @Test
+    public void readySentToGis() throws Exception {
+        SessionId sessionId = new SessionId(sessionString);
+        JsonConverter jsonConverter = new JsonConverter();
+
+        SessionState sessionState = new SessionState();
+        Service service = new Service(sessionPool, socketSender);
+
+        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+
+        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+
+        sessionPool.addSession(sessionId, sessionState);
+
+        service.handleAppConnect(appConnectMessage);
+        service.handleGisConnect(gisConnectMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 1);
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(0));
+
+        Assert.assertEquals(gisMessage, "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}");
+    }
+
+    @Test (expected = ServiceException.class)
+    public void failWithSessionTimeOut() throws Exception{
         SessionId sessionId = new SessionId(sessionString);
 
         SessionState sessionState = new SessionState();
@@ -95,22 +143,12 @@ public class ServiceTest {
 
         GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
 
-        ReadyMessage readyMessage = new ReadyMessage();
-        readyMessage.setApiVersion(apiVersion);
-
         sessionPool.addSession(sessionId, sessionState);
 
         service.handleAppConnect(appConnectMessage);
+        TimeUnit.SECONDS.sleep(62);
+
         service.handleGisConnect(gisConnectMessage);
-        //service.ready(sessionId,readyMessage);
-
-        /*String state = sessionState.getState();
-        String appName = sessionState.getAppName();
-        String gisName = sessionState.getGisName();
-
-        Assert.assertEquals(sessionState.READY, state);
-        Assert.assertEquals(expectedAppName,appName);
-        Assert.assertEquals(expectedGisName, gisName);*/
     }
 
     @Test
@@ -141,7 +179,7 @@ public class ServiceTest {
     public void dataWritten() {
     }
 
-    @Test (expected=IllegalArgumentException.class)
+    @Test (expected=ServiceException.class)
     public void failsWithWrongApiVersionOnAppConnect() throws Exception{
         SessionId sessionId = new SessionId(sessionString);
 
@@ -158,7 +196,7 @@ public class ServiceTest {
 
     }
 
-    @Test (expected=IllegalArgumentException.class)
+    @Test (expected=ServiceException.class)
     public void failsWithWrongApiVersionOnGisConnect() throws Exception{
         SessionId sessionId = new SessionId(sessionString);
 

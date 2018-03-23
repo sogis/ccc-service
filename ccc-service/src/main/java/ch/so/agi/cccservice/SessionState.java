@@ -13,18 +13,19 @@ public class SessionState {
     private Boolean gisConnected = false;
     private long gisConnectTime;
     private Boolean readySent = false;
-    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
 
     public void addAppConnection(String clientName){
         this.appName = clientName;
         appConnected = true;
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         appConnectTime = timestamp.getTime();
     }
 
     public void addGisConnection(String clientName){
         this.gisName = clientName;
         gisConnected = true;
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         gisConnectTime = timestamp.getTime();
     }
 
