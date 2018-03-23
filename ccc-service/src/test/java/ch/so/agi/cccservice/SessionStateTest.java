@@ -7,11 +7,11 @@ import static org.junit.Assert.*;
 
 public class SessionStateTest {
 
+    /*ToDo: Entfernen, da in setState integriert?
     @Test
     public void getState() {
-        SessionState sessionState = new SessionState();
 
-    }
+    }*/
 
     @Test
     public void setState() {
@@ -24,9 +24,10 @@ public class SessionStateTest {
         Assert.assertEquals(sessionState.CONNECTED_TO_APP, state);
     }
 
+    /* ToDo: Entfernen, da in setAppName integriert?
     @Test
     public void getAppName() {
-    }
+    }*/
 
     @Test
     public void setAppName() {
@@ -40,9 +41,11 @@ public class SessionStateTest {
         Assert.assertEquals(expectedAppName, appName);
     }
 
+    /* ToDo: Entfernen, da in setGisName integriert?
     @Test
     public void getGisName() {
     }
+    */
 
     @Test
     public void setGisName() {

@@ -7,6 +7,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
+/**
+ *
+ */
 public class Service {
 
     private SessionPool sessionPool;
@@ -19,6 +22,11 @@ public class Service {
         this.sender = sender;
     }
 
+    /**
+     * When Application sents appConnect the SessionState will be set to connected to app
+     * @param msg AppConnectMessage
+     * @throws Exception when there is no session in the sessionPool with the same sessionID
+     */
     public void appConnect(AppConnectMessage msg) throws Exception{
 
         String clientName = msg.getClientName();
@@ -39,27 +47,37 @@ public class Service {
                 appSessionState.setAppName(clientName);
             }
         } else {
-            //Errormessage --> keine Session im Sessionpool gefunden
             throw new Exception("No Session with sessionID " + sessionId.getSessionId() + " in sessionPool ");
         }
     }
 
+    /**
+     * Checks it the apiVersion sent by the application/gis equals 1.0. Only apiVersion 1.0 is supported
+     * @param apiVersion should be 1.0
+     * @param sessionId to send ErrorMessage to the correct Client
+     * @param sender to send ErrorMessage to the correct Client
+     * @param connectionTyp to send ErrorMessage to the correct Client
+     */
     private void checkApiVersion(String apiVersion, SessionId sessionId, SocketSender sender, String connectionTyp){
         if (!"1.0".equals(apiVersion)){
             ErrorMessage errorMessage = new ErrorMessage(505, "Die API-Version " + apiVersion +
-                    " wird nicht unterstützt. Muss 1.0 sein.");
+                    " wird nicht unterstützt. Muss API-Version 1.0 sein.");
             if (connectionTyp.equals("appConnect")) {
                 sender.sendMessageToApp(sessionId, errorMessage);
-                //Programmabbruch? --> SessionID aus SessionPool entfernen?
+                //ToDo: Programmabbruch? --> SessionID aus SessionPool entfernen?
             } else if (connectionTyp.equals("gisConnect")){
                 sender.sendMessageToGis(sessionId, errorMessage);
-                //Programmabbruch? --> session aus sessionPool entfernen?
+                //ToDo: Programmabbruch? --> session aus sessionPool entfernen?
             }
 
             throw new IllegalArgumentException("Wrong API-Version used. Used API-Version: " + apiVersion);
         }
     }
 
+    /**
+     * When GIS sents gisConnect the SessionState will be set to connected to gis
+     * @param msg
+     */
     public void gisConnect(GisConnectMessage msg) {
 
         String clientName = msg.getClientName();
@@ -73,17 +91,24 @@ public class Service {
         if (appSessionState != null) {
             String appState = appSessionState.getState();
             if (appState != appSessionState.CONNECTED_TO_APP) {
-                //Error --> Verbindung besteht bereits oder appConnect fehlt
+                //ToDo: Error --> Verbindung besteht bereits oder appConnect fehlt
             } else {
                 appSessionState.setState(appSessionState.CONNECTED_TO_GIS);
                 appSessionState.setGisName(clientName);
 
             }
         } else {
-            //Errormessage -> keine Session im Sessionpool gefunden
+            //ToDo: Errormessage -> keine Session im Sessionpool gefunden
         }
         
     }
+
+    /**
+     *
+     * @param sessionId
+     * @param msg
+     * @throws Exception
+     */
     public void ready(SessionId sessionId, ReadyMessage msg) throws Exception {
         WebSocketSession appWebSocket = sessionPool.getAppWebSocketSession(sessionId);
         WebSocketSession gisWebSocket = sessionPool.getGisWebSocketSession(sessionId);
@@ -93,8 +118,8 @@ public class Service {
         String readyTextMessage = jsonConverter.messageToString(msg);
         TextMessage textMessage = new TextMessage(readyTextMessage);
 
-        //Verbindungsunterbruch abfangen?
-        //Wie testen ohne Verbindung?
+        //ToDo: Verbindungsunterbruch abfangen?
+        //ToDo: Wie testen ohne Verbindung?
         appWebSocket.sendMessage(textMessage);
         gisWebSocket.sendMessage(textMessage);
 
@@ -103,30 +128,79 @@ public class Service {
 
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void create(SessionState state, CreateMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void edit(SessionState state, EditMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void show(SessionState state, ShowMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void cancel(SessionState state, CancelMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void changed(SessionState state, ChangedMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void selected(SessionState state, SelectedMessage msg) {
         
     }
+
+    /**
+     *
+     * @param state
+     * @param msg
+     */
     public void dataWritten(SessionState state, DataWrittenMessage msg) {
 
     }
+
+    /**
+     *
+     * @param webSocketSession
+     * @param msg
+     */
     public void sendError(WebSocketSession webSocketSession, ErrorMessage msg){
 
-        /*//ErrorMessage umwandeln
+        /* ToDo: erstellen
+        //ErrorMessage umwandeln
         String errorMessage = null;
         TextMessage errorTextMessage = new TextMessage(errorMessage);
         try {
