@@ -16,11 +16,13 @@ public class Service {
 
     private SessionPool sessionPool;
     private SocketSender sender;
+    private WebSocketSession webSocketSession;
     private JsonConverter jsonConverter = new JsonConverter();
 
     @Autowired
-    public Service(SessionPool sessionPool, SocketSender sender){
+    public Service(SessionPool sessionPool, WebSocketSession webSocketSession, SocketSender sender){
         this.sessionPool = sessionPool;
+        this.webSocketSession = webSocketSession;
         this.sender = sender;
     }
 
@@ -35,15 +37,14 @@ public class Service {
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
 
-        checkApiVersion(apiVersion,sessionId, sender, "handleAppConnect");
+        checkApiVersion(apiVersion);
 
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         if (sessionState != null) {
             if (!sessionState.isAppConnected()){
                 sessionState.addAppConnection(clientName);
-                /*todo: von wo erhalten wir die websocketsession, welche im sessionPool abgespeichert wird?
-                sessionPool.addAppWebSocketSession(sessionId,  );*/
+                sessionPool.addAppWebSocketSession(sessionId, webSocketSession);
                 if (sessionState.isGisConnected()){
                     checkForSessionTimeOut(sessionState, sessionId);
                 }
@@ -51,37 +52,40 @@ public class Service {
                 throw new ServiceException(504, "Application is already connected.");
             }
         } else {
-            sessionPool.addSession(sessionId, new SessionState());
-            //todo: websocketSession im sessionpool speichern.
+            sessionState = new SessionState();
+
+            sessionPool.addSession(sessionId, sessionState);
+            sessionPool.addAppWebSocketSession(sessionId, webSocketSession);
+
         }
     }
 
     /**
      * Checks it the apiVersion sent by the application/gis equals 1.0. Only apiVersion 1.0 is supported
      * @param apiVersion should be 1.0
-     * @param sessionId to send ErrorMessage to the correct Client
-     * @param sender to send ErrorMessage to the correct Client
-     * @param connectionTyp to send ErrorMessage to the correct Client
      */
-    private void checkApiVersion(String apiVersion, SessionId sessionId, SocketSender sender, String connectionTyp)
+    private void checkApiVersion(String apiVersion)
             throws ServiceException{
 
-        if (!"1.0".equals(apiVersion)){
+        String allowedApiVersion = "1.0";
+
+        if (!allowedApiVersion.equals(apiVersion)){
             throw new ServiceException(505, "Die API-Version " + apiVersion +
                     " wird nicht unterstützt. Muss API-Version 1.0 sein.");
         }
     }
 
     /**
-     *
+     * Checks if too much time passed between appConnect and gisConnect (allowed max. 60 seconds)
      * @param sessionState
      * @param sessionId
      * @throws ServiceException
      */
     private void checkForSessionTimeOut(SessionState sessionState, SessionId sessionId) throws ServiceException{
         long timeDifference = getTimeDifference(sessionState);
+        long maxAllowedTimeDifference = 60 * 1000;
 
-        if (timeDifference > 60 * 1000){
+        if (timeDifference > maxAllowedTimeDifference){
             throw new ServiceException(506, "Session-Timeout");
         } else {
             ReadyMessage readyMessage = new ReadyMessage();
@@ -90,15 +94,15 @@ public class Service {
     }
 
     /**
-     *
-     * @param sessionState
-     * @return
+     * Calculates time passed between appConnect and gisConnect
+     * @param sessionState of specific session
+     * @return time difference
      */
     private long getTimeDifference(SessionState sessionState){
         long appConnectTime = sessionState.getAppConnectTime();
         long gisConnectTime = sessionState.getGisConnectTime();
 
-        return abs( appConnectTime - gisConnectTime);
+        return abs(appConnectTime - gisConnectTime);
     }
 
 
@@ -113,13 +117,15 @@ public class Service {
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
 
-        checkApiVersion(apiVersion, sessionId, sender, "handleGisConnect");
+
+        checkApiVersion(apiVersion);
 
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         if (sessionState != null) {
             if (!sessionState.isGisConnected()){
                 sessionState.addGisConnection(clientName);
+                sessionPool.addGisWebSocketSession(sessionId, webSocketSession);
                 if (sessionState.isAppConnected()){
                     checkForSessionTimeOut(sessionState, sessionId);
                 }
@@ -127,9 +133,11 @@ public class Service {
                 throw new ServiceException(504, "Application is already connected.");
             }
         } else {
-            sessionPool.addSession(sessionId, new SessionState());
+            sessionState = new SessionState();
+
+            sessionPool.addSession(sessionId, sessionState);
+            sessionPool.addGisWebSocketSession(sessionId, webSocketSession);
         }
-        
     }
 
     /**

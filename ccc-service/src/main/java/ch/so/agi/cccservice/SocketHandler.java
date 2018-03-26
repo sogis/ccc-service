@@ -9,6 +9,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 public class SocketHandler extends TextWebSocketHandler {
 
+    private SessionPool sessionPool;
+
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 
         // The WebSocket has been closed
@@ -24,6 +26,8 @@ public class SocketHandler extends TextWebSocketHandler {
         // Let's send the first message
 
         session.sendMessage(new TextMessage("You are now connected to the server. This is the first message."));
+
+        sessionPool = new SessionPool();
     }
 
     @Override
@@ -38,9 +42,11 @@ public class SocketHandler extends TextWebSocketHandler {
 
         AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
-        //Klasse handleMessage, welche aufgrund der Message die entsprechende Methode vom Service ausführt
-        //wenn appConnect --> websocketsession to sessionPool hinzufügen
-        //wenn gisConnect --> websocketsession to sessionPool hinzufügen
+        SocketSender socketSender = new SocketSenderImpl(sessionPool);
+
+        MessageHandler messageHandler = new MessageHandler(sessionPool,session, socketSender);
+
+        messageHandler.handleMessage(message);
 
     }
 

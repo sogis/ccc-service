@@ -10,10 +10,20 @@ public class SocketSenderImpl implements SocketSender {
     private SessionPool sessionPool;
     private JsonConverter jsonConverter = new JsonConverter();
 
+    /**
+     *
+     * @param sessionPool
+     */
     public SocketSenderImpl(SessionPool sessionPool){
         this.sessionPool = sessionPool;
     }
 
+    /**
+     *
+     * @param sessionId
+     * @param message
+     * @throws ServiceException
+     */
     @Override
     public void sendMessageToApp(SessionId sessionId, AbstractMessage message) throws ServiceException {
         WebSocketSession webSocketSession = sessionPool.getAppWebSocketSession(sessionId);
@@ -23,6 +33,13 @@ public class SocketSenderImpl implements SocketSender {
         sendMessage(webSocketSession, message, clientName);
     }
 
+    /**
+     *
+     * @param webSocketSession
+     * @param message
+     * @param clientName
+     * @throws ServiceException
+     */
     private void sendMessage(WebSocketSession webSocketSession, AbstractMessage message, String clientName) throws ServiceException {
         try {
             String messageString = jsonConverter.messageToString(message);
@@ -40,6 +57,12 @@ public class SocketSenderImpl implements SocketSender {
         }
     }
 
+    /**
+     *
+     * @param sessionId
+     * @param message
+     * @throws ServiceException
+     */
     @Override
     public void sendMessageToGis(SessionId sessionId, AbstractMessage message) throws ServiceException {
         WebSocketSession webSocketSession = sessionPool.getGisWebSocketSession(sessionId);

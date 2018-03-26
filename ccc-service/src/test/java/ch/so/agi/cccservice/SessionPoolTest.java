@@ -9,7 +9,6 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
 
 public class SessionPoolTest {
     private SessionId sessionId = new SessionId("{123-456-789-0}");
