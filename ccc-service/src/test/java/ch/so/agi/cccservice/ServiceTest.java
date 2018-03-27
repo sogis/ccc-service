@@ -2,9 +2,7 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +13,7 @@ public class ServiceTest {
     private String expectedAppName = "App-Name";
     private String expectedGisName = "GIS-Name";
     private String sessionString = "{123-456-789-0}";
-    //private SessionId = new SessionId();
+    private SessionId sessionId = new SessionId(sessionString);
     private String apiVersion = "1.0";
     private String readyString = "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}";
     private String createString =
@@ -32,13 +30,12 @@ public class ServiceTest {
             "{\"bfs_num\":231,\"parz_num\":2634}]}";
     private String dataWrittenString = "{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\"," +
             "\"grundbuch\":\"Trimbach\"}}";
-
-
     private SocketSenderDummy socketSender = new SocketSenderDummy();
+    private JsonConverter jsonConverter = new JsonConverter();
+
 
     @Test
     public void appConnect() throws Exception {
-        SessionId sessionId = new SessionId(sessionString);
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -69,7 +66,6 @@ public class ServiceTest {
 
     @Test
     public void gisConnect() throws Exception {
-        SessionId sessionId = new SessionId(sessionString);
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -100,20 +96,17 @@ public class ServiceTest {
 
     @Test
     public void readySentToApp() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
 
         establishConnection();
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
-
         Assert.assertTrue(appMessages.size() == 1);
-        String appMessage = jsonConverter.messageToString(appMessages.get(0));
 
+        String appMessage = jsonConverter.messageToString(appMessages.get(0));
         Assert.assertEquals(appMessage, readyString);
     }
 
     private Service establishConnection() throws Exception{
-        SessionId sessionId = new SessionId(sessionString);
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -132,21 +125,19 @@ public class ServiceTest {
 
     @Test
     public void readySentToGis() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
 
         establishConnection();
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 1);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(0));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(0));
         Assert.assertEquals(gisMessage, readyString);
     }
 
 
     @Test (expected = ServiceException.class)
     public void failWithSessionTimeOut() throws Exception{
-        SessionId sessionId = new SessionId(sessionString);
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -165,199 +156,111 @@ public class ServiceTest {
 
     @Test
     public void create() throws Exception{
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         CreateMessage createMessage = (CreateMessage) jsonConverter.stringToMessage(createString);
         service.create(sessionId, createMessage);
 
-
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(createString, gisMessage);
     }
 
     @Test
     public void edit() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         EditMessage editMessage = (EditMessage) jsonConverter.stringToMessage(editString);
         service.edit(sessionId, editMessage);
 
-
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(editString, gisMessage);
     }
 
     @Test
     public void show() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
         service.show(sessionId, showMessage);
 
-
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(showString, gisMessage);
     }
 
     @Test
     public void cancel() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         CancelMessage cancelMessage = (CancelMessage) jsonConverter.stringToMessage(cancelString);
         service.cancel(sessionId, cancelMessage);
 
-
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(cancelString, gisMessage);
     }
 
     @Test
     public void changed() throws Exception{
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         ChangedMessage changedMessage = (ChangedMessage) jsonConverter.stringToMessage(changedString);
         service.changed(sessionId, changedMessage);
+
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
         Assert.assertTrue(appMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
         Assert.assertEquals(changedString, gisMessage);
     }
 
     @Test
     public void selected() throws Exception{
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         SelectedMessage selectedMessage = (SelectedMessage) jsonConverter.stringToMessage(selectedString);
         service.selected(sessionId, selectedMessage);
+
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
         Assert.assertTrue(appMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
         Assert.assertEquals(selectedString, gisMessage);
     }
 
     @Test
     public void dataWritten() throws Exception {
-        JsonConverter jsonConverter = new JsonConverter();
-        SessionId sessionId = new SessionId(sessionString);
 
-        SessionState sessionState = new SessionState();
-        Service service = new Service(sessionPool, socketSender);
-
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
-
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppConnect(appConnectMessage);
-        service.handleGisConnect(gisConnectMessage);
+        Service service = establishConnection();
 
         DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.dataWritten(sessionId, dataWrittenMessage);
 
-
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(dataWrittenString, gisMessage);
     }
 
     @Test (expected=ServiceException.class)
     public void failsWithWrongApiVersionOnAppConnect() throws Exception{
-        SessionId sessionId = new SessionId(sessionString);
 
         String apiVersion = "2.0";
 
@@ -375,7 +278,6 @@ public class ServiceTest {
 
     @Test (expected=ServiceException.class)
     public void failsWithWrongApiVersionOnGisConnect() throws Exception{
-        SessionId sessionId = new SessionId(sessionString);
 
         String wrongApiVersion= "2.0";
 
@@ -394,12 +296,11 @@ public class ServiceTest {
 
     }
 
-    /*
+
     @Test
     public void handleMessageDataWritten() throws Exception{
-        JsonConverter jsonConverter = new JsonConverter();
-        Service service = establishConnection();
 
+        Service service = establishConnection();
 
         DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.handleMessage(sessionId, dataWrittenMessage);
@@ -407,9 +308,112 @@ public class ServiceTest {
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);
-        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
 
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(dataWrittenString, gisMessage);
 
-    }*/
+    }
+
+    @Test
+    public void handleMessageCancel() throws Exception {
+
+        Service service = establishConnection();
+
+        CancelMessage cancelMessage = (CancelMessage) jsonConverter.stringToMessage(cancelString);
+        service.handleMessage(sessionId, cancelMessage);
+
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(cancelString, gisMessage);
+
+    }
+
+    @Test
+    public void handleMessageSelected() throws Exception{
+
+        Service service = establishConnection();
+
+        SelectedMessage selectedMessage = (SelectedMessage) jsonConverter.stringToMessage(selectedString);
+        service.handleMessage(sessionId, selectedMessage);
+
+        List<AbstractMessage> appMessages = socketSender.getAppMessages();
+        Assert.assertTrue(appMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
+        Assert.assertEquals(selectedString, gisMessage);
+    }
+
+    @Test
+    public void handleMessageChanged() throws Exception{
+
+        Service service = establishConnection();
+
+        ChangedMessage changedMessage = (ChangedMessage) jsonConverter.stringToMessage(changedString);
+        service.handleMessage(sessionId, changedMessage);
+
+        List<AbstractMessage> appMessages = socketSender.getAppMessages();
+        Assert.assertTrue(appMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(appMessages.get(1));
+        Assert.assertEquals(changedString, gisMessage);
+    }
+
+    @Test
+    public void handleMessageCreate() throws Exception{
+
+        Service service = establishConnection();
+
+        CreateMessage createMessage = (CreateMessage) jsonConverter.stringToMessage(createString);
+        service.handleMessage(sessionId, createMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(createString, gisMessage);
+    }
+
+    @Test
+    public void handleMessageEdit() throws Exception {
+
+        Service service = establishConnection();
+
+        EditMessage editMessage = (EditMessage) jsonConverter.stringToMessage(editString);
+        service.edit(sessionId, editMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(editString, gisMessage);
+    }
+
+    @Test
+    public void handleMessageShow() throws Exception {
+
+        Service service = establishConnection();
+
+        ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
+        service.show(sessionId, showMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(showString, gisMessage);
+    }
+
+    @Test (expected=ServiceException.class)
+    public void sendShowWithoutConnection() throws Exception {
+
+        Service service = new Service(sessionPool, socketSender);
+
+        ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
+        service.show(sessionId, showMessage);
+
+    }
+
 }

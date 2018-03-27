@@ -22,11 +22,12 @@ public class Service {
     }
 
     /**
-     *
-     * @param message
-     * @throws Exception
+     * Based on the type of message the correct method will be called
+     * @param sessionId ID of session
+     * @param message delivered Message
+     * @throws ServiceException
      */
-    public void handleMessage(SessionId sessionId, AbstractMessage message) throws Exception{
+    public void handleMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
 
         if (message instanceof AppConnectMessage) {
             AppConnectMessage appConnectMessage = (AppConnectMessage) message;
@@ -79,26 +80,30 @@ public class Service {
     /**
      * When Application sents handleAppConnect the SessionState will be set to connected to app
      * @param msg AppConnectMessage
-     * @throws Exception when there is no session in the sessionPool with the same sessionID
+     * @throws ServiceException when there is no session in the sessionPool with the same sessionID
      */
-    public void handleAppConnect(AppConnectMessage msg) throws Exception{
+    public void handleAppConnect(AppConnectMessage msg) throws ServiceException{
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
+        ReadyMessage readyMessage = new ReadyMessage();
+        boolean sessionTimeOut;
 
         checkApiVersion(apiVersion);
 
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         if (sessionState != null) {
-            if (!sessionState.isAppConnected()){
-                sessionState.addAppConnection(clientName);
-                if (sessionState.isGisConnected()){
-                    checkForSessionTimeOut(sessionState, sessionId);
-                }
-            } else {
+            if (sessionState.isAppConnected()){
                 throw new ServiceException(504, "Application is already connected.");
+            }
+            sessionState.addAppConnection(clientName);
+            if (sessionState.isGisConnected()){
+                sessionTimeOut = checkForSessionTimeOut(sessionState);
+                if (!sessionTimeOut) {
+                    sendReady(sessionId, readyMessage);
+                }
             }
         } else {
             sessionState = new SessionState();
@@ -125,20 +130,18 @@ public class Service {
 
     /**
      * Checks if too much time passed between appConnect and gisConnect (allowed max. 60 seconds)
-     * @param sessionState
-     * @param sessionId
-     * @throws ServiceException
+     * @param sessionState State of Session, which contains times of appConnect/gisConnect
+     * @throws ServiceException Session-Timeout (time passed >60 seconds)
      */
-    private void checkForSessionTimeOut(SessionState sessionState, SessionId sessionId) throws ServiceException{
+    private boolean checkForSessionTimeOut(SessionState sessionState) throws ServiceException{
         long timeDifference = getTimeDifference(sessionState);
         long maxAllowedTimeDifference = 60 * 1000;  //60 seconds
 
         if (timeDifference > maxAllowedTimeDifference){
             throw new ServiceException(506, "Session-Timeout");
-        } else {
-            ReadyMessage readyMessage = new ReadyMessage();
-            sendReady(sessionId, readyMessage);
         }
+
+        return false;
     }
 
     /**
@@ -157,26 +160,30 @@ public class Service {
 
     /**
      * When GIS sents handleGisConnect the SessionState will be set to connected to gis
-     * @param msg
+     * @param msg GisConnectMessage sent from GIS
      */
     public void handleGisConnect(GisConnectMessage msg) throws ServiceException {
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
+        boolean sessionTimeOut;
+        ReadyMessage readyMessage = new ReadyMessage();
 
         checkApiVersion(apiVersion);
 
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         if (sessionState != null) {
-            if (!sessionState.isGisConnected()){
-                sessionState.addGisConnection(clientName);
-                if (sessionState.isAppConnected()){
-                    checkForSessionTimeOut(sessionState, sessionId);
-                }
-            } else {
+            if (sessionState.isGisConnected()){
                 throw new ServiceException(504, "Application is already connected.");
+            }
+            sessionState.addGisConnection(clientName);
+            if (sessionState.isAppConnected()){
+                sessionTimeOut = checkForSessionTimeOut(sessionState);
+                if (!sessionTimeOut) {
+                    sendReady(sessionId, readyMessage);
+                }
             }
         } else {
             sessionState = new SessionState();
@@ -190,7 +197,6 @@ public class Service {
      * When connections to both client exist, send them sendReady-Message.
      * @param sessionId sessionID of this specific connection
      * @param msg Ready-Message
-     * @throws Exception
      */
     private void sendReady(SessionId sessionId, ReadyMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
@@ -201,108 +207,109 @@ public class Service {
         sender.sendMessageToGis(sessionId, msg);
 
         sessionState.setConnectionsToReady();
-
-        
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends createMessage from App to GIS
+     * @param sessionId ID of Session
+     * @param msg createMessage
      */
     public void create(SessionId sessionId, CreateMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * checks if sessionState is initalized of if initialized sessionState has readySent = true
+     * @param sessionState state of session
+     * @throws ServiceException on missing sessionState or if ready has not been sent
+     */
+    private void checkIfConnectionIsEstablished(SessionState sessionState) throws ServiceException{
+        if (sessionState ==null || !sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+    }
+
+    /**
+     * sends editMessage from App to GIS
+     * @param sessionId ID of Session
+     * @param msg editMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void edit(SessionId sessionId, EditMessage msg) throws ServiceException{
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends showMessage from App to GIS
+     * @param sessionId ID of session
+     * @param msg showMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void show(SessionId sessionId, ShowMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends cancelMessage from App to GIS
+     * @param sessionId ID of session
+     * @param msg cancelMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void cancel(SessionId sessionId, CancelMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
         
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends changedMessage from GIS to App
+     * @param sessionId ID of session
+     * @param msg changedMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void changed(SessionId sessionId, ChangedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToApp(sessionId, msg);
         
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends selectedMessage from GIS to App
+     * @param sessionId ID of session
+     * @param msg selectedMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void selected(SessionId sessionId, SelectedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToApp(sessionId, msg);
         
     }
 
     /**
-     *
-     * @param sessionId
-     * @param msg
+     * sends dataWrittenMessage from App to GIS
+     * @param sessionId ID of session
+     * @param msg dataWrittenMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     public void dataWritten(SessionId sessionId, DataWrittenMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
-        if (!sessionState.isReadySent()){
-            throw new ServiceException(503, "No connection has been established");
-        }
+        checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
 
