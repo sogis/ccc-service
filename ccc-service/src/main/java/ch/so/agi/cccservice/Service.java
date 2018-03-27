@@ -2,12 +2,14 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import static java.lang.Math.abs;
 
 /**
  *
  */
+@Component
 public class Service {
 
     private SessionPool sessionPool;

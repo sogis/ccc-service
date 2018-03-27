@@ -2,6 +2,10 @@ package ch.so.agi.cccprobe;
 
 import java.util.Scanner;
 
+import ch.so.agi.cccservice.JsonConverter;
+import ch.so.agi.cccservice.SessionId;
+import ch.so.agi.cccservice.messages.AppConnectMessage;
+import ch.so.agi.cccservice.messages.GisConnectMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
@@ -10,43 +14,41 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 public class SimpleClient {
-    public static void main(String[] args) {
-        StandardWebSocketClient client = new StandardWebSocketClient();
-        WebSocketHandler sessionHandler = new WebSocketHandler() {
 
-            @Override
-            public boolean supportsPartialMessages() {
-                // TODO Auto-generated method stub
-                return false;
-            }
+    public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
 
-            @Override
-            public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-                // TODO Auto-generated method stub
+    public static void main(String[] args) throws Exception {
+        StandardWebSocketClient appClient = new StandardWebSocketClient();
+        AppClientHandler appSessionHandler = new AppClientHandler();
 
-            }
+        appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
 
-            @Override
-            public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-                // TODO Auto-generated method stub
-                System.out.println("Message received: " + message.getPayload());
+        AppConnectMessage appConnectMessage = new AppConnectMessage();
+        appConnectMessage.setApiVersion("1.0");
+        appConnectMessage.setSession(sessionId);
+        appConnectMessage.setClientName("Axioma Mandant AfU");
 
-            }
+        Thread.sleep(2000);
+        appSessionHandler.sendMessage(appConnectMessage);
 
-            @Override
-            public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-                // TODO Auto-generated method stub
-                session.sendMessage(new TextMessage("You are now connected to the server. This is the first message."));
-            }
+        StandardWebSocketClient gisClient = new StandardWebSocketClient();
+        AppClientHandler gisSessionHandler = new AppClientHandler();
 
-            @Override
-            public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+        gisClient.doHandshake(gisSessionHandler,"ws://localhost:8080/myHandler");
 
-            }
-        };
-        client.doHandshake(sessionHandler,"ws://localhost/");
-        client.doHandshake(sessionHandler,"ws://localhost/myHandler");
+        GisConnectMessage gisConnectMessage = new GisConnectMessage();
+        gisConnectMessage.setApiVersion("1.0");
+        gisConnectMessage.setSession(sessionId);
+        gisConnectMessage.setClientName("Gis Client");
 
-        new Scanner(System.in).nextLine(); // Don't close immediately.
+        Thread.sleep(2000);
+        gisSessionHandler.sendMessage(gisConnectMessage);
+
+        Thread.sleep(2000);
+        if (gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true && appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true) {
+            System.exit(0);
+        }
+        System.exit(1);
+
     }
 }

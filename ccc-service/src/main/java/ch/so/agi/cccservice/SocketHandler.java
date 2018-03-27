@@ -3,18 +3,42 @@ package ch.so.agi.cccservice;
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import ch.so.agi.cccservice.messages.AppConnectMessage;
 import ch.so.agi.cccservice.messages.GisConnectMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+
+@Component
 public class SocketHandler extends TextWebSocketHandler {
+
+    Logger logger = LoggerFactory.getLogger(SocketHandler.class);
+
+    @Autowired
+    public SocketHandler(SessionPool sessionPool, Service service, SocketSender socketSender, JsonConverter jsonConverter) {
+        this.sessionPool = sessionPool;
+        this.service = service;
+        this.socketSender = socketSender;
+        this.jsonConverter = jsonConverter;
+    }
 
     private SessionPool sessionPool;
     private Service service;
+    private SocketSender socketSender;
+    private JsonConverter jsonConverter;
+
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        SessionId sessionId = sessionPool.getSessionId(session);
+        if(sessionId != null) {
+            sessionPool.removeSession(sessionId);
+            logger.info("Session "+sessionId.getSessionId()+" closed!");
+        }
 
         // The WebSocket has been closed
 
@@ -24,13 +48,6 @@ public class SocketHandler extends TextWebSocketHandler {
 
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
-        // The WebSocket has been opened
-        // I might save this session object so that I can send messages to it outside of this method
-        // Let's send the first message
-
-        session.sendMessage(new TextMessage("You are now connected to the server. This is the first message."));
-
-        sessionPool = new SessionPool();
     }
 
     @Override
@@ -39,15 +56,9 @@ public class SocketHandler extends TextWebSocketHandler {
 
         // A message has been received
 
-        JsonConverter jsonConverter = new JsonConverter();
-
-        System.out.println("Message received: " + textMessage.getPayload());
+        logger.debug(textMessage.getPayload());
 
         AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
-
-        SocketSender socketSender = new SocketSenderImpl(sessionPool);
-
-        service = new Service(sessionPool, socketSender);
 
         if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
 
@@ -56,8 +67,10 @@ public class SocketHandler extends TextWebSocketHandler {
             }
 
             if (message instanceof AppConnectMessage){
+                logger.info(((AppConnectMessage) message).getSession().getSessionId());
                 sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), session);
             } else if (message instanceof GisConnectMessage){
+                logger.info(((GisConnectMessage) message).getSession().getSessionId());
                 sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), session);
             } else {
                 throw new IllegalStateException();

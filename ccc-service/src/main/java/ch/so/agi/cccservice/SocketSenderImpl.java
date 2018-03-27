@@ -2,9 +2,11 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+@Component
 public class SocketSenderImpl implements SocketSender {
 
     private SessionPool sessionPool;

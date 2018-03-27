@@ -8,18 +8,18 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import javax.annotation.Resource;
+
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    @Resource
+    private SocketHandler socketHandler;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(myHandler(), "/myHandler").setAllowedOrigins("*");
-    }
-
-    @Bean
-    public WebSocketHandler myHandler() {
-        return new SocketHandler();
+        registry.addHandler(socketHandler, "/myHandler").setAllowedOrigins("*");
     }
 
     @Bean

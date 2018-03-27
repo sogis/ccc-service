@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class JsonConverterTest {
@@ -23,10 +24,10 @@ public class JsonConverterTest {
         JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(appConnectMessage);
 
-        assertTrue(resultingJson.equals("{\"method\":\"appConnect\"," +
+        assertEquals("{\"method\":\"appConnect\"," +
                                         "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                                         "\"clientName\":\"Axioma Mandant AfU\"," +
-                                        "\"apiVersion\":\"1.0\"}"));
+                                        "\"apiVersion\":\"1.0\"}",resultingJson);
 
     }
 

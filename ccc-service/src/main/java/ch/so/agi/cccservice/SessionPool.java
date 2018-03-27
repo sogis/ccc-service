@@ -1,5 +1,6 @@
 package ch.so.agi.cccservice;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 /**
  * Administrates Sessions (Id, WebSocketSession, SessionStates)
  */
+@Component
 public class SessionPool {
     private HashMap<SessionId, SessionState> sessionStates = new HashMap<>();
     private HashMap<SessionId, WebSocketSession> idToAppSocket = new HashMap<>();
