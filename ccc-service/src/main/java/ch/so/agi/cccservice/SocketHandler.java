@@ -1,6 +1,8 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.AbstractMessage;
+import ch.so.agi.cccservice.messages.AppConnectMessage;
+import ch.so.agi.cccservice.messages.GisConnectMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,6 +12,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class SocketHandler extends TextWebSocketHandler {
 
     private SessionPool sessionPool;
+    private Service service;
 
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 
@@ -44,9 +47,27 @@ public class SocketHandler extends TextWebSocketHandler {
 
         SocketSender socketSender = new SocketSenderImpl(sessionPool);
 
-        MessageHandler messageHandler = new MessageHandler(sessionPool,session, socketSender);
+        service = new Service(sessionPool, socketSender);
 
-        messageHandler.handleMessage(message);
+        if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
+
+            if (sessionPool.getSessionId(session) != null) {
+                throw new ServiceException(504, "Application is already connected.");
+            }
+
+            if (message instanceof AppConnectMessage){
+                sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), session);
+            } else if (message instanceof GisConnectMessage){
+                sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), session);
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+
+        SessionId sessionId = sessionPool.getSessionId(session);
+
+        service.handleMessage(sessionId, message);
+
 
     }
 

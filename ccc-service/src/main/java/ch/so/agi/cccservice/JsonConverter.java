@@ -61,7 +61,7 @@ public class JsonConverter {
              if (obj.get("method").asText().equals("create")) {
                  CreateMessage createMessage = new CreateMessage();
                  createMessage.setContext(obj.get("context"));
-                 createMessage.setZoomTo(obj.get("zoomto"));
+                 createMessage.setZoomTo(obj.get("zoomTo"));
                  return createMessage;
              }
              if (obj.get("method").asText().equals("edit")) {
@@ -78,7 +78,7 @@ public class JsonConverter {
              }
              if (obj.get("method").asText().equals("cancel")) {
                  CancelMessage cancelMessage = new CancelMessage();
-                 cancelMessage.setContext(obj.get("contect"));
+                 cancelMessage.setContext(obj.get("context"));
                  return cancelMessage;
              }
              if (obj.get("method").asText().equals("changed")) {

@@ -7,14 +7,17 @@ import java.sql.Timestamp;
  */
 public class SessionState {
     private String appName;
-    private Boolean appConnected = false;
+    private boolean appConnected = false;
     private long appConnectTime;
     private String gisName;
-    private Boolean gisConnected = false;
+    private boolean gisConnected = false;
     private long gisConnectTime;
-    private Boolean readySent = false;
+    private boolean readySent = false;
 
-
+    /**
+     *
+     * @param clientName
+     */
     public void addAppConnection(String clientName){
         this.appName = clientName;
         appConnected = true;

@@ -2,10 +2,6 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-
-import java.io.IOException;
 
 import static java.lang.Math.abs;
 
@@ -16,14 +12,66 @@ public class Service {
 
     private SessionPool sessionPool;
     private SocketSender sender;
-    private WebSocketSession webSocketSession;
-    private JsonConverter jsonConverter = new JsonConverter();
 
     @Autowired
-    public Service(SessionPool sessionPool, WebSocketSession webSocketSession, SocketSender sender){
+    public Service(SessionPool sessionPool, SocketSender sender){
         this.sessionPool = sessionPool;
-        this.webSocketSession = webSocketSession;
         this.sender = sender;
+    }
+
+    /**
+     *
+     * @param message
+     * @throws Exception
+     */
+    public void handleMessage(SessionId sessionId, AbstractMessage message) throws Exception{
+
+        if (message instanceof AppConnectMessage) {
+            AppConnectMessage appConnectMessage = (AppConnectMessage) message;
+            handleAppConnect(appConnectMessage);
+        }
+
+        if (message instanceof GisConnectMessage) {
+            GisConnectMessage gisConnectMessage = (GisConnectMessage) message;
+            handleGisConnect(gisConnectMessage);
+        }
+
+        if (message instanceof CancelMessage){
+            CancelMessage cancelMessage = (CancelMessage) message;
+            cancel(sessionId, cancelMessage);
+        }
+
+        if (message instanceof ChangedMessage){
+            ChangedMessage changedMessage = (ChangedMessage) message;
+            changed(sessionId, changedMessage);
+        }
+
+        if (message instanceof CreateMessage){
+            CreateMessage createMessage = (CreateMessage) message;
+            create(sessionId, createMessage);
+        }
+
+        if (message instanceof DataWrittenMessage){
+            DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) message;
+            dataWritten(sessionId, dataWrittenMessage);
+        }
+
+        if (message instanceof EditMessage){
+            EditMessage editMessage = (EditMessage) message;
+            edit(sessionId, editMessage);
+        }
+
+        if (message instanceof SelectedMessage){
+            SelectedMessage selectedMessage = (SelectedMessage) message;
+            selected(sessionId, selectedMessage);
+        }
+
+        if (message instanceof ShowMessage){
+            ShowMessage showMessage = (ShowMessage) message;
+            show(sessionId, showMessage);
+        }
+
+        //ToDo: ErrorMessage
     }
 
     /**
@@ -44,7 +92,6 @@ public class Service {
         if (sessionState != null) {
             if (!sessionState.isAppConnected()){
                 sessionState.addAppConnection(clientName);
-                sessionPool.addAppWebSocketSession(sessionId, webSocketSession);
                 if (sessionState.isGisConnected()){
                     checkForSessionTimeOut(sessionState, sessionId);
                 }
@@ -55,8 +102,7 @@ public class Service {
             sessionState = new SessionState();
 
             sessionPool.addSession(sessionId, sessionState);
-            sessionPool.addAppWebSocketSession(sessionId, webSocketSession);
-
+            sessionState.addAppConnection(clientName);
         }
     }
 
@@ -83,7 +129,7 @@ public class Service {
      */
     private void checkForSessionTimeOut(SessionState sessionState, SessionId sessionId) throws ServiceException{
         long timeDifference = getTimeDifference(sessionState);
-        long maxAllowedTimeDifference = 60 * 1000;
+        long maxAllowedTimeDifference = 60 * 1000;  //60 seconds
 
         if (timeDifference > maxAllowedTimeDifference){
             throw new ServiceException(506, "Session-Timeout");
@@ -117,7 +163,6 @@ public class Service {
         SessionId sessionId = msg.getSession();
         String apiVersion = msg.getApiVersion();
 
-
         checkApiVersion(apiVersion);
 
         SessionState sessionState = sessionPool.getSession(sessionId);
@@ -125,7 +170,6 @@ public class Service {
         if (sessionState != null) {
             if (!sessionState.isGisConnected()){
                 sessionState.addGisConnection(clientName);
-                sessionPool.addGisWebSocketSession(sessionId, webSocketSession);
                 if (sessionState.isAppConnected()){
                     checkForSessionTimeOut(sessionState, sessionId);
                 }
@@ -136,7 +180,7 @@ public class Service {
             sessionState = new SessionState();
 
             sessionPool.addSession(sessionId, sessionState);
-            sessionPool.addGisWebSocketSession(sessionId, webSocketSession);
+            sessionState.addGisConnection(clientName);
         }
     }
 
@@ -161,65 +205,103 @@ public class Service {
 
     /**
      *
-     * @param state
+     * @param sessionId
      * @param msg
      */
-    public void create(SessionState state, CreateMessage msg) {
+    public void create(SessionId sessionId, CreateMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToGis(sessionId, msg);
+    }
+
+    /**
+     *
+     * @param sessionId
+     * @param msg
+     */
+    public void edit(SessionId sessionId, EditMessage msg) throws ServiceException{
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToGis(sessionId, msg);
+    }
+
+    /**
+     *
+     * @param sessionId
+     * @param msg
+     */
+    public void show(SessionId sessionId, ShowMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToGis(sessionId, msg);
+    }
+
+    /**
+     *
+     * @param sessionId
+     * @param msg
+     */
+    public void cancel(SessionId sessionId, CancelMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToGis(sessionId, msg);
         
     }
 
     /**
      *
-     * @param state
+     * @param sessionId
      * @param msg
      */
-    public void edit(SessionState state, EditMessage msg) {
+    public void changed(SessionId sessionId, ChangedMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToApp(sessionId, msg);
         
     }
 
     /**
      *
-     * @param state
+     * @param sessionId
      * @param msg
      */
-    public void show(SessionState state, ShowMessage msg) {
+    public void selected(SessionId sessionId, SelectedMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToApp(sessionId, msg);
         
     }
 
     /**
      *
-     * @param state
+     * @param sessionId
      * @param msg
      */
-    public void cancel(SessionState state, CancelMessage msg) {
-        
-    }
+    public void dataWritten(SessionId sessionId, DataWrittenMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
 
-    /**
-     *
-     * @param state
-     * @param msg
-     */
-    public void changed(SessionState state, ChangedMessage msg) {
-        
-    }
-
-    /**
-     *
-     * @param state
-     * @param msg
-     */
-    public void selected(SessionState state, SelectedMessage msg) {
-        
-    }
-
-    /**
-     *
-     * @param state
-     * @param msg
-     */
-    public void dataWritten(SessionState state, DataWrittenMessage msg) {
-
+        if (!sessionState.isReadySent()){
+            throw new ServiceException(503, "No connection has been established");
+        }
+        sender.sendMessageToGis(sessionId, msg);
     }
 
 }

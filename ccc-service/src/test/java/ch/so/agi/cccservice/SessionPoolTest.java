@@ -31,10 +31,6 @@ public class SessionPoolTest {
 
         Assert.assertEquals(sessionState, savedSessionState);
     }
-/* ToDo: Entfernen, da in addSession integriert?
-    @Test
-    public void getSession() {
-    }*/
 
     @Test
     public void addAppWebSocketSession() {
@@ -56,14 +52,6 @@ public class SessionPoolTest {
         Assert.assertEquals(gisWebSocketSession, savedWebSocketSession);
     }
 
-    /* ToDo: Entfernen da in add.... integriert?
-    @Test
-    public void getAppWebSocketSession() {
-    }
-
-    @Test
-    public void getGisWebSocketSession() {
-    }*/
 
     @Test
     public void getSessionId() {
