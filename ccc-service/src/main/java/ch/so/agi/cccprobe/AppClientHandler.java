@@ -60,4 +60,9 @@ public class AppClientHandler implements WebSocketHandler {
 
         webSocketSession.sendMessage(new TextMessage(resultingJson));
     }
+
+    public void sendString(String messageString) throws Exception {
+
+        webSocketSession.sendMessage(new TextMessage(messageString));
+    }
 }

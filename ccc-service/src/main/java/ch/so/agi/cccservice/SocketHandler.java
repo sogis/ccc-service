@@ -1,8 +1,6 @@
 package ch.so.agi.cccservice;
 
-import ch.so.agi.cccservice.messages.AbstractMessage;
-import ch.so.agi.cccservice.messages.AppConnectMessage;
-import ch.so.agi.cccservice.messages.GisConnectMessage;
+import ch.so.agi.cccservice.messages.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -57,29 +55,55 @@ public class SocketHandler extends TextWebSocketHandler {
         // A message has been received
 
         logger.debug(textMessage.getPayload());
+        AbstractMessage message;
 
-        AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
-        if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
+        try {
 
-            if (sessionPool.getSessionId(session) != null) {
-                throw new ServiceException(504, "Application is already connected.");
+            message = jsonConverter.stringToMessage(textMessage.getPayload());
+
+            if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
+
+                if (sessionPool.getSessionId(session) != null) {
+                    throw new ServiceException(504, "Application is already connected.");
+                }
+
+                if (message instanceof AppConnectMessage) {
+                    logger.info(((AppConnectMessage) message).getSession().getSessionId());
+                    sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), session);
+                } else if (message instanceof GisConnectMessage) {
+                    logger.info(((GisConnectMessage) message).getSession().getSessionId());
+                    sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), session);
+                } else {
+                    throw new IllegalStateException();
+                }
             }
 
-            if (message instanceof AppConnectMessage){
-                logger.info(((AppConnectMessage) message).getSession().getSessionId());
-                sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), session);
-            } else if (message instanceof GisConnectMessage){
-                logger.info(((GisConnectMessage) message).getSession().getSessionId());
-                sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), session);
-            } else {
-                throw new IllegalStateException();
+            SessionId sessionId = sessionPool.getSessionId(session);
+
+            service.handleMessage(sessionId, message);
+
+        } catch (ServiceException e){
+            SocketSender socketSender = new SocketSenderImpl(sessionPool);
+            System.out.println("--------" + e.getMessage() + "------------"+ e.getErrorCode());
+
+            ErrorMessage errorMessage = new ErrorMessage();
+            errorMessage.setMessage(e.getMessage());
+            errorMessage.setCode(e.getErrorCode());
+            SessionId sessionId = sessionPool.getSessionId(session);
+            if (sessionPool.getAppWebSocketSession(sessionId).equals(session)){
+                service.handleMessage(sessionId, "app",  errorMessage);
+            } else if (sessionPool.getGisWebSocketSession(sessionId).equals(session)){
+                service.handleMessage(sessionId, "gis",  errorMessage);
+
             }
+
+            //service.handleMessage(session, errorMessage);
+
+            System.out.println("***************" +  jsonConverter.messageToString(errorMessage));
+
+
         }
-
-        SessionId sessionId = sessionPool.getSessionId(session);
-
-        service.handleMessage(sessionId, message);
 
 
     }

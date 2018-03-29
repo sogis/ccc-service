@@ -3,6 +3,7 @@ package ch.so.agi.cccservice;
 import ch.so.agi.cccservice.messages.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 
 import static java.lang.Math.abs;
 
@@ -27,7 +28,7 @@ public class Service {
      * @param message delivered Message
      * @throws ServiceException
      */
-    public void handleMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
+    public void handleMessage(SessionId sessionId, AbstractMessage message) throws ServiceException {
 
         if (message instanceof AppConnectMessage) {
             AppConnectMessage appConnectMessage = (AppConnectMessage) message;
@@ -39,42 +40,47 @@ public class Service {
             handleGisConnect(gisConnectMessage);
         }
 
-        if (message instanceof CancelMessage){
+        if (message instanceof CancelMessage) {
             CancelMessage cancelMessage = (CancelMessage) message;
             cancel(sessionId, cancelMessage);
         }
 
-        if (message instanceof ChangedMessage){
+        if (message instanceof ChangedMessage) {
             ChangedMessage changedMessage = (ChangedMessage) message;
             changed(sessionId, changedMessage);
         }
 
-        if (message instanceof CreateMessage){
+        if (message instanceof CreateMessage) {
             CreateMessage createMessage = (CreateMessage) message;
             create(sessionId, createMessage);
         }
 
-        if (message instanceof DataWrittenMessage){
+        if (message instanceof DataWrittenMessage) {
             DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) message;
             dataWritten(sessionId, dataWrittenMessage);
         }
 
-        if (message instanceof EditMessage){
+        if (message instanceof EditMessage) {
             EditMessage editMessage = (EditMessage) message;
             edit(sessionId, editMessage);
         }
 
-        if (message instanceof SelectedMessage){
+        if (message instanceof SelectedMessage) {
             SelectedMessage selectedMessage = (SelectedMessage) message;
             selected(sessionId, selectedMessage);
         }
 
-        if (message instanceof ShowMessage){
+        if (message instanceof ShowMessage) {
             ShowMessage showMessage = (ShowMessage) message;
             show(sessionId, showMessage);
         }
+    }
+    public void handleMessage(SessionId sessionId, String typ, AbstractMessage message) throws ServiceException{
 
-        //ToDo: ErrorMessage
+        if (message instanceof ErrorMessage){
+            ErrorMessage errorMessage = (ErrorMessage) message;
+            error(sessionId, typ, errorMessage);
+        }
     }
 
     /**
@@ -311,6 +317,20 @@ public class Service {
 
         checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
+    }
+
+    public void error(SessionId sessionId, String typ, ErrorMessage msg) throws ServiceException {
+        WebSocketSession webSocketSession = null;
+        JsonConverter jsonConverter = new JsonConverter();
+        System.out.println(typ);
+        if (typ.equals("app")){
+            sender.sendMessageToApp(sessionId, msg);
+        } else if (typ.equals("gis")) {
+            System.out.println("hier sollte er landen " + sessionId + " " + msg.toString() );
+            sender.sendMessageToGis(sessionId, msg);
+        }
+
+        //sender.sendMessageToWebSocket(webSocketSession, msg);
     }
 
 }

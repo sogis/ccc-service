@@ -396,7 +396,4 @@ public class JsonConverterTest {
     private JsonNode createUserDataToNode() throws IOException {
         return createNode("{\"test\":\"3671951\"}");
     }
-
-
-
 }

@@ -5,7 +5,10 @@ import java.util.Scanner;
 import ch.so.agi.cccservice.JsonConverter;
 import ch.so.agi.cccservice.SessionId;
 import ch.so.agi.cccservice.messages.AppConnectMessage;
+import ch.so.agi.cccservice.messages.ChangedMessage;
 import ch.so.agi.cccservice.messages.GisConnectMessage;
+import ch.so.agi.cccservice.messages.ReadyMessage;
+import javafx.scene.control.TextFormatter;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
@@ -17,6 +20,11 @@ public class SimpleClient {
 
     public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
 
+    /**
+     * Start in console with gradle bootrun
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         StandardWebSocketClient appClient = new StandardWebSocketClient();
         AppClientHandler appSessionHandler = new AppClientHandler();
@@ -45,10 +53,20 @@ public class SimpleClient {
         gisSessionHandler.sendMessage(gisConnectMessage);
 
         Thread.sleep(2000);
-        if (gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true && appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true) {
+
+        gisSessionHandler.sendMessage(gisConnectMessage);
+
+
+
+        /*String changedString = "{\"method\":\"changed\",\"contect\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+
+        gisSessionHandler.sendString(changedString);
+       /* if (gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true && appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true) {
             System.exit(0);
-        }
-        System.exit(1);
+        }*/
+
+        //System.exit(1);*/
 
     }
 }

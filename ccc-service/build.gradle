@@ -48,13 +48,5 @@ sourceSets {
 			srcDir 'test/resources'
 		}
 	}
-	probe {
-		java {
-			srcDir 'probe/java'
-		}
-		resources {
-			srcDir 'probe/resources'
-		}
-	}
 }
 

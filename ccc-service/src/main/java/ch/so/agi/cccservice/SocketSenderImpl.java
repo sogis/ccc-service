@@ -30,7 +30,13 @@ public class SocketSenderImpl implements SocketSender {
     public void sendMessageToApp(SessionId sessionId, AbstractMessage message) throws ServiceException {
         WebSocketSession webSocketSession = sessionPool.getAppWebSocketSession(sessionId);
         SessionState sessionstate = sessionPool.getSession(sessionId);
-        String clientName = sessionstate.getAppName();
+        String clientName;
+        //Todo: Wie lösen, wenn AppConnect bereits fehlschlägt und dadurch kein clientName im SessionState vorhanden ist?
+        if (sessionstate.getAppName() == null){
+             clientName = "Defaultwert";
+        } else {
+            clientName = sessionstate.getAppName();
+        }
 
         sendMessage(webSocketSession, message, clientName);
     }
@@ -72,5 +78,21 @@ public class SocketSenderImpl implements SocketSender {
         String clientName = sessionstate.getGisName();
 
         sendMessage(webSocketSession, message, clientName);
+    }
+
+
+    @Override
+    public void sendMessageToWebSocket(WebSocketSession session, AbstractMessage message) throws ServiceException {
+        SessionId sessionId = sessionPool.getSessionId(session);
+        SessionState sessionState = sessionPool.getSession(sessionId);
+        String clientName;
+        //Todo: Wie lösen, wenn AppConnect bereits fehlschlägt und dadurch kein clientName im SessionState vorhanden ist?
+        if (sessionState.getAppName() == null){
+            clientName = "Defaultwert";
+        } else {
+            clientName = sessionState.getAppName();
+        }
+        sendMessage(session, message, clientName);
+
     }
 }
