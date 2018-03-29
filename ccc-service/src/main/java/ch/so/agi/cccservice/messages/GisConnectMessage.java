@@ -1,8 +1,10 @@
 package ch.so.agi.cccservice.messages;
 
 import ch.so.agi.cccservice.SessionId;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 public class GisConnectMessage extends AbstractMessage {
+    @JsonUnwrapped
     private SessionId session;
     private String clientName;
     private String apiVersion;

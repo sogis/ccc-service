@@ -9,37 +9,55 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class JsonConverterTest {
+    private String appConnectString = "{\"method\":\"appConnect\"," +
+            "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+            "\"clientName\":\"Axioma Mandant AfU\"," +
+            "\"apiVersion\":\"1.0\"}";
+    private String gisConnectString = "{\"method\":\"gisConnect\"," +
+            "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+            "\"clientName\":\"Web GIS Client\"," +
+            "\"apiVersion\":\"1.0\"}";
+    private String cancelString = "{\"method\":\"cancel\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
+    private String changedString = "{\"method\":\"changed\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+            "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+    private String createString = "{\"method\":\"create\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+            "\"zoomTo\":{\"gemeinde\":2542}}";
+    private String dataWrittenString = "{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\"," +
+            "\"grundbuch\":\"Trimbach\"}}";
+    private String editString = "{\"method\":\"edit\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+            "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+    private String errorString = "{\"method\":\"error\",\"code\":999,\"message\":\"test Errormessage\"," +
+            "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
+            "\"technicalDetails\":\"test technicalDetails\"}";
+    private String selectedString = "{\"method\":\"selected\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951}," +
+            "{\"bfs_num\":231,\"parz_num\":2634}]}";
+    private String readyString = "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}";
+    private String showString = "{\"method\":\"show\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+            "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+
+    private JsonConverter jsonConverter = new JsonConverter();
 
     @Test
-    public void appConnectMessageToString() throws IOException, ServiceException {
+    public void appConnectMessageToString() throws IOException {
         AppConnectMessage appConnectMessage = new AppConnectMessage();
         appConnectMessage.setApiVersion("1.0");
         appConnectMessage.setSession(new SessionId("{E9-TRALLALLA-UND-BLA-BLA-BLA-666}"));
         appConnectMessage.setClientName("Axioma Mandant AfU");
 
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(appConnectMessage);
 
-        assertEquals("{\"method\":\"appConnect\"," +
-                                        "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
-                                        "\"clientName\":\"Axioma Mandant AfU\"," +
-                                        "\"apiVersion\":\"1.0\"}",resultingJson);
+        assertTrue(resultingJson.equals(appConnectString));
 
     }
 
     @Test
     public void stringToAppConnectMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"appConnect\"," +
-                      "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
-                      "\"clientName\":\"Axioma Mandant AfU\"," +
-                      "\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof AppConnectMessage);
+        assertTrue(jsonConverter.stringToMessage(appConnectString) instanceof AppConnectMessage);
     }
+
 
     @Test
     public void gisConnectMessageToString() throws IOException {
@@ -48,39 +66,27 @@ public class JsonConverterTest {
         gisConnectMessage.setSession(new SessionId("{E9-TRALLALLA-UND-BLA-BLA-BLA-666}"));
         gisConnectMessage.setClientName("Web GIS Client");
 
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(gisConnectMessage);
 
-        assertTrue(resultingJson.equals("{\"method\":\"gisConnect\"," +
-                "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
-                "\"clientName\":\"Web GIS Client\"," +
-                "\"apiVersion\":\"1.0\"}"));
+        assertTrue(resultingJson.equals(gisConnectString));
     }
 
     @Test
     public void stringToGisConnectMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"gisConnect\"," +
-                "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
-                "\"clientName\":\"Web GIS Client\"," +
-                "\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof GisConnectMessage);
+        assertTrue(jsonConverter.stringToMessage(gisConnectString) instanceof GisConnectMessage);
     }
 
     @Test
     public void cancelMessageToString() throws IOException {
         CancelMessage cancelMessage = new CancelMessage();
         cancelMessage.setContext(createContextNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(cancelMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"cancel\",\"context\":{\"afu_geschaeft\":\"3671951\"}}"));
+        assertTrue(resultingJson.equals(cancelString));
     }
 
     @Test
     public void stringToCancelMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"cancel\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof CancelMessage);
+        assertTrue(jsonConverter.stringToMessage(cancelString) instanceof CancelMessage);
     }
 
     @Test
@@ -88,16 +94,14 @@ public class JsonConverterTest {
         ChangedMessage changedMessage = new ChangedMessage();
         changedMessage.setData(createDataNode());
         changedMessage.setContext(createContextNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(changedMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"changed\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}"));
+        assertTrue(resultingJson.equals(changedString));
     }
 
     @Test
     public void stringToChangedMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"changed\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
         JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof ChangedMessage);
+        assertTrue(jsonConverter.stringToMessage(changedString) instanceof ChangedMessage);
     }
 
     @Test
@@ -105,32 +109,26 @@ public class JsonConverterTest {
         CreateMessage createMessage = new CreateMessage();
         createMessage.setZoomTo(createZoomToNode());
         createMessage.setContext(createContextNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(createMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"create\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"zoomTo\":{\"gemeinde\":2542}}"));
+        assertTrue(resultingJson.equals(createString));
     }
 
     @Test
     public void stringToCreateMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"create\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"zoomTo\":{\"gemeinde\":2542}}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof CreateMessage);
+        assertTrue(jsonConverter.stringToMessage(createString) instanceof CreateMessage);
     }
 
     @Test
     public void dataWrittenToString() throws IOException {
         DataWrittenMessage dataWrittenMessage = new DataWrittenMessage();
         dataWrittenMessage.setProperties(createPropertiesNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(dataWrittenMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\",\"grundbuch\":\"Trimbach\"}}"));
+        assertTrue(resultingJson.equals(dataWrittenString));
     }
 
     @Test
     public void stringToDataWrittenMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\",\"grundbuch\":\"Trimbach\"}}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof DataWrittenMessage);
+        assertTrue(jsonConverter.stringToMessage(dataWrittenString) instanceof DataWrittenMessage);
     }
 
     @Test
@@ -138,58 +136,57 @@ public class JsonConverterTest {
         EditMessage editMessage = new EditMessage();
         editMessage.setData(createDataNode());
         editMessage.setContext(createContextNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(editMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"edit\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}"));
+        assertTrue(resultingJson.equals(editString));
     }
 
     @Test
     public void stringToEditMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"edit\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof EditMessage);
+        assertTrue(jsonConverter.stringToMessage(editString) instanceof EditMessage);
     }
 
     @Test
     public void errorMessageToString() throws IOException {
+        ErrorMessage errorMessage = new ErrorMessage();
+        errorMessage.setCode(999);
+        errorMessage.setMessage("test Errormessage");
+        errorMessage.setUserData(createUserDataToNode());
+        errorMessage.setNativeCode("test nativeCode");
+        errorMessage.setTechnicalDetails("test technicalDetails");
+        String resultingJson = jsonConverter.messageToString(errorMessage);
+        assertTrue(resultingJson.equals(errorString));
 
     }
 
     @Test
-    public void stringToErrorMessage () throws IOException {
-
+    public void stringToErrorMessage () throws IOException, ServiceException {
+        assertTrue(jsonConverter.stringToMessage(errorString) instanceof ErrorMessage);
     }
 
     @Test
     public void readyMessageToString() throws IOException {
         ReadyMessage readyMessage = new ReadyMessage();
         readyMessage.setApiVersion("1.0");
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(readyMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"ready\",\"apiVersion\":\"1.0\"}"));
+        assertTrue(resultingJson.equals(readyString));
     }
 
     @Test
     public void stringToReadyMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof ReadyMessage);
+        assertTrue(jsonConverter.stringToMessage(readyString) instanceof ReadyMessage);
     }
 
     @Test
     public void selectedMessageToString() throws IOException {
         SelectedMessage selectedMessage = new SelectedMessage();
         selectedMessage.setContext_list(createContextListNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(selectedMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"selected\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951},{\"bfs_num\":231,\"parz_num\":2634}]}"));
+        assertTrue(resultingJson.equals(selectedString));
     }
 
     @Test
     public void stringToSelectedMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"selected\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951},{\"bfs_num\":231,\"parz_num\":2634}]}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof SelectedMessage);
+        assertTrue(jsonConverter.stringToMessage(selectedString) instanceof SelectedMessage);
     }
 
     @Test
@@ -197,17 +194,15 @@ public class JsonConverterTest {
         ShowMessage showMessage = new ShowMessage();
         showMessage.setData(createDataNode());
         showMessage.setContext(createContextNode());
-        JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(showMessage);
-        assertTrue(resultingJson.equals("{\"method\":\"show\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}"));
+        assertTrue(resultingJson.equals(showString));
     }
 
     @Test
     public void stringToShowMessage() throws IOException, ServiceException {
-        String json = "{\"method\":\"show\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        JsonConverter jsonConverter = new JsonConverter();
-        assertTrue(jsonConverter.stringToMessage(json) instanceof ShowMessage);
+        assertTrue(jsonConverter.stringToMessage(showString) instanceof ShowMessage);
     }
+
 
     @Test (expected = JsonEOFException.class)
     public void corruptJsonEofTest() throws IOException, ServiceException {
@@ -215,67 +210,191 @@ public class JsonConverterTest {
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\""; //Es fehlt die letzte Klammer }
-        JsonConverter jsonConverter = new JsonConverter();
         jsonConverter.stringToMessage(json);
     }
 
-    @Test (expected = IOException.class)
+    @Test (expected = ServiceException.class)
     public void noMethodTest() throws IOException, ServiceException {
         String json = "{" + //Keine Methode
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
         jsonConverter.stringToMessage(json);
     }
 
     @Test (expected = JsonParseException.class)
     public void corruptJsonTest() throws IOException, ServiceException {
         String json = "{\"method\":\"appConnect\"," +
-                "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"clientNameAxioma Mandant AfU\"," + //Hier ist doch was faul...
                 "\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
         jsonConverter.stringToMessage(json);
     }
 
-    @Test (expected = MissingArgumentException.class)
+    @Test (expected = ServiceException.class)
     public void missingJsonProperty() throws IOException, ServiceException {
         String json = "{\"method\":\"appConnect\"," +
-                "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 //missing client name
                 "\"apiVersion\":\"1.0\"}";
-        JsonConverter jsonConverter = new JsonConverter();
         jsonConverter.stringToMessage(json);
     }
+
+    @Test (expected = ServiceException.class)
+    public void wrongNameOfContextAttributeInErrorMessage() throws IOException, ServiceException {
+        String messageWithMissingCode = "{\"method\":\"changed\",\"contect\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+        jsonConverter.stringToMessage(messageWithMissingCode);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingApiVersionInAppConnectMessage() throws IOException, ServiceException {
+        String appConnectMessageWithoutApiVersion = "{\"method\":\"appConnect\"," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+                "\"clientName\":\"Axioma Mandant AfU\"}";
+        jsonConverter.stringToMessage(appConnectMessageWithoutApiVersion);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingSessionInAppConnectMessage() throws IOException, ServiceException {
+        String appConnectMessageWithoutSession = "{\"method\":\"appConnect\"," +
+                "\"clientName\":\"Axioma Mandant AfU\"," +
+                "\"apiVersion\":\"1.0\"}";
+        jsonConverter.stringToMessage(appConnectMessageWithoutSession);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingClientNameInAppConnectMessage() throws IOException, ServiceException {
+        String appConnectMessageWithoutClientName = "{\"method\":\"appConnect\"," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+                "\"apiVersion\":\"1.0\"}";
+        jsonConverter.stringToMessage(appConnectMessageWithoutClientName);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingApiVersionInGisConnectMessage() throws IOException, ServiceException {
+        String gisConnectMessageWithoutApiVersion = "{\"method\":\"gisConnect\"," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+                "\"clientName\":\"Axioma Mandant AfU\"}";
+        jsonConverter.stringToMessage(gisConnectMessageWithoutApiVersion);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingSessionInGisConnectMessage() throws IOException, ServiceException {
+        String gisConnectMessageWithoutSession = "{\"method\":\"gisConnect\"," +
+                "\"clientName\":\"Axioma Mandant AfU\"," +
+                "\"apiVersion\":\"1.0\"}";
+        jsonConverter.stringToMessage(gisConnectMessageWithoutSession);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingClientNameInGisConnectMessage() throws IOException, ServiceException {
+        String gisConnectMessageWithoutClientName = "{\"method\":\"gisConnect\"," +
+                "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+                "\"apiVersion\":\"1.0\"}";
+        jsonConverter.stringToMessage(gisConnectMessageWithoutClientName);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingContextInCreateMessage() throws IOException, ServiceException {
+        String createMessageWithoutContext = "{\"method\":\"create\"," +
+                "\"zoomTo\":{\"gemeinde\":2542}}";
+        jsonConverter.stringToMessage(createMessageWithoutContext);
+    }
+
+    /*todo: Abklären, ob getestet werden soll, ob im ZoomTo-Attribut ein Objekt abgespeichert ist.*/
+
+    @Test (expected = ServiceException.class)
+    public void missingContextInEditMessage() throws IOException, ServiceException {
+        String editMessageWithoutContext = "{\"method\":\"edit\"," +
+                "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+        jsonConverter.stringToMessage(editMessageWithoutContext);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingDataInEditMessage() throws IOException, ServiceException {
+        String editMessageWithoutData = "{\"method\":\"edit\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
+        jsonConverter.stringToMessage(editMessageWithoutData);
+    }
+    /*todo: Abklären, ob getestet werden soll, ob im data-Attribut ein Geojson-Objekt abgespeichert ist:*/
+
+    @Test (expected = ServiceException.class)
+    public void missingContextInShowMessage() throws IOException, ServiceException {
+        String showMessageWithoutContext = "{\"method\":\"show\"," +
+                "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+        jsonConverter.stringToMessage(showMessageWithoutContext);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingDataInShowMessage() throws IOException, ServiceException {
+        String showMessageWithoutData = "{\"method\":\"show\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
+        jsonConverter.stringToMessage(showMessageWithoutData);
+    }
+    /*todo: Abklären, ob getestet werden soll, ob im data-Attribut ein Geojson-Objekt abgespeichert ist:*/
+
+    @Test (expected = ServiceException.class)
+    public void missingContextInCancelMessage() throws IOException, ServiceException {
+        String cancelMessageWithoutContext = "{\"method\":\"cancel\"}";
+        jsonConverter.stringToMessage(cancelMessageWithoutContext);
+    }
+    /*todo: Abklären, ob getestet werden soll, ob im context-Attribut ein Json-Objekt abgespeichert ist.*/
+
+    @Test (expected = ServiceException.class)
+    public void missingContextAttributeInChangedMessage() throws IOException, ServiceException {
+        String messageWithMissingContext = "{\"method\":\"changed\"," +
+                "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+        jsonConverter.stringToMessage(messageWithMissingContext);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingPropertiesInDataWrittenMessage() throws IOException, ServiceException {
+        String dataWrittenMessageWithoutProperties = "{\"method\":\"dataWritten\"}";
+        jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
+    }
+    /*todo: Abklären, ob getestet werden soll, ob im properties-Attribut ein Json-Objekt abgespeichert ist. */
+
+    /*Todo: Abklären, ob bei der selectedMessage geprüft werden soll, ob die context_list wirklich ein Array ist */
+
+    @Test (expected = ServiceException.class)
+    public void missingCodeAttributeInErrorMessage() throws IOException, ServiceException {
+        String errorMessageWithoutCode = "{\"method\":\"error\",\"message\":\"test Errormessage\"," +
+                "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
+                "\"technicalDetails\":\"test technicalDetails\"}";
+        jsonConverter.stringToMessage(errorMessageWithoutCode);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void missingMessageAttributeInErrorMessage() throws IOException, ServiceException {
+        String errorMessageWithoutMessage = "{\"method\":\"error\",\"code\":999}";
+        jsonConverter.stringToMessage(errorMessageWithoutMessage);
+    }
+    /*Todo: Abklären, ob getestet werden soll, ob im userData-Attribut ein Json-Objekt abgespeicher ist.*/
 
 
     //TEST-HILFSKLASSEN
 
-    public JsonNode createNode (String str) throws IOException {
+    private JsonNode createNode (String str) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode obj = mapper.readTree(str);
-        return obj;
+        return mapper.readTree(str);
     }
-    public JsonNode createDataNode () throws IOException {
-        JsonNode dataNode = createNode("{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}");
-        return dataNode;
+    private JsonNode createDataNode () throws IOException {
+        return createNode("{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}");
     }
-    public JsonNode createContextNode () throws IOException {
-        JsonNode contextNode = createNode("{\"afu_geschaeft\":\"3671951\"}");
-        return contextNode;
+    private JsonNode createContextNode () throws IOException {
+        return createNode("{\"afu_geschaeft\":\"3671951\"}");
     }
-    public JsonNode createZoomToNode () throws IOException {
-        JsonNode zoomToNode = createNode("{\"gemeinde\":2542}");
-        return zoomToNode;
+    private JsonNode createZoomToNode () throws IOException {
+        return createNode("{\"gemeinde\":2542}");
     }
-    public JsonNode createPropertiesNode () throws IOException {
-        JsonNode propertiesNode = createNode("{\"laufnr\":\"2017-820\",\"grundbuch\":\"Trimbach\"}");
-        return propertiesNode;
+    private JsonNode createPropertiesNode () throws IOException {
+        return createNode("{\"laufnr\":\"2017-820\",\"grundbuch\":\"Trimbach\"}");
     }
-    public JsonNode createContextListNode () throws IOException {
-        JsonNode contextListNode = createNode("[{\"bfs_num\":231,\"parz_num\":1951},{\"bfs_num\":231,\"parz_num\":2634}]");
-        return contextListNode;
+    private JsonNode createContextListNode () throws IOException {
+        return createNode("[{\"bfs_num\":231,\"parz_num\":1951},{\"bfs_num\":231,\"parz_num\":2634}]");
+    }
+
+    private JsonNode createUserDataToNode() throws IOException {
+        return createNode("{\"test\":\"3671951\"}");
     }
 
 
