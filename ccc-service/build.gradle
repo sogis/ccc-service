@@ -27,6 +27,7 @@ repositories {
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter-web:2.0.0.RELEASE")
 	compile("org.springframework.boot:spring-boot-starter-websocket:2.0.0.RELEASE")
+	//compile("org.springframework.boot:spring-boot-messaging:2.0.0.RELEASE")
 	testCompile("org.springframework.boot:spring-boot-starter-test:2.0.0.RELEASE")
 }
 
