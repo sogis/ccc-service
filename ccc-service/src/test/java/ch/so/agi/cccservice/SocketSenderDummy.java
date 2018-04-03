@@ -29,10 +29,4 @@ public class SocketSenderDummy implements SocketSender {
     public List<AbstractMessage> getGisMessages(){
         return listGisMessages;
     }
-
-    @Override
-    public void sendMessageToWebSocket(WebSocketSession session, AbstractMessage message) throws ServiceException{
-        listWebSocketMessages.add(message);
-
-    }
 }

@@ -2,6 +2,7 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import ch.so.agi.cccservice.messages.AppConnectMessage;
+import ch.so.agi.cccservice.messages.ErrorMessage;
 import ch.so.agi.cccservice.messages.GisConnectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,8 +34,8 @@ public class SocketHandler extends TextWebSocketHandler {
     private JsonConverter jsonConverter;
 
 
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        SessionId sessionId = sessionPool.getSessionId(session);
+    public void afterConnectionClosed(WebSocketSession socket, CloseStatus status) throws Exception {
+        SessionId sessionId = sessionPool.getSessionId(socket);
         if(sessionId != null) {
             sessionPool.removeSession(sessionId);
             logger.info("Session "+sessionId.getSessionId()+" closed!");
@@ -46,42 +47,57 @@ public class SocketHandler extends TextWebSocketHandler {
 
     @Override
 
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession socket) throws Exception {
 
     }
 
     @Override
 
-    protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
+    protected void handleTextMessage(WebSocketSession socket, TextMessage textMessage) throws Exception {
 
         // A message has been received
 
         logger.debug(textMessage.getPayload());
+        try {
+            AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
-        AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
+            if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
 
-        if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
+                if (sessionPool.getSessionId(socket) != null) {
+                    throw new ServiceException(504, "Application is already connected.");
+                }
 
-            if (sessionPool.getSessionId(session) != null) {
-                throw new ServiceException(504, "Application is already connected.");
+                if (message instanceof AppConnectMessage){
+                    logger.info(((AppConnectMessage) message).getSession().getSessionId());
+                    sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), socket);
+                } else if (message instanceof GisConnectMessage){
+                    logger.info(((GisConnectMessage) message).getSession().getSessionId());
+                    sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), socket);
+                } else {
+                    throw new IllegalStateException();
+                }
             }
 
-            if (message instanceof AppConnectMessage){
-                logger.info(((AppConnectMessage) message).getSession().getSessionId());
-                sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), session);
-            } else if (message instanceof GisConnectMessage){
-                logger.info(((GisConnectMessage) message).getSession().getSessionId());
-                sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), session);
-            } else {
-                throw new IllegalStateException();
+            SessionId sessionId = sessionPool.getSessionId(socket);
+            int clientType=sessionPool.getClientType(socket);
+            service.handleMessage(clientType,sessionId, message);
+        }catch(ServiceException ex) {
+            logger.error("failed to handle request",ex);
+            ErrorMessage msg=new ErrorMessage();
+            msg.setCode(ex.getErrorCode());
+            msg.setMessage(ex.getMessage());
+            socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
+        }catch(Exception ex) {
+            logger.error("failed to handle request",ex);
+            ErrorMessage msg=new ErrorMessage();
+            msg.setCode(500);
+            String msgTxt=ex.getMessage();
+            if(msgTxt==null) {
+                msgTxt=ex.getClass().getName();
             }
+            msg.setMessage(msgTxt);
+            socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
         }
-
-        SessionId sessionId = sessionPool.getSessionId(session);
-
-        service.handleMessage(sessionId, message);
-
-
     }
 
 }

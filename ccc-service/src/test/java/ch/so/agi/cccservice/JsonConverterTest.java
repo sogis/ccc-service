@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class JsonConverterTest {
     private String appConnectString = "{\"method\":\"appConnect\"," +
@@ -49,7 +50,7 @@ public class JsonConverterTest {
 
         String resultingJson = jsonConverter.messageToString(appConnectMessage);
 
-        assertTrue(resultingJson.equals(appConnectString));
+        assertEquals(appConnectString,resultingJson);
 
     }
 
@@ -68,7 +69,7 @@ public class JsonConverterTest {
 
         String resultingJson = jsonConverter.messageToString(gisConnectMessage);
 
-        assertTrue(resultingJson.equals(gisConnectString));
+        assertEquals(gisConnectString,resultingJson);
     }
 
     @Test

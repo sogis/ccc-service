@@ -2,6 +2,8 @@ package ch.so.agi.cccservice;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SessionId {
     @Override
     public boolean equals(Object o) {
@@ -25,7 +27,8 @@ public class SessionId {
     }
 
     private String sessionId;
-
+    
+    @JsonProperty("session")
     public String getSessionId() {
         return sessionId;
     }

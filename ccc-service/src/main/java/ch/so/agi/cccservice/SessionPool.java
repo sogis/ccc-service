@@ -142,4 +142,18 @@ public class SessionPool {
             idToAppSocket.remove(sessionId);
         }//ToDo: Fehlermeldung falls nicht existiert?
     }
+
+    /** gets the type of the attached client.
+     * @param socket web socket to client. 
+     * @return APP or GIS
+     */
+    public int getClientType(WebSocketSession socket) {
+        SessionId id=socketToId.get(socket);
+        if(idToAppSocket.get(id)==socket) {
+            return Service.APP;
+        }else if(idToGisSocket.get(id)==socket) {
+            return Service.GIS;
+        }
+        throw new IllegalStateException();
+    }
 }

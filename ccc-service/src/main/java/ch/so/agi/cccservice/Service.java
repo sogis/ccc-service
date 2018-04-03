@@ -11,6 +11,8 @@ import static java.lang.Math.abs;
  */
 @Component
 public class Service {
+    public static final int APP=1;
+    public static final int GIS=2;
 
     private SessionPool sessionPool;
     private SocketSender sender;
@@ -23,11 +25,12 @@ public class Service {
 
     /**
      * Based on the type of message the correct method will be called
+     * @param messageSource type of client that sent the given message (APP or GIS).
      * @param sessionId ID of session
      * @param message delivered Message
      * @throws ServiceException
      */
-    public void handleMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
+    public void handleMessage(int messageSource,SessionId sessionId, AbstractMessage message) throws ServiceException{
 
         if (message instanceof AppConnectMessage) {
             AppConnectMessage appConnectMessage = (AppConnectMessage) message;
@@ -73,8 +76,23 @@ public class Service {
             ShowMessage showMessage = (ShowMessage) message;
             show(sessionId, showMessage);
         }
+        if (message instanceof ErrorMessage){
+            ErrorMessage errorMessage = (ErrorMessage) message;
+            handleError(messageSource,sessionId, errorMessage);
+        }
+    }
 
-        //ToDo: ErrorMessage
+    private void handleError(int messageSource, SessionId sessionId, ErrorMessage errorMessage) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        checkIfConnectionIsEstablished(sessionState);
+        if(messageSource==APP) {
+            sender.sendMessageToGis(sessionId, errorMessage);
+        }else if(messageSource==GIS) {
+            sender.sendMessageToApp(sessionId, errorMessage);
+        }else {
+            throw new ServiceException(500,"unexpected client "+messageSource);
+        }
     }
 
     /**
@@ -312,16 +330,4 @@ public class Service {
         checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
-    public void error(SessionId sessionId, String typ, ErrorMessage msg) throws ServiceException {
-        JsonConverter jsonConverter = new JsonConverter();
-        System.out.println(typ);
-        if (typ.equals("app")){
-            sender.sendMessageToApp(sessionId, msg);
-        } else if (typ.equals("gis")) {
-            System.out.println("hier sollte er landen " + sessionId + " " + msg.toString() );
-            sender.sendMessageToGis(sessionId, msg);
-        }
-
-        //sender.sendMessageToWebSocket(webSocketSession, msg);
-}
 }
