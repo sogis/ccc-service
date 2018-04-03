@@ -1,14 +1,12 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.rmi.ServerError;
 
 @Component
 public class JsonConverter {
@@ -21,7 +19,7 @@ public class JsonConverter {
      */
     public String messageToString(AbstractMessage msg) throws JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
-        String jsonString = null;
+        String jsonString;
         jsonString = mapper.writeValueAsString(msg);
         return jsonString;
     }
@@ -30,7 +28,7 @@ public class JsonConverter {
      * Convert a JSON-string to a message-object.
      * @param str JSON-string
      * @return Nothing
-     * @throws IOException
+     * @throws IOException, ServiceException
      */
     public AbstractMessage stringToMessage(String str) throws IOException, ServiceException {
 
@@ -40,7 +38,7 @@ public class JsonConverter {
          try {
              method = obj.get("method").asText();
          } catch (NullPointerException e) {
-             throw new IOException("No method found in given JSON");
+             throw new ServiceException(400, "No method found in given JSON");
          }
          try {
              if (method.equals("appConnect")) {
@@ -132,7 +130,9 @@ public class JsonConverter {
                  errorMessage.setUserData(obj.get("userData"));
                  errorMessage.setNativeCode(obj.get("nativeCode").asText());
                  errorMessage.setTechnicalDetails(obj.get("technicalDetails").asText());
-                 //todo: welche sind nullable und welche nicht?
+                 if (errorMessage.getCode() == 0 || errorMessage.getMessage() == null){
+                    throw new ServiceException(400, "Attribute in errorMessage missing or wrong");
+                 }
                  return errorMessage;
              }
              if (method.equals("selected")) {
@@ -143,7 +143,7 @@ public class JsonConverter {
                  throw new IOException("No suitable methode found in given JSON. Given method: "+obj.get("method").asText());
              }
          } catch (NullPointerException e) {
-             throw new MissingArgumentException("One or more arguments missing for given method!");
+             throw new ServiceException(400, "One or more arguments missing for given method!");
          }
     }
 }

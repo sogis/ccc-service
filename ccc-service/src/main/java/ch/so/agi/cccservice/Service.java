@@ -312,5 +312,16 @@ public class Service {
         checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
     }
+    public void error(SessionId sessionId, String typ, ErrorMessage msg) throws ServiceException {
+        JsonConverter jsonConverter = new JsonConverter();
+        System.out.println(typ);
+        if (typ.equals("app")){
+            sender.sendMessageToApp(sessionId, msg);
+        } else if (typ.equals("gis")) {
+            System.out.println("hier sollte er landen " + sessionId + " " + msg.toString() );
+            sender.sendMessageToGis(sessionId, msg);
+        }
 
+        //sender.sendMessageToWebSocket(webSocketSession, msg);
+}
 }

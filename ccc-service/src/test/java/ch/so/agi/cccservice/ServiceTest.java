@@ -2,7 +2,9 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +32,9 @@ public class ServiceTest {
             "{\"bfs_num\":231,\"parz_num\":2634}]}";
     private String dataWrittenString = "{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\"," +
             "\"grundbuch\":\"Trimbach\"}}";
+    private String errorString = "{\"method\":\"error\",\"code\":999,\"message\":\"test Errormessage\"," +
+            "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
+            "\"technicalDetails\":\"test technicalDetails\"}";
     private SocketSenderDummy socketSender = new SocketSenderDummy();
     private JsonConverter jsonConverter = new JsonConverter();
 
@@ -414,6 +419,36 @@ public class ServiceTest {
         ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
         service.show(sessionId, showMessage);
 
+    }
+
+    @Test
+    public void sendErrorMessageToGis() throws Exception {
+        Service service = establishConnection();
+
+        ErrorMessage errorMessage = (ErrorMessage) jsonConverter.stringToMessage(errorString);
+
+        service.error(sessionId, "gis", errorMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(errorString, gisMessage);
+    }
+
+    @Test
+    public void sendErrorMessageToApp() throws Exception {
+        Service service = establishConnection();
+
+        ErrorMessage errorMessage = (ErrorMessage) jsonConverter.stringToMessage(errorString);
+
+        service.error(sessionId, "app", errorMessage);
+
+        List<AbstractMessage> appMessages = socketSender.getAppMessages();
+        Assert.assertTrue(appMessages.size() == 2);
+
+        String appMessage = jsonConverter.messageToString(appMessages.get(1));
+        Assert.assertEquals(errorString, appMessage);
     }
 
 }
