@@ -1,0 +1,22 @@
+sudo: required
+
+language: java
+
+services:
+  - docker
+  
+branches:
+  only:
+    - master
+
+install: true
+
+script:
+  - gradle :ccc-service:build :serviceImage:build
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ; gradle :serviceImage:push
+    on:
+      branch: master

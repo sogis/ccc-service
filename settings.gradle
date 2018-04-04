@@ -1,2 +1,3 @@
 rootProject.name = 'ccc-service'
 include 'ccc-service'
+include 'serviceImage'

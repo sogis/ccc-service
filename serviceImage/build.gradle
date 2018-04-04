@@ -1,0 +1,45 @@
+task jardist(type: Copy,dependsOn: ':ccc-service:jardist'){
+	delete fileTree('ccc')
+	destinationDir = file('ccc')
+	from '../ccc-service/jardist'
+	// docker build -f Dockerfile -t claeis/ccc-service .
+	// docker run -p 8080:8080 -d claeis/ccc-service
+	// docker run -it --rm alpine ping 172.17.0.2
+}
+task build(dependsOn: jardist){
+	doLast { task ->
+			// https://github.com/nemerosa/versioning
+			println versioning.info.full
+            def buildident=System.getProperty('TRAVIS_BUILD_NUMBER','localbuild')
+            def githash=versioning.info.commit
+            def build_timestamp=getTimestamp()
+			exec {
+				commandLine 'docker', 'build',
+				'--no-cache', '--force-rm',
+				'-t', "sogis/ccc-service:$buildident",
+				'--label', "ccc-service.created=$build_timestamp", 
+				'--label', "ccc-service.git_commit=$githash",
+				'--label', "ccc-service.travis_build=$buildident",
+				'-f', 'Dockerfile',  '.'
+			}
+			exec {
+				commandLine 'docker', 'tag', 
+				"sogis/ccc-service:$buildident",
+				"sogis/ccc-service:latest"
+			}
+			// docker run -p 8080:8080 -d claeis/ccc-service
+			// docker run -it --rm alpine ping 172.17.0.2
+        }
+    }
+task push(dependsOn: build){
+	doLast { task ->
+			exec {
+				commandLine 'docker', 'push', 
+				"sogis/ccc-service:latest"
+			}
+        }
+    }
+def getTimestamp() {
+    def date = new Date()
+    return date.format('yyyy-MM-dd HH:mm:ss')
+}

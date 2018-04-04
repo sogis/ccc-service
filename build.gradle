@@ -1,0 +1,9 @@
+plugins {
+   id 'net.nemerosa.versioning' version '2.0.0'
+}
+
+task hello {
+        doLast { task ->
+            println versioning.info.full
+        }
+    }
