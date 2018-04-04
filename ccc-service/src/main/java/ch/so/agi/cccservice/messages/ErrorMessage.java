@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  */
 public class ErrorMessage extends AbstractMessage{
+    public static final String ERROR = "error";
     private int code;
     private String message;
     private JsonNode userData;
@@ -13,7 +14,7 @@ public class ErrorMessage extends AbstractMessage{
     private String technicalDetails;
 
     public ErrorMessage() {
-        super("error");
+        super(ERROR);
     }
 
 

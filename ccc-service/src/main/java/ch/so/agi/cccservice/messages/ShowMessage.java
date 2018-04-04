@@ -3,11 +3,12 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class ShowMessage extends AbstractMessage {
+    public static final String SHOW = "show";
     private JsonNode context;
     private JsonNode data;
 
     public ShowMessage() {
-        super("show");
+        super(SHOW);
     }
 
     public JsonNode getContext() {

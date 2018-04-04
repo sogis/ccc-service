@@ -3,10 +3,11 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class SelectedMessage extends AbstractMessage  {
+    public static final String SELECTED = "selected";
     private JsonNode context_list;
 
     public SelectedMessage() {
-        super("selected");
+        super(SELECTED);
     }
 
     public JsonNode getContext_list() {

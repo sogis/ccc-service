@@ -3,10 +3,11 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class DataWrittenMessage extends AbstractMessage {
+    public static final String DATA_WRITTEN = "dataWritten";
     private JsonNode properties;
 
     public DataWrittenMessage() {
-        super("dataWritten");
+        super(DATA_WRITTEN);
     }
 
     public JsonNode getProperties() {
