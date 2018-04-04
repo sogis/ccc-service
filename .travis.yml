@@ -12,11 +12,11 @@ branches:
 install: true
 
 script:
-  - gradle :ccc-service:build :serviceImage:build
+  - gradle -DTRAVIS_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER :ccc-service:build :serviceImage:build
 
 deploy:
   - provider: script
     skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ; gradle :serviceImage:push
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ; docker push sogis/ccc-service:latest
     on:
       branch: master
