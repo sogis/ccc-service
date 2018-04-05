@@ -89,7 +89,11 @@ public class SocketHandler extends TextWebSocketHandler {
             }
 
             int clientType=sessionPool.getClientType(socket);
-            service.handleMessage(clientType,sessionId, message);
+            if(clientType==Service.APP) {
+                service.handleAppMessage(sessionId, message);
+            }else {
+                service.handleGisMessage(sessionId, message);
+            }
         }catch(ServiceException ex) {
             logger.error("failed to handle request",ex);
             NotifyErrorMessage msg=new NotifyErrorMessage();

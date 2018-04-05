@@ -308,7 +308,7 @@ public class ServiceTest {
         Service service = establishConnection();
 
         NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) jsonConverter.stringToMessage(dataWrittenString);
-        service.handleMessage(Service.APP,sessionId, dataWrittenMessage);
+        service.handleAppMessage(sessionId, dataWrittenMessage);
 
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -325,7 +325,7 @@ public class ServiceTest {
         Service service = establishConnection();
 
         CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) jsonConverter.stringToMessage(cancelString);
-        service.handleMessage(Service.APP,sessionId, cancelMessage);
+        service.handleAppMessage(sessionId, cancelMessage);
 
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -342,7 +342,7 @@ public class ServiceTest {
         Service service = establishConnection();
 
         NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) jsonConverter.stringToMessage(selectedString);
-        service.handleMessage(Service.GIS,sessionId, selectedMessage);
+        service.handleGisMessage(sessionId, selectedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
         Assert.assertTrue(appMessages.size() == 2);
@@ -357,7 +357,7 @@ public class ServiceTest {
         Service service = establishConnection();
 
         NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) jsonConverter.stringToMessage(changedString);
-        service.handleMessage(Service.APP,sessionId, changedMessage);
+        service.handleGisMessage(sessionId, changedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
         Assert.assertTrue(appMessages.size() == 2);
@@ -372,7 +372,7 @@ public class ServiceTest {
         Service service = establishConnection();
 
         CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
-        service.handleMessage(Service.APP,sessionId, createMessage);
+        service.handleAppMessage(sessionId, createMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
         Assert.assertTrue(gisMessages.size() == 2);

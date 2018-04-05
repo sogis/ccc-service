@@ -30,55 +30,56 @@ public class Service {
      * @param message delivered Message
      * @throws ServiceException
      */
-    public void handleMessage(int messageSource,SessionId sessionId, AbstractMessage message) throws ServiceException{
+    public void handleAppMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
 
         if (message instanceof ConnectAppMessage) {
             ConnectAppMessage appConnectMessage = (ConnectAppMessage) message;
             handleAppConnect(appConnectMessage);
+        }else if (message instanceof CancelEditGeoObjectMessage){
+            CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) message;
+            cancel(sessionId, cancelMessage);
+        }else if (message instanceof CreateGeoObjectMessage){
+            CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) message;
+            create(sessionId, createMessage);
+        }else if (message instanceof NotifyObjectUpdatedMessage){
+            NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) message;
+            dataWritten(sessionId, dataWrittenMessage);
+        }else if (message instanceof EditGeoObjectMessage){
+            EditGeoObjectMessage editMessage = (EditGeoObjectMessage) message;
+            edit(sessionId, editMessage);
+        }else if (message instanceof ShowGeoObjectMessage){
+            ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) message;
+            show(sessionId, showMessage);
+        }else if (message instanceof NotifyErrorMessage){
+            NotifyErrorMessage errorMessage = (NotifyErrorMessage) message;
+            handleError(APP,sessionId, errorMessage);
+        }else {
+            throw new ServiceException(500,"unexpected message");
         }
+    }
+    /**
+     * Based on the type of message the correct method will be called
+     * @param messageSource type of client that sent the given message (APP or GIS).
+     * @param sessionId ID of session
+     * @param message delivered Message
+     * @throws ServiceException
+     */
+    public void handleGisMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
 
         if (message instanceof ConnectGisMessage) {
             ConnectGisMessage gisConnectMessage = (ConnectGisMessage) message;
             handleGisConnect(gisConnectMessage);
-        }
-
-        if (message instanceof CancelEditGeoObjectMessage){
-            CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) message;
-            cancel(sessionId, cancelMessage);
-        }
-
-        if (message instanceof NotifyEditGeoObjectDoneMessage){
+        }else if (message instanceof NotifyEditGeoObjectDoneMessage){
             NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) message;
             changed(sessionId, changedMessage);
-        }
-
-        if (message instanceof CreateGeoObjectMessage){
-            CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) message;
-            create(sessionId, createMessage);
-        }
-
-        if (message instanceof NotifyObjectUpdatedMessage){
-            NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) message;
-            dataWritten(sessionId, dataWrittenMessage);
-        }
-
-        if (message instanceof EditGeoObjectMessage){
-            EditGeoObjectMessage editMessage = (EditGeoObjectMessage) message;
-            edit(sessionId, editMessage);
-        }
-
-        if (message instanceof NotifyGeoObjectSelectedMessage){
+        }else if (message instanceof NotifyGeoObjectSelectedMessage){
             NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) message;
             selected(sessionId, selectedMessage);
-        }
-
-        if (message instanceof ShowGeoObjectMessage){
-            ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) message;
-            show(sessionId, showMessage);
-        }
-        if (message instanceof NotifyErrorMessage){
+        }else if (message instanceof NotifyErrorMessage){
             NotifyErrorMessage errorMessage = (NotifyErrorMessage) message;
-            handleError(messageSource,sessionId, errorMessage);
+            handleError(GIS,sessionId, errorMessage);
+        }else {
+            throw new ServiceException(500,"unexpected message");
         }
     }
 
