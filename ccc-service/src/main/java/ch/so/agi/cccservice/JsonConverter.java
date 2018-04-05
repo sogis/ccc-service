@@ -40,7 +40,6 @@ public class JsonConverter {
 
          ObjectMapper mapper = new ObjectMapper();
          JsonNode obj = mapper.readTree(str);
-         checkNodeTypeString(obj.get("method"), "method");
          String method;
          try {
              method = obj.get("method").asText();
