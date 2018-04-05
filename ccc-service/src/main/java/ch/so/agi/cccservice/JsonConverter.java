@@ -5,23 +5,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.xml.soap.Node;
 import java.io.IOException;
 
+/**
+ * Allows transformation from a abstractMessage to String and vice versa
+ */
 @Component
 public class JsonConverter {
-
-    Logger logger = LoggerFactory.getLogger(SocketHandler.class);
 
     /**
      * Convert a message-object to a JSON-string
      * @param msg message-object
-     * @return Nothing
-     * @throws JsonProcessingException
+     * @return Message as string
+     * @throws JsonProcessingException if Message could not be converted to string
      */
     public String messageToString(AbstractMessage msg) throws JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
@@ -170,6 +167,12 @@ public class JsonConverter {
          }
     }
 
+    /**
+     * Checks if a json node is of type String
+     * @param obj as JsonNode
+     * @param attr (property) as String
+     * @throws ServiceException if json node is not of type String
+     */
     private void checkNodeTypeString(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
         try {
@@ -180,6 +183,13 @@ public class JsonConverter {
             //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
         }
     }
+
+    /**
+     * Checks if a json node is of type Object
+     * @param obj as JsonNode
+     * @param attr (property) as String
+     * @throws ServiceException if json node is not of type Object
+     */
     private void checkNodeTypeObject(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
         try {
@@ -190,6 +200,13 @@ public class JsonConverter {
             //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
         }
     }
+
+    /**
+     * Checks if a json node is of type Object or Array
+     * @param obj as JsonNode
+     * @param attr (property) as String
+     * @throws ServiceException if json node is not of type Object or Array
+     */
     private void checkNodeTypeArrayOrObject(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
         try {
@@ -200,6 +217,13 @@ public class JsonConverter {
             //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
         }
     }
+
+    /**
+     * checks if a json node is of type Number
+     * @param obj as JsonNode
+     * @param attr (property) as String
+     * @throws ServiceException if json node is not of type Number
+     */
     private void checkNodeTypeInteger(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
         try {
