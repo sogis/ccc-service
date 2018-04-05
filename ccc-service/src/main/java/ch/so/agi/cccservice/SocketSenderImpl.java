@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+/**
+ * Implementation of SocketSender-Class
+ * handles Messages which have to be sent to either GIS or App
+ */
 @Component
 public class SocketSenderImpl implements SocketSender {
 
@@ -13,18 +17,18 @@ public class SocketSenderImpl implements SocketSender {
     private JsonConverter jsonConverter = new JsonConverter();
 
     /**
-     *
-     * @param sessionPool
+     * Constructor
+     * @param sessionPool with all Sessions
      */
     public SocketSenderImpl(SessionPool sessionPool){
         this.sessionPool = sessionPool;
     }
 
     /**
-     *
-     * @param sessionId
-     * @param message
-     * @throws ServiceException
+     * Sends message to App
+     * @param sessionId for identifying App
+     * @param message to be sent
+     * @throws ServiceException on Exception
      */
     @Override
     public void sendMessageToApp(SessionId sessionId, AbstractMessage message) throws ServiceException {
@@ -36,11 +40,11 @@ public class SocketSenderImpl implements SocketSender {
     }
 
     /**
-     *
-     * @param webSocketSession
-     * @param message
-     * @param clientName
-     * @throws ServiceException
+     * Sends Message to WebSocketSession
+     * @param webSocketSession to which message has to be sent
+     * @param message to be sent
+     * @param clientName of the App
+     * @throws ServiceException on Exception
      */
     private void sendMessage(WebSocketSession webSocketSession, AbstractMessage message, String clientName) throws ServiceException {
         try {
@@ -60,10 +64,10 @@ public class SocketSenderImpl implements SocketSender {
     }
 
     /**
-     *
-     * @param sessionId
-     * @param message
-     * @throws ServiceException
+     * Sends message to GIS
+     * @param sessionId for identifying GIS
+     * @param message to be sent
+     * @throws ServiceException on Exception
      */
     @Override
     public void sendMessageToGis(SessionId sessionId, AbstractMessage message) throws ServiceException {

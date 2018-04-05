@@ -15,8 +15,8 @@ public class SessionState {
     private boolean readySent = false;
 
     /**
-     *
-     * @param clientName
+     * Sets SessionState to connected to App
+     * @param clientName as String
      */
     public void addAppConnection(String clientName){
         this.appName = clientName;
@@ -25,6 +25,10 @@ public class SessionState {
         appConnectTime = timestamp.getTime();
     }
 
+    /**
+     * Sets SessionState to connected to GIS
+     * @param clientName as String
+     */
     public void addGisConnection(String clientName){
         this.gisName = clientName;
         gisConnected = true;
@@ -32,6 +36,9 @@ public class SessionState {
         gisConnectTime = timestamp.getTime();
     }
 
+    /**
+     * Sets SessionState to sent Ready to GIS and App
+     */
     public void setConnectionsToReady(){
         readySent = true;
     }
@@ -52,22 +59,42 @@ public class SessionState {
         return gisName;
     }
 
+    /**
+     * Reports if is connected to App
+     * @return true/false if it is connected to App
+     */
     public Boolean isAppConnected(){
         return appConnected;
     }
 
+    /**
+     * Reports if is connected to GIS
+     * @return true/false if it is connected to GIS
+     */
     public Boolean isGisConnected(){
         return gisConnected;
     }
 
+    /**
+     * Reports if Ready has been sent
+     * @return true/false if ready has been sent
+     */
     public Boolean isReadySent(){
         return readySent;
     }
 
+    /**
+     * Gets time when App has connected to CCC-Server
+     * @return time on which appConnect has been received
+     */
     public long getAppConnectTime() {
         return appConnectTime;
     }
 
+    /**
+     * Gets time when GIS has connected to CCC-Server
+     * @return time on which gisConnect has been received
+     */
     public long getGisConnectTime(){
         return gisConnectTime;
     }
