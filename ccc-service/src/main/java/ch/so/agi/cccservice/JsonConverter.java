@@ -4,12 +4,18 @@ import ch.so.agi.cccservice.messages.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.xml.soap.Node;
 import java.io.IOException;
 
 @Component
 public class JsonConverter {
+
+    Logger logger = LoggerFactory.getLogger(SocketHandler.class);
 
     /**
      * Convert a message-object to a JSON-string
@@ -34,20 +40,38 @@ public class JsonConverter {
 
          ObjectMapper mapper = new ObjectMapper();
          JsonNode obj = mapper.readTree(str);
+         checkNodeTypeString(obj.get("method"), "method");
          String method;
          try {
              method = obj.get("method").asText();
          } catch (NullPointerException e) {
              throw new ServiceException(400, "No method found in given JSON");
          }
-         try {
+        checkNodeTypeString(obj, "method");
+        checkNodeTypeString(obj, "apiVersion" );
+        checkNodeTypeString(obj, "clientName" );
+        checkNodeTypeString(obj, "session" );
+        checkNodeTypeObject(obj, "context");
+        checkNodeTypeObject(obj, "zoomTo" );
+        checkNodeTypeObject(obj, "data" );
+        checkNodeTypeObject(obj, "properties" );
+        checkNodeTypeArrayOrObject(obj, "context_list" );
+        checkNodeTypeInteger(obj, "code" );
+        checkNodeTypeString(obj, "message" );
+        checkNodeTypeObject(obj, "userData" );
+        checkNodeTypeString(obj, "nativeCode" );
+        checkNodeTypeString(obj, "technicalDetails" );
+
+
+
+        try {
              if (method.equals(ConnectAppMessage.METHOD_NAME)) {
                  ConnectAppMessage appConnectMessage = new ConnectAppMessage();
                  appConnectMessage.setApiVersion(obj.get("apiVersion").asText());
                  appConnectMessage.setClientName(obj.get("clientName").asText());
                  appConnectMessage.setSession(new SessionId(obj.get("session").asText()));
-                 if (appConnectMessage.getSession() == null || appConnectMessage.getApiVersion() == null ||
-                         appConnectMessage.getClientName() == null){
+                 if (appConnectMessage.getSession() == null || appConnectMessage.getApiVersion() == null
+                         || appConnectMessage.getClientName() == null){
                      throw new ServiceException(400, "Attribute in appConnect is missing or wrong.");
                  }
                  return appConnectMessage;
@@ -145,5 +169,46 @@ public class JsonConverter {
          } catch (NullPointerException e) {
              throw new ServiceException(400, "One or more arguments missing for given method!");
          }
+    }
+
+    private void checkNodeTypeString(JsonNode obj, String attr) throws ServiceException {
+        JsonNode node = obj.get(attr);
+        try {
+            if (!node.getNodeType().equals(JsonNodeType.STRING)) {
+                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be a string.");
+            }
+        }catch(NullPointerException e) {
+            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        }
+    }
+    private void checkNodeTypeObject(JsonNode obj, String attr) throws ServiceException {
+        JsonNode node = obj.get(attr);
+        try {
+            if (!node.getNodeType().equals(JsonNodeType.OBJECT)) {
+                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an object.");
+            }
+        }catch(NullPointerException e) {
+            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        }
+    }
+    private void checkNodeTypeArrayOrObject(JsonNode obj, String attr) throws ServiceException {
+        JsonNode node = obj.get(attr);
+        try {
+            if (!node.getNodeType().equals(JsonNodeType.ARRAY) && !node.getNodeType().equals(JsonNodeType.OBJECT)) {
+                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an array.");
+            }
+        }catch(NullPointerException e) {
+            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        }
+    }
+    private void checkNodeTypeInteger(JsonNode obj, String attr) throws ServiceException {
+        JsonNode node = obj.get(attr);
+        try {
+            if (!node.getNodeType().equals(JsonNodeType.NUMBER)) {
+                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an integer.");
+            }
+        }catch(NullPointerException e) {
+            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        }
     }
 }

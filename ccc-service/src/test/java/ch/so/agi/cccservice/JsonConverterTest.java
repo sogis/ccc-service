@@ -13,6 +13,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class JsonConverterTest {
+    //private String appConnectString = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
     private String appConnectString = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
             "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
             "\"clientName\":\"Axioma Mandant AfU\"," +
