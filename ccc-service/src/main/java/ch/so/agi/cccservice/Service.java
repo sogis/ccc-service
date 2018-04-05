@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import static java.lang.Math.abs;
 
 /**
- *
+ * Defines what happens if a message has been sent to the CCC-Server
  */
 @Component
 public class Service {
@@ -25,10 +25,9 @@ public class Service {
 
     /**
      * Based on the type of message the correct method will be called
-     * @param messageSource type of client that sent the given message (APP or GIS).
      * @param sessionId ID of session
      * @param message delivered Message
-     * @throws ServiceException
+     * @throws ServiceException on Exception
      */
     public void handleAppMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
 
@@ -59,10 +58,9 @@ public class Service {
     }
     /**
      * Based on the type of message the correct method will be called
-     * @param messageSource type of client that sent the given message (APP or GIS).
      * @param sessionId ID of session
      * @param message delivered Message
-     * @throws ServiceException
+     * @throws ServiceException on Exception
      */
     public void handleGisMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
 

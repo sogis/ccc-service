@@ -304,7 +304,12 @@ public class JsonConverterTest {
         jsonConverter.stringToMessage(createMessageWithoutContext);
     }
 
-    /*todo: Abklären, ob getestet werden soll, ob im ZoomTo-Attribut ein Objekt abgespeichert ist.*/
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnZoomTo() throws IOException, ServiceException {
+        String createString = "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"zoomTo\":\"gemeinde: 2542\"}";
+        jsonConverter.stringToMessage(createString);
+    }
 
     @Test (expected = ServiceException.class)
     public void missingContextInEditMessage() throws IOException, ServiceException {
@@ -318,7 +323,13 @@ public class JsonConverterTest {
         String editMessageWithoutData = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
         jsonConverter.stringToMessage(editMessageWithoutData);
     }
-    /*todo: Abklären, ob getestet werden soll, ob im data-Attribut ein Geojson-Objekt abgespeichert ist:*/
+
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnDataInEditMessage() throws IOException, ServiceException {
+        String editString = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"data\":\"{type:Point,coordinates:[2609190,1226652]}\"}";
+        jsonConverter.stringToMessage(editString);
+    }
 
     @Test (expected = ServiceException.class)
     public void missingContextInShowMessage() throws IOException, ServiceException {
@@ -332,14 +343,25 @@ public class JsonConverterTest {
         String showMessageWithoutData = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
         jsonConverter.stringToMessage(showMessageWithoutData);
     }
-    /*todo: Abklären, ob getestet werden soll, ob im data-Attribut ein Geojson-Objekt abgespeichert ist:*/
+
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnDataInShowMessage() throws IOException, ServiceException {
+        String showString = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"data\":\"{type:Point,coordinates:[2609190,1226652]}\"}";
+        jsonConverter.stringToMessage(showString);
+    }
 
     @Test (expected = ServiceException.class)
     public void missingContextInCancelMessage() throws IOException, ServiceException {
         String cancelMessageWithoutContext = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\"}";
         jsonConverter.stringToMessage(cancelMessageWithoutContext);
     }
-    /*todo: Abklären, ob getestet werden soll, ob im context-Attribut ein Json-Objekt abgespeichert ist.*/
+
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnContextInCancelMessage() throws IOException, ServiceException {
+        String cancelString = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\",\"context\":\"{afu_geschaeft:3671951}\"}";
+        jsonConverter.stringToMessage(cancelString);
+    }
 
     @Test (expected = ServiceException.class)
     public void missingContextAttributeInChangedMessage() throws IOException, ServiceException {
@@ -353,9 +375,19 @@ public class JsonConverterTest {
         String dataWrittenMessageWithoutProperties = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\"}";
         jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
     }
-    /*todo: Abklären, ob getestet werden soll, ob im properties-Attribut ein Json-Objekt abgespeichert ist. */
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
+        String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":\"{laufnr:2017-820," +
+                "grundbuch:Trimbach}\"}";
+        jsonConverter.stringToMessage(dataWrittenString);
+    }
 
-    /*Todo: Abklären, ob bei der selectedMessage geprüft werden soll, ob die context_list wirklich ein Array ist */
+    @Test (expected = ServiceException.class)
+    public void wrongTypeOnContext_listInSelectedMessage() throws IOException, ServiceException {
+        String selectedString = "{\"method\":\""+NotifyGeoObjectSelectedMessage.METHOD_NAME+"\",\"context_list\":" +
+                "\"[{bfs_num:231,parz_num:1951},{bfs_num:231,parz_num:2634}]\"}";
+        jsonConverter.stringToMessage(selectedString);
+    }
 
     @Test (expected = ServiceException.class)
     public void missingCodeAttributeInErrorMessage() throws IOException, ServiceException {
@@ -370,7 +402,15 @@ public class JsonConverterTest {
         String errorMessageWithoutMessage = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999}";
         jsonConverter.stringToMessage(errorMessageWithoutMessage);
     }
-    /*Todo: Abklären, ob getestet werden soll, ob im userData-Attribut ein Json-Objekt abgespeicher ist.*/
+
+    @Test (expected = ServiceException.class)
+    public void wrongTypOnUserDataInErrorMessage() throws IOException, ServiceException {
+        String errorString = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999,\"message\":\"test Errormessage\"," +
+                "\"userData\":\"{test:3671951}\",\"nativeCode\":\"test nativeCode\"," +
+                "\"technicalDetails\":\"test technicalDetails\"}";
+        jsonConverter.stringToMessage(errorString);
+
+    }
 
 
     //TEST-HILFSKLASSEN
