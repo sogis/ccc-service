@@ -3,12 +3,20 @@ package ch.so.agi.cccprobe;
 import ch.so.agi.cccservice.JsonConverter;
 import ch.so.agi.cccservice.ServiceException;
 import ch.so.agi.cccservice.SessionId;
+import ch.so.agi.cccservice.SocketHandler;
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.*;
 
+/**
+ * The AppClientHandler class is a supporting-class for SimpleClient.
+ */
 public class AppClientHandler implements WebSocketHandler {
+
+    Logger logger = LoggerFactory.getLogger(SocketHandler.class);
 
     Boolean appReady = null;
 
@@ -19,21 +27,34 @@ public class AppClientHandler implements WebSocketHandler {
         return appReady;
     }
 
+    /**
+     * Set supportsPartialMessages to false
+     * @return false
+     */
     @Override
     public boolean supportsPartialMessages() {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    /**
+     * Handle an error from the underlying WebSocket message transport and write it into the error-log.
+     * @param session: The WebSocketSession where the error occurred
+     * @param exception: The thrown Error
+     * @throws Exception
+     */
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        System.out.println("Got a handleTransportError");
+        logger.error("Got a handleTransportError ", exception);
     }
 
+    /**
+     * Handles an incoming JSON message.
+     * @param session The WebSocketSession
+     * @param message The incoming message. Allows only the method "ready". "error" and anything else set appReady to "false"
+     * @throws Exception
+     */
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-
-        //System.out.println("AppMessage received: " + message.getPayload());
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode obj = mapper.readTree(message.getPayload().toString());
@@ -44,41 +65,65 @@ public class AppClientHandler implements WebSocketHandler {
             throw new ServiceException(400, "No method found in given JSON");
         }
 
-        if (method.equals("ready")) {
-            System.out.println("AppConnection ready");
+        if (method.equals("notifySessionReady")) {
+            logger.info(session.getId()+" ready");
             appReady = true;
         }
         else if (method.equals("error")) {
-            System.out.println("Got Error: "+obj.get("message").asText());
+            logger.error("Got Error: "+obj.get("message").asText());
+            appReady = false;
         }
         else {
-            System.out.println("Did not get correct message. Got: "+message.getPayload());
+            logger.error("Did not get correct message. Got: "+message.getPayload());
             appReady = false;
         }
     }
 
+    /**
+     *Invoked after WebSocket negotiation has succeeded and the WebSocket connection is opened and ready for use.
+     * @param session The WebSocketSession
+     * @throws Exception
+     */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         webSocketSession = session;
     }
 
+    /**
+     * Invoked after the WebSocket connection has been closed by either side, or after a transport error has occurred.
+     * Although the session may technically still be open, depending on the underlying implementation,
+     * sending messages at this point is discouraged and most likely will not succeed.
+     * @param session The WebSocketSession
+     * @param closeStatus The close status
+     * @throws Exception
+     */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-
+        logger.info("Connection closed!");
     }
 
+    /**
+     * Converts a message (class) to a string and send the resulting JSON to the WebSocket
+     * @param msg The message (class)
+     * @throws Exception
+     */
     public void sendMessage(AbstractMessage msg) throws Exception {
         JsonConverter jsonConverter = new JsonConverter();
         String resultingJson = jsonConverter.messageToString(msg);
         webSocketSession.sendMessage(new TextMessage(resultingJson));
     }
 
+    /**
+     * Checks if the connection is open or not.
+     * @param webSocketHandler: The webSocketHandler
+     * @return true or false (boolean)
+     */
     public boolean isConnected(WebSocketHandler webSocketHandler) {
         try {
             webSocketSession.isOpen();
             return true;
         } catch(NullPointerException e){
-            System.out.println("WebsocketSession is not open!");
+            logger.error("WebsocketSession is not open!",e);
             return false;
         }
     }

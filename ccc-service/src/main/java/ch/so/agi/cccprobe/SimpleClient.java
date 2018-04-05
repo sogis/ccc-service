@@ -5,10 +5,18 @@ import ch.so.agi.cccservice.messages.ConnectAppMessage;
 import ch.so.agi.cccservice.messages.ConnectGisMessage;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
+/**
+ * A simple websocket-client for testing the connection with the ccc-service from AGI Solothurn.
+ */
 public class SimpleClient {
 
     public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
 
+    /**
+     * The main and only class
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         StandardWebSocketClient appClient = new StandardWebSocketClient();
         AppClientHandler appSessionHandler = new AppClientHandler();
@@ -16,7 +24,7 @@ public class SimpleClient {
         appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
 
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
-        appConnectMessage.setApiVersion("2.0");
+        appConnectMessage.setApiVersion("1.0");
         appConnectMessage.setSession(sessionId);
         appConnectMessage.setClientName("Axioma Mandant AfU");
 
