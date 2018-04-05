@@ -1,9 +1,9 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.AbstractMessage;
-import ch.so.agi.cccservice.messages.AppConnectMessage;
-import ch.so.agi.cccservice.messages.ErrorMessage;
-import ch.so.agi.cccservice.messages.GisConnectMessage;
+import ch.so.agi.cccservice.messages.ConnectAppMessage;
+import ch.so.agi.cccservice.messages.NotifyErrorMessage;
+import ch.so.agi.cccservice.messages.ConnectGisMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -65,18 +65,18 @@ public class SocketHandler extends TextWebSocketHandler {
             AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
             SessionId sessionId = null;
-            if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
+            if (message instanceof ConnectAppMessage || message instanceof ConnectGisMessage) {
 
                 if (sessionPool.getSessionId(socket) != null) {
                     throw new ServiceException(504, "Application is already connected.");
                 }
 
-                if (message instanceof AppConnectMessage){
-                    logger.info(((AppConnectMessage) message).getSession().getSessionId());
-                    sessionPool.addAppWebSocketSession(((AppConnectMessage) message).getSession(), socket);
-                } else if (message instanceof GisConnectMessage){
-                    logger.info(((GisConnectMessage) message).getSession().getSessionId());
-                    sessionPool.addGisWebSocketSession(((GisConnectMessage) message).getSession(), socket);
+                if (message instanceof ConnectAppMessage){
+                    logger.info(((ConnectAppMessage) message).getSession().getSessionId());
+                    sessionPool.addAppWebSocketSession(((ConnectAppMessage) message).getSession(), socket);
+                } else if (message instanceof ConnectGisMessage){
+                    logger.info(((ConnectGisMessage) message).getSession().getSessionId());
+                    sessionPool.addGisWebSocketSession(((ConnectGisMessage) message).getSession(), socket);
                 } else {
                     throw new IllegalStateException();
                 }
@@ -84,7 +84,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }else {
                 sessionId = sessionPool.getSessionId(socket);
                 if(sessionId==null) {
-                    throw new ServiceException(500,"unexpected method <"+message.getMethod()+">; client must first send "+AppConnectMessage.APP_CONNECT+" or "+GisConnectMessage.GIS_CONNECT);
+                    throw new ServiceException(500,"unexpected method <"+message.getMethod()+">; client must first send "+ConnectAppMessage.METHOD_NAME+" or "+ConnectGisMessage.METHOD_NAME);
                 }
             }
 
@@ -92,7 +92,7 @@ public class SocketHandler extends TextWebSocketHandler {
             service.handleMessage(clientType,sessionId, message);
         }catch(ServiceException ex) {
             logger.error("failed to handle request",ex);
-            ErrorMessage msg=new ErrorMessage();
+            NotifyErrorMessage msg=new NotifyErrorMessage();
             msg.setCode(ex.getErrorCode());
             msg.setMessage(ex.getMessage());
             try {
@@ -102,7 +102,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }
         }catch(Exception ex) {
             logger.error("failed to handle request",ex);
-            ErrorMessage msg=new ErrorMessage();
+            NotifyErrorMessage msg=new NotifyErrorMessage();
             msg.setCode(500);
             String msgTxt=ex.getMessage();
             if(msgTxt==null) {

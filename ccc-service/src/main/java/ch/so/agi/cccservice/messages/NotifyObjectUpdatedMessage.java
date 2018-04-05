@@ -2,12 +2,12 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class DataWrittenMessage extends AbstractMessage {
-    public static final String DATA_WRITTEN = "dataWritten";
+public class NotifyObjectUpdatedMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "notifyObjectUpdated";
     private JsonNode properties;
 
-    public DataWrittenMessage() {
-        super(DATA_WRITTEN);
+    public NotifyObjectUpdatedMessage() {
+        super(METHOD_NAME);
     }
 
     public JsonNode getProperties() {

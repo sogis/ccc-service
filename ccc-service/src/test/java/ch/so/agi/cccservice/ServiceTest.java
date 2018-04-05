@@ -17,22 +17,22 @@ public class ServiceTest {
     private String sessionString = "{123-456-789-0}";
     private SessionId sessionId = new SessionId(sessionString);
     private String apiVersion = "1.0";
-    private String readyString = "{\"method\":\"ready\",\"apiVersion\":\"1.0\"}";
+    private String readyString = "{\"method\":\""+NotifySessionReadyMessage.METHOD_NAME+"\",\"apiVersion\":\"1.0\"}";
     private String createString =
-            "{\"method\":\"create\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"zoomTo\":{\"gemeinde\":2542}}";
+            "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"zoomTo\":{\"gemeinde\":2542}}";
     private String editString =
-            "{\"method\":\"edit\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\"," +
+            "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"},\"data\":{\"type\":\"Point\"," +
                     "\"coordinates\":\"[2609190,1226652]\"}}";
-    private String showString = "{\"method\":\"show\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+    private String showString = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-    private String cancelString = "{\"method\":\"cancel\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
-    private String changedString = "{\"method\":\"changed\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+    private String cancelString = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
+    private String changedString = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-    private String selectedString = "{\"method\":\"selected\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951}," +
+    private String selectedString = "{\"method\":\""+NotifyGeoObjectSelectedMessage.METHOD_NAME+"\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951}," +
             "{\"bfs_num\":231,\"parz_num\":2634}]}";
-    private String dataWrittenString = "{\"method\":\"dataWritten\",\"properties\":{\"laufnr\":\"2017-820\"," +
+    private String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":{\"laufnr\":\"2017-820\"," +
             "\"grundbuch\":\"Trimbach\"}}";
-    private String errorString = "{\"method\":\"error\",\"code\":999,\"message\":\"test Errormessage\"," +
+    private String errorString = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999,\"message\":\"test Errormessage\"," +
             "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
             "\"technicalDetails\":\"test technicalDetails\"}";
     private SocketSenderDummy socketSender = new SocketSenderDummy();
@@ -45,7 +45,7 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);
 
@@ -60,8 +60,8 @@ public class ServiceTest {
 
     }
 
-    private AppConnectMessage generateAppConnectMessage(SessionId sessionId, String apiVersion){
-        AppConnectMessage appConnectMessage = new AppConnectMessage();
+    private ConnectAppMessage generateAppConnectMessage(SessionId sessionId, String apiVersion){
+        ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setClientName(expectedAppName);
         appConnectMessage.setSession(sessionId);
         appConnectMessage.setApiVersion(apiVersion);
@@ -75,7 +75,7 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);
 
@@ -89,8 +89,8 @@ public class ServiceTest {
         Assert.assertEquals(expectedGisName, gisName);
     }
 
-    private GisConnectMessage generateGisConnectMessage(SessionId sessionId, String apiVersion){
-        GisConnectMessage gisConnectMessage = new GisConnectMessage();
+    private ConnectGisMessage generateGisConnectMessage(SessionId sessionId, String apiVersion){
+        ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
         gisConnectMessage.setClientName(expectedGisName);
         gisConnectMessage.setSession(sessionId);
         gisConnectMessage.setApiVersion(apiVersion);
@@ -116,9 +116,9 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
 
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);
 
@@ -147,9 +147,9 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
 
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);
 
@@ -164,7 +164,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        CreateMessage createMessage = (CreateMessage) jsonConverter.stringToMessage(createString);
+        CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.create(sessionId, createMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -179,7 +179,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        EditMessage editMessage = (EditMessage) jsonConverter.stringToMessage(editString);
+        EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.edit(sessionId, editMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -194,7 +194,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
+        ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
         service.show(sessionId, showMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -209,7 +209,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        CancelMessage cancelMessage = (CancelMessage) jsonConverter.stringToMessage(cancelString);
+        CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) jsonConverter.stringToMessage(cancelString);
         service.cancel(sessionId, cancelMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -224,7 +224,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        ChangedMessage changedMessage = (ChangedMessage) jsonConverter.stringToMessage(changedString);
+        NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) jsonConverter.stringToMessage(changedString);
         service.changed(sessionId, changedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
@@ -239,7 +239,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        SelectedMessage selectedMessage = (SelectedMessage) jsonConverter.stringToMessage(selectedString);
+        NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) jsonConverter.stringToMessage(selectedString);
         service.selected(sessionId, selectedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
@@ -254,7 +254,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) jsonConverter.stringToMessage(dataWrittenString);
+        NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.dataWritten(sessionId, dataWrittenMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -272,7 +272,7 @@ public class ServiceTest {
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
 
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
         sessionPool.addSession(sessionId, sessionState);
 
         service.handleAppConnect(appConnectMessage);
@@ -288,13 +288,13 @@ public class ServiceTest {
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
-        AppConnectMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
 
         sessionPool.addSession(sessionId, sessionState);
 
         service.handleAppConnect(appConnectMessage);
 
-        GisConnectMessage gisConnectMessage = generateGisConnectMessage(sessionId, wrongApiVersion);
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, wrongApiVersion);
 
         service.handleGisConnect(gisConnectMessage);
 
@@ -307,7 +307,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        DataWrittenMessage dataWrittenMessage = (DataWrittenMessage) jsonConverter.stringToMessage(dataWrittenString);
+        NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.handleMessage(Service.APP,sessionId, dataWrittenMessage);
 
 
@@ -324,7 +324,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        CancelMessage cancelMessage = (CancelMessage) jsonConverter.stringToMessage(cancelString);
+        CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) jsonConverter.stringToMessage(cancelString);
         service.handleMessage(Service.APP,sessionId, cancelMessage);
 
 
@@ -341,7 +341,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        SelectedMessage selectedMessage = (SelectedMessage) jsonConverter.stringToMessage(selectedString);
+        NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) jsonConverter.stringToMessage(selectedString);
         service.handleMessage(Service.GIS,sessionId, selectedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
@@ -356,7 +356,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        ChangedMessage changedMessage = (ChangedMessage) jsonConverter.stringToMessage(changedString);
+        NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) jsonConverter.stringToMessage(changedString);
         service.handleMessage(Service.APP,sessionId, changedMessage);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
@@ -371,7 +371,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        CreateMessage createMessage = (CreateMessage) jsonConverter.stringToMessage(createString);
+        CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.handleMessage(Service.APP,sessionId, createMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -386,7 +386,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        EditMessage editMessage = (EditMessage) jsonConverter.stringToMessage(editString);
+        EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.edit(sessionId, editMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -401,7 +401,7 @@ public class ServiceTest {
 
         Service service = establishConnection();
 
-        ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
+        ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
         service.show(sessionId, showMessage);
 
         List<AbstractMessage> gisMessages = socketSender.getGisMessages();
@@ -416,7 +416,7 @@ public class ServiceTest {
 
         Service service = new Service(sessionPool, socketSender);
 
-        ShowMessage showMessage = (ShowMessage) jsonConverter.stringToMessage(showString);
+        ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
         service.show(sessionId, showMessage);
 
     }

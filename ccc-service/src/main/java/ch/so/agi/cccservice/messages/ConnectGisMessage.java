@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import ch.so.agi.cccservice.SessionId;
 
-public class GisConnectMessage extends AbstractMessage {
-    public static final String GIS_CONNECT = "gisConnect";
+public class ConnectGisMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "connectGis";
     @JsonUnwrapped
     private SessionId session;
     private String clientName;
     private String apiVersion;
 
-    public GisConnectMessage() {
-        super(GIS_CONNECT);
+    public ConnectGisMessage() {
+        super(METHOD_NAME);
     }
 
     public SessionId getSession() {

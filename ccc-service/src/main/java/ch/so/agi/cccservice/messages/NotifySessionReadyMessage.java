@@ -1,11 +1,11 @@
 package ch.so.agi.cccservice.messages;
 
-public class ReadyMessage extends AbstractMessage {
-    public static final String READY = "ready";
+public class NotifySessionReadyMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "notifySessionReady";
     private String apiVersion;
 
-    public ReadyMessage() {
-        super(READY);
+    public NotifySessionReadyMessage() {
+        super(METHOD_NAME);
     }
 
     public String getApiVersion() {

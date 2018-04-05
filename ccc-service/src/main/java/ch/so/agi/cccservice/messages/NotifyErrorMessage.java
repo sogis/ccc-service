@@ -5,16 +5,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  *
  */
-public class ErrorMessage extends AbstractMessage{
-    public static final String ERROR = "error";
+public class NotifyErrorMessage extends AbstractMessage{
+    public static final String METHOD_NAME = "notifyError";
     private int code;
     private String message;
     private JsonNode userData;
     private String nativeCode;
     private String technicalDetails;
 
-    public ErrorMessage() {
-        super(ERROR);
+    public NotifyErrorMessage() {
+        super(METHOD_NAME);
     }
 
 

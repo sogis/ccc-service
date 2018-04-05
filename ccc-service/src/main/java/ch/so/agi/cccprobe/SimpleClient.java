@@ -1,8 +1,8 @@
 package ch.so.agi.cccprobe;
 
 import ch.so.agi.cccservice.SessionId;
-import ch.so.agi.cccservice.messages.AppConnectMessage;
-import ch.so.agi.cccservice.messages.GisConnectMessage;
+import ch.so.agi.cccservice.messages.ConnectAppMessage;
+import ch.so.agi.cccservice.messages.ConnectGisMessage;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 public class SimpleClient {
@@ -15,7 +15,7 @@ public class SimpleClient {
 
         appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
 
-        AppConnectMessage appConnectMessage = new AppConnectMessage();
+        ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setApiVersion("2.0");
         appConnectMessage.setSession(sessionId);
         appConnectMessage.setClientName("Axioma Mandant AfU");
@@ -34,7 +34,7 @@ public class SimpleClient {
 
         gisClient.doHandshake(gisSessionHandler,"ws://localhost:8080/myHandler");
 
-        GisConnectMessage gisConnectMessage = new GisConnectMessage();
+        ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
         gisConnectMessage.setApiVersion("1.0");
         gisConnectMessage.setSession(sessionId);
         gisConnectMessage.setClientName("Gis Client");
