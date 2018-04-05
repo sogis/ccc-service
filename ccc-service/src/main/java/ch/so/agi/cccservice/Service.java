@@ -221,7 +221,6 @@ public class Service {
         SessionState sessionState = sessionPool.getSession(sessionId);
         msg.setApiVersion("1.0");
 
-        //ToDo: Verbindungsunterbruch abfangen?
         sender.sendMessageToApp(sessionId, msg);
         sender.sendMessageToGis(sessionId, msg);
 

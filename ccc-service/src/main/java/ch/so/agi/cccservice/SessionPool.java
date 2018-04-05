@@ -122,11 +122,11 @@ public class SessionPool {
 
         if (gisSessionId != null){
             socketToId.remove(gisSocket);
-        } //ToDo: Fehlermeldung falls nicht existiert?
+        }
 
         if (appSessionId != null){
             socketToId.remove(appSocket);
-        }//ToDo: Fehlermeldung falls nicht existiert?
+        }
 
         if (sessionState != null) {
             sessionStates.remove(sessionId);
@@ -136,11 +136,11 @@ public class SessionPool {
 
         if (gisSocket != null){
             idToGisSocket.remove(sessionId);
-        } //ToDo: Fehlermeldung falls nicht existiert?
+        }
 
         if (appSocket != null){
             idToAppSocket.remove(sessionId);
-        }//ToDo: Fehlermeldung falls nicht existiert?
+        }
     }
 
     /** gets the type of the attached client.
