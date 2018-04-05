@@ -2,12 +2,12 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class SelectedMessage extends AbstractMessage  {
-    public static final String SELECTED = "selected";
+public class NotifyGeoObjectSelectedMessage extends AbstractMessage  {
+    public static final String METHOD_NAME = "notifyGeoObjectSelected";
     private JsonNode context_list;
 
-    public SelectedMessage() {
-        super(SELECTED);
+    public NotifyGeoObjectSelectedMessage() {
+        super(METHOD_NAME);
     }
 
     public JsonNode getContext_list() {

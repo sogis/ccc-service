@@ -41,8 +41,8 @@ public class JsonConverter {
              throw new ServiceException(400, "No method found in given JSON");
          }
          try {
-             if (method.equals("appConnect")) {
-                 AppConnectMessage appConnectMessage = new AppConnectMessage();
+             if (method.equals(ConnectAppMessage.METHOD_NAME)) {
+                 ConnectAppMessage appConnectMessage = new ConnectAppMessage();
                  appConnectMessage.setApiVersion(obj.get("apiVersion").asText());
                  appConnectMessage.setClientName(obj.get("clientName").asText());
                  appConnectMessage.setSession(new SessionId(obj.get("session").asText()));
@@ -52,8 +52,8 @@ public class JsonConverter {
                  }
                  return appConnectMessage;
              }
-             if (method.equals("gisConnect")) {
-                 GisConnectMessage gisConnectMessage = new GisConnectMessage();
+             if (method.equals(ConnectGisMessage.METHOD_NAME)) {
+                 ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
                  gisConnectMessage.setApiVersion(obj.get("apiVersion").asText());
                  gisConnectMessage.setClientName(obj.get("clientName").asText());
                  gisConnectMessage.setSession(new SessionId(obj.get("session").asText()));
@@ -63,16 +63,16 @@ public class JsonConverter {
                  }
                  return gisConnectMessage;
              }
-             if (method.equals("ready")) {
-                 ReadyMessage readyMessage = new ReadyMessage();
+             if (method.equals(NotifySessionReadyMessage.METHOD_NAME)) {
+                 NotifySessionReadyMessage readyMessage = new NotifySessionReadyMessage();
                  readyMessage.setApiVersion(obj.get("apiVersion").asText());
                  if (readyMessage.getApiVersion() == null){
                      throw new ServiceException(400, "Attribute apiVersion is missing or wrong.");
                  }
                  return readyMessage;
              }
-             if (method.equals("create")) {
-                 CreateMessage createMessage = new CreateMessage();
+             if (method.equals(CreateGeoObjectMessage.METHOD_NAME)) {
+                 CreateGeoObjectMessage createMessage = new CreateGeoObjectMessage();
                  createMessage.setContext(obj.get("context"));
                  createMessage.setZoomTo(obj.get("zoomTo"));
                  if (createMessage.getContext() == null) {
@@ -80,8 +80,8 @@ public class JsonConverter {
                  }
                  return createMessage;
              }
-             if (method.equals("edit")) {
-                 EditMessage editMessage = new EditMessage();
+             if (method.equals(EditGeoObjectMessage.METHOD_NAME)) {
+                 EditGeoObjectMessage editMessage = new EditGeoObjectMessage();
                  editMessage.setContext(obj.get("context"));
                  editMessage.setData(obj.get("data"));
                  if (editMessage.getContext() == null || editMessage.getData() == null){
@@ -89,8 +89,8 @@ public class JsonConverter {
                  }
                  return editMessage;
              }
-             if (method.equals("show")) {
-                 ShowMessage showMessage = new ShowMessage();
+             if (method.equals(ShowGeoObjectMessage.METHOD_NAME)) {
+                 ShowGeoObjectMessage showMessage = new ShowGeoObjectMessage();
                  showMessage.setContext(obj.get("context"));
                  showMessage.setData(obj.get("data"));
                  if (showMessage.getContext() == null || showMessage.getData() == null){
@@ -98,16 +98,16 @@ public class JsonConverter {
                  }
                  return showMessage;
              }
-             if (method.equals("cancel")) {
-                 CancelMessage cancelMessage = new CancelMessage();
+             if (method.equals(CancelEditGeoObjectMessage.METHOD_NAME)) {
+                 CancelEditGeoObjectMessage cancelMessage = new CancelEditGeoObjectMessage();
                  cancelMessage.setContext(obj.get("context"));
                  if (cancelMessage.getContext() == null){
                      throw new ServiceException(400, "Attribute context is missing or wrong.");
                  }
                  return cancelMessage;
              }
-             if (method.equals("changed")) {
-                 ChangedMessage changedMessage = new ChangedMessage();
+             if (method.equals(NotifyEditGeoObjectDoneMessage.METHOD_NAME)) {
+                 NotifyEditGeoObjectDoneMessage changedMessage = new NotifyEditGeoObjectDoneMessage();
                  changedMessage.setContext(obj.get("context"));
                  changedMessage.setData(obj.get("data"));
                  if (changedMessage.getContext() == null){
@@ -115,16 +115,16 @@ public class JsonConverter {
                  }
                  return changedMessage;
              }
-             if (method.equals("dataWritten")) {
-                 DataWrittenMessage dataWrittenMessage = new DataWrittenMessage();
+             if (method.equals(NotifyObjectUpdatedMessage.METHOD_NAME)) {
+                 NotifyObjectUpdatedMessage dataWrittenMessage = new NotifyObjectUpdatedMessage();
                  dataWrittenMessage.setProperties(obj.get("properties"));
                  if (dataWrittenMessage.getProperties() == null){
                      throw new ServiceException(400, "Attribute properties is missing or wrong.");
                  }
                  return dataWrittenMessage;
              }
-             if (method.equals("error")){
-                 ErrorMessage errorMessage = new ErrorMessage();
+             if (method.equals(NotifyErrorMessage.METHOD_NAME)){
+                 NotifyErrorMessage errorMessage = new NotifyErrorMessage();
                  errorMessage.setCode(obj.get("code").asInt());
                  errorMessage.setMessage(obj.get("message").asText());
                  errorMessage.setUserData(obj.get("userData"));
@@ -135,8 +135,8 @@ public class JsonConverter {
                  }
                  return errorMessage;
              }
-             if (method.equals("selected")) {
-                 SelectedMessage selectedMessage = new SelectedMessage();
+             if (method.equals(NotifyGeoObjectSelectedMessage.METHOD_NAME)) {
+                 NotifyGeoObjectSelectedMessage selectedMessage = new NotifyGeoObjectSelectedMessage();
                  selectedMessage.setContext_list(obj.get("context_list"));
                  return selectedMessage;
              } else {

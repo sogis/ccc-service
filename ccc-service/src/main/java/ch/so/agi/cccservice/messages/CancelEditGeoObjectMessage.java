@@ -2,13 +2,13 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class CancelMessage extends AbstractMessage {
+public class CancelEditGeoObjectMessage extends AbstractMessage {
 
-    public static final String CANCEL = "cancel";
+    public static final String METHOD_NAME = "cancelEditGeoObject";
     private JsonNode context;
 
-    public CancelMessage() {
-        super(CANCEL);
+    public CancelEditGeoObjectMessage() {
+        super(METHOD_NAME);
     }
 
     public JsonNode getContext() {

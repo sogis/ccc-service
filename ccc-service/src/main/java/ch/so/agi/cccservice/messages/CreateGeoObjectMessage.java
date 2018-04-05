@@ -3,13 +3,13 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class CreateMessage extends AbstractMessage {
-    public static final String CREATE = "create";
+public class CreateGeoObjectMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "createGeoObject";
     private JsonNode context;
     private JsonNode zoomTo;
 
-    public CreateMessage() {
-        super(CREATE);
+    public CreateGeoObjectMessage() {
+        super(METHOD_NAME);
     }
 
 

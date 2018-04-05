@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import ch.so.agi.cccservice.SessionId;
 
-public class AppConnectMessage extends AbstractMessage {
-    public static final String APP_CONNECT = "appConnect";
+public class ConnectAppMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "connectApp";
     @JsonUnwrapped
    private SessionId session;
    private String clientName;
    private String apiVersion;
 
-   public AppConnectMessage() {
-      super(APP_CONNECT);
+   public ConnectAppMessage() {
+      super(METHOD_NAME);
    }
 
    public SessionId getSession() {

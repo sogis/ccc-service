@@ -3,13 +3,13 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ChangedMessage extends AbstractMessage {
-    public static final String CHANGED = "changed";
+public class NotifyEditGeoObjectDoneMessage extends AbstractMessage {
+    public static final String METHOD_NAME = "notifyGeoObjectDone";
     private JsonNode context;
     private JsonNode data;
 
-    public ChangedMessage() {
-        super(CHANGED);
+    public NotifyEditGeoObjectDoneMessage() {
+        super(METHOD_NAME);
     }
 
     public JsonNode getContext() {

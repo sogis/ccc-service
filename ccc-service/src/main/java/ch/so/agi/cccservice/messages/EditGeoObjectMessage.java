@@ -2,14 +2,15 @@ package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ShowMessage extends AbstractMessage {
-    public static final String SHOW = "show";
+public class EditGeoObjectMessage extends AbstractMessage  {
+    public static final String METHOD_NAME = "editGeoObject";
     private JsonNode context;
     private JsonNode data;
 
-    public ShowMessage() {
-        super(SHOW);
+    public EditGeoObjectMessage() {
+        super(METHOD_NAME);
     }
+
 
     public JsonNode getContext() {
         return context;
