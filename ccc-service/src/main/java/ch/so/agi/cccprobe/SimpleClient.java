@@ -16,7 +16,7 @@ public class SimpleClient {
         appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
 
         AppConnectMessage appConnectMessage = new AppConnectMessage();
-        appConnectMessage.setApiVersion("2.0");
+        appConnectMessage.setApiVersion("1.0");
         appConnectMessage.setSession(sessionId);
         appConnectMessage.setClientName("Axioma Mandant AfU");
 

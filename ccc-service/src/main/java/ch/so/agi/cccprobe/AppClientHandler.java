@@ -28,8 +28,6 @@ public class AppClientHandler implements WebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         System.out.println("Got a handleTransportError");
-        // TODO Auto-generated method stub
-
     }
 
     @Override
