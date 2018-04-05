@@ -1,16 +1,8 @@
 package ch.so.agi.cccprobe;
 
-import java.util.Scanner;
-
-import ch.so.agi.cccservice.JsonConverter;
 import ch.so.agi.cccservice.SessionId;
 import ch.so.agi.cccservice.messages.AppConnectMessage;
 import ch.so.agi.cccservice.messages.GisConnectMessage;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 public class SimpleClient {
@@ -24,12 +16,18 @@ public class SimpleClient {
         appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
 
         AppConnectMessage appConnectMessage = new AppConnectMessage();
-        appConnectMessage.setApiVersion("1.0");
+        appConnectMessage.setApiVersion("2.0");
         appConnectMessage.setSession(sessionId);
         appConnectMessage.setClientName("Axioma Mandant AfU");
 
         Thread.sleep(2000);
-        appSessionHandler.sendMessage(appConnectMessage);
+        if (appSessionHandler.isConnected(appSessionHandler)) {
+            appSessionHandler.sendMessage(appConnectMessage);
+        }
+        else {
+            System.out.println("Session not open. Could not send appConnectMessage");
+        }
+
 
         StandardWebSocketClient gisClient = new StandardWebSocketClient();
         AppClientHandler gisSessionHandler = new AppClientHandler();
@@ -42,12 +40,18 @@ public class SimpleClient {
         gisConnectMessage.setClientName("Gis Client");
 
         Thread.sleep(2000);
-        gisSessionHandler.sendMessage(gisConnectMessage);
+        if (gisSessionHandler.isConnected(gisSessionHandler)) {
+            gisSessionHandler.sendMessage(gisConnectMessage);
+        }
+        else {
+            System.out.println("Session not open. Could not send gisConnectMessage");
+        }
 
         Thread.sleep(2000);
         if (gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true && appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true) {
             System.exit(0);
         }
+
         System.exit(1);
 
     }
