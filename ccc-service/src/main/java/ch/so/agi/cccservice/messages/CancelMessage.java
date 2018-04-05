@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class CancelMessage extends AbstractMessage {
 
+    public static final String CANCEL = "cancel";
     private JsonNode context;
 
     public CancelMessage() {
-        super("cancel");
+        super(CANCEL);
     }
 
     public JsonNode getContext() {

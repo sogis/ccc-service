@@ -58,3 +58,11 @@ sourceSets {
 	}
 }
 
+task jardist(type: Copy,dependsOn:bootJar){
+	delete fileTree('jardist')
+	destinationDir = file('jardist')
+	from bootJar
+	from configurations.runtimeClasspath
+	// version = '1.0.6'
+	
+}

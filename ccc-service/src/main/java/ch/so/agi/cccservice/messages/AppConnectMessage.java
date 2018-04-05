@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import ch.so.agi.cccservice.SessionId;
 
 public class AppConnectMessage extends AbstractMessage {
+    public static final String APP_CONNECT = "appConnect";
     @JsonUnwrapped
    private SessionId session;
    private String clientName;
    private String apiVersion;
 
    public AppConnectMessage() {
-      super("appConnect");
+      super(APP_CONNECT);
    }
 
    public SessionId getSession() {

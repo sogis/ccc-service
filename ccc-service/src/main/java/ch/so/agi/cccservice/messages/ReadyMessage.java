@@ -1,10 +1,11 @@
 package ch.so.agi.cccservice.messages;
 
 public class ReadyMessage extends AbstractMessage {
+    public static final String READY = "ready";
     private String apiVersion;
 
     public ReadyMessage() {
-        super("ready");
+        super(READY);
     }
 
     public String getApiVersion() {

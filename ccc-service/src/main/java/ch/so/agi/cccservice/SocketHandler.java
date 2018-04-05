@@ -11,6 +11,9 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +64,7 @@ public class SocketHandler extends TextWebSocketHandler {
         try {
             AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
+            SessionId sessionId = null;
             if (message instanceof AppConnectMessage || message instanceof GisConnectMessage) {
 
                 if (sessionPool.getSessionId(socket) != null) {
@@ -76,9 +80,14 @@ public class SocketHandler extends TextWebSocketHandler {
                 } else {
                     throw new IllegalStateException();
                 }
+                sessionId = sessionPool.getSessionId(socket);
+            }else {
+                sessionId = sessionPool.getSessionId(socket);
+                if(sessionId==null) {
+                    throw new ServiceException(500,"unexpected method <"+message.getMethod()+">; client must first send "+AppConnectMessage.APP_CONNECT+" or "+GisConnectMessage.GIS_CONNECT);
+                }
             }
 
-            SessionId sessionId = sessionPool.getSessionId(socket);
             int clientType=sessionPool.getClientType(socket);
             service.handleMessage(clientType,sessionId, message);
         }catch(ServiceException ex) {
@@ -86,7 +95,11 @@ public class SocketHandler extends TextWebSocketHandler {
             ErrorMessage msg=new ErrorMessage();
             msg.setCode(ex.getErrorCode());
             msg.setMessage(ex.getMessage());
-            socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
+            try {
+                socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
+            }catch(IOException ex2) {
+                logger.error("failed to send error back to client",ex);
+            }
         }catch(Exception ex) {
             logger.error("failed to handle request",ex);
             ErrorMessage msg=new ErrorMessage();
@@ -96,7 +109,11 @@ public class SocketHandler extends TextWebSocketHandler {
                 msgTxt=ex.getClass().getName();
             }
             msg.setMessage(msgTxt);
-            socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
+            try {
+                socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
+            }catch(IOException ex2) {
+                logger.error("failed to send error back to client",ex);
+            }
         }
     }
 

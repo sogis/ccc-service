@@ -4,11 +4,12 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class CreateMessage extends AbstractMessage {
+    public static final String CREATE = "create";
     private JsonNode context;
     private JsonNode zoomTo;
 
     public CreateMessage() {
-        super("create");
+        super(CREATE);
     }
 
 

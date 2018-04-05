@@ -4,11 +4,12 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class ChangedMessage extends AbstractMessage {
+    public static final String CHANGED = "changed";
     private JsonNode context;
     private JsonNode data;
 
     public ChangedMessage() {
-        super("changed");
+        super(CHANGED);
     }
 
     public JsonNode getContext() {
