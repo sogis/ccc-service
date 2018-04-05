@@ -3,7 +3,7 @@ package ch.so.agi.cccservice;
 import ch.so.agi.cccservice.messages.AbstractMessage;
 
 /**
- * handles Messages which have to be sent to either GIS or App
+ * sends Messages to either GIS or App
  */
 public interface SocketSender {
 

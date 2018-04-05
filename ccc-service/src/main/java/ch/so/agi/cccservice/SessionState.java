@@ -3,7 +3,8 @@ package ch.so.agi.cccservice;
 import java.sql.Timestamp;
 
 /**
- * Handles Sessions with their state and their names for application and GIS
+ * The current state of one active ccc session.
+ * A ccc sesssion is a pairing of a domain application and a gis application.
  */
 public class SessionState {
     private String appName;

@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-/**
- * Implementation of SocketSender-Class
- * handles Messages which have to be sent to either GIS or App
+/** Sends messages via the already open websocket to the client (APP or GIS).
  */
 @Component
 public class SocketSenderImpl implements SocketSender {

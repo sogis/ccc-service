@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/** maps the incoming web socket messages to ccc functionality. Main class of the ccc-service.
+ */
 @Component
 public class SocketHandler extends TextWebSocketHandler {
 
@@ -37,6 +39,7 @@ public class SocketHandler extends TextWebSocketHandler {
     private JsonConverter jsonConverter;
 
 
+    @Override
     public void afterConnectionClosed(WebSocketSession socket, CloseStatus status) throws Exception {
         SessionId sessionId = sessionPool.getSessionId(socket);
         if(sessionId != null) {
@@ -49,13 +52,11 @@ public class SocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-
     public void afterConnectionEstablished(WebSocketSession socket) throws Exception {
 
     }
 
     @Override
-
     protected void handleTextMessage(WebSocketSession socket, TextMessage textMessage) throws Exception {
 
         // A message has been received

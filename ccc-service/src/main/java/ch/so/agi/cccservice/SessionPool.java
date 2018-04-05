@@ -6,7 +6,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.HashMap;
 
 /**
- * Administrates Sessions (Id, WebSocketSession, SessionStates)
+ * Collection of active ccc sessions (Id, WebSocketSession, SessionStates)
  */
 @Component
 public class SessionPool {
