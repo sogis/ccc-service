@@ -155,6 +155,7 @@ public class Service {
         long maxAllowedTimeDifference = 60 * 1000;  //60 seconds
 
         if (timeDifference > maxAllowedTimeDifference){
+            removeSessionFromSessionStateOnTimeOut(sessionState);
             throw new ServiceException(506, "Session-Timeout");
         }
 
@@ -171,6 +172,23 @@ public class Service {
         long gisConnectTime = sessionState.getGisConnectTime();
 
         return abs(appConnectTime - gisConnectTime);
+    }
+
+
+    /**
+     * Removes Session from SessionState on timeout
+     * @param sessionState
+     * @throws ServiceException
+     */
+    private void removeSessionFromSessionStateOnTimeOut(SessionState sessionState) {
+        long appConnectTime = sessionState.getAppConnectTime();
+        long gisConnectTime = sessionState.getGisConnectTime();
+
+        if (appConnectTime > gisConnectTime) {
+            sessionState.removeAppConnection();
+        } else if (gisConnectTime > appConnectTime) {
+            sessionState.removeGisConnection();
+        }
     }
 
 

@@ -99,4 +99,22 @@ public class SessionState {
     public long getGisConnectTime(){
         return gisConnectTime;
     }
+
+    /**
+     * Removes App from SessionState
+     */
+    public void removeAppConnection(){
+        this.appName = null;
+        appConnected = false;
+        Timestamp timestamp = null;
+    }
+
+    /**
+     * Removes GIS from SessionState
+     */
+    public void removeGisConnection(){
+        this.gisName = null;
+        gisConnected = false;
+        Timestamp timestamp = null;
+    }
 }

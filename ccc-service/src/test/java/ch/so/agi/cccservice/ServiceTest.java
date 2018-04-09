@@ -163,7 +163,7 @@ public class ServiceTest {
 
 
     @Test (expected = ServiceException.class)
-    public void failWithSessionTimeOut() throws Exception{
+    public void failsWithSessionTimeOut() throws Exception{
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -176,6 +176,54 @@ public class ServiceTest {
 
         service.handleAppConnect(appConnectMessage);
         TimeUnit.SECONDS.sleep(62);
+
+        service.handleGisConnect(gisConnectMessage);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void failsWithSessionTimeOutOnDoubleAppConnect() throws Exception{
+
+        SessionState sessionState = new SessionState();
+        Service service = new Service(sessionPool, socketSender);
+
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+
+        sessionPool.addSession(sessionId, sessionState);
+
+        service.handleGisConnect(gisConnectMessage);
+        TimeUnit.SECONDS.sleep(62);
+
+        try {
+            service.handleAppConnect(appConnectMessage);
+        } catch (ServiceException e) {
+            System.out.println(e.getMessage());
+        }
+
+        service.handleAppConnect(appConnectMessage);
+    }
+
+    @Test (expected = ServiceException.class)
+    public void failsWithSessionTimeOutOnDoubleGisConnect() throws Exception{
+
+        SessionState sessionState = new SessionState();
+        Service service = new Service(sessionPool, socketSender);
+
+        ConnectAppMessage appConnectMessage = generateAppConnectMessage(sessionId, apiVersion);
+
+        ConnectGisMessage gisConnectMessage = generateGisConnectMessage(sessionId, apiVersion);
+
+        sessionPool.addSession(sessionId, sessionState);
+
+        service.handleAppConnect(appConnectMessage);
+        TimeUnit.SECONDS.sleep(62);
+
+        try {
+            service.handleGisConnect(gisConnectMessage);
+        } catch (ServiceException e) {
+            System.out.println(e.getMessage());
+        }
 
         service.handleGisConnect(gisConnectMessage);
     }
