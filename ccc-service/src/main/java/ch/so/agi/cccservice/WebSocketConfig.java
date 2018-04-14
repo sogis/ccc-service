@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(socketHandler, "/myHandler").setAllowedOrigins("*");
+        registry.addHandler(socketHandler, "/ccc-service").setAllowedOrigins("*");
     }
 
     @Bean
