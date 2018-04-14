@@ -5,6 +5,9 @@ import ch.so.agi.cccservice.ServiceException;
 import ch.so.agi.cccservice.SessionId;
 import ch.so.agi.cccservice.SocketHandler;
 import ch.so.agi.cccservice.messages.AbstractMessage;
+import ch.so.agi.cccservice.messages.NotifyErrorMessage;
+import ch.so.agi.cccservice.messages.NotifySessionReadyMessage;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -19,9 +22,13 @@ public class AppClientHandler implements WebSocketHandler {
     Logger logger = LoggerFactory.getLogger(SocketHandler.class);
 
     Boolean appReady = null;
-
+    private String clientName;
     private SessionId sessionId;
     private WebSocketSession webSocketSession;
+
+    public AppClientHandler(String appClientName) {
+        this.clientName=appClientName;
+    }
 
     public Boolean getAppReady() {
         return appReady;
@@ -65,11 +72,11 @@ public class AppClientHandler implements WebSocketHandler {
             throw new ServiceException(400, "No method found in given JSON");
         }
 
-        if (method.equals("notifySessionReady")) {
-            logger.info(session.getId()+" ready");
+        if (method.equals(NotifySessionReadyMessage.METHOD_NAME)) {
+            logger.info(clientName+" "+method+" received");
             appReady = true;
         }
-        else if (method.equals("error")) {
+        else if (method.equals(NotifyErrorMessage.METHOD_NAME)) {
             logger.error("Got Error: "+obj.get("message").asText());
             appReady = false;
         }
@@ -99,7 +106,7 @@ public class AppClientHandler implements WebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        logger.info("Connection closed!");
+        logger.info(clientName+": connection closed!");
     }
 
     /**

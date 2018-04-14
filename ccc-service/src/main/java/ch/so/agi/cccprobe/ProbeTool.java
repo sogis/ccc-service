@@ -3,6 +3,9 @@ package ch.so.agi.cccprobe;
 import ch.so.agi.cccservice.SessionId;
 import ch.so.agi.cccservice.messages.ConnectAppMessage;
 import ch.so.agi.cccservice.messages.ConnectGisMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 /**
@@ -11,8 +14,12 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
  */
 public class ProbeTool {
 
+    public static final String GIS_CLIENT_NAME = "ProbeTool GIS";
+    public static final String CCC_PROTOCOL_VERSION = "1.0";
+    public static final String APP_CLIENT_NAME = "ProbeTool APP";
     private static final String DEFAULT_ENDPOINT = "ws://localhost:8080/ccc-service";
     public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
+    Logger logger = LoggerFactory.getLogger(ProbeTool.class);
 
     /**
      * The main and only class
@@ -20,8 +27,11 @@ public class ProbeTool {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+        new ProbeTool().mymain(args);
+    }
+    public void mymain(String[] args) throws Exception {
         StandardWebSocketClient appClient = new StandardWebSocketClient();
-        AppClientHandler appSessionHandler = new AppClientHandler();
+        AppClientHandler appSessionHandler = new AppClientHandler(APP_CLIENT_NAME);
         String endpoint=DEFAULT_ENDPOINT;
         if(args.length==1) {
             endpoint=args[0];
@@ -29,35 +39,35 @@ public class ProbeTool {
         appClient.doHandshake(appSessionHandler,endpoint);
 
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
-        appConnectMessage.setApiVersion("1.0");
+        appConnectMessage.setApiVersion(CCC_PROTOCOL_VERSION);
         appConnectMessage.setSession(sessionId);
-        appConnectMessage.setClientName("Axioma Mandant AfU");
+        appConnectMessage.setClientName(APP_CLIENT_NAME);
 
         Thread.sleep(2000);
         if (appSessionHandler.isConnected(appSessionHandler)) {
             appSessionHandler.sendMessage(appConnectMessage);
         }
         else {
-            System.out.println("Session not open. Could not send appConnectMessage");
+            logger.error("Session not open. Could not send "+appConnectMessage.getMethod());
         }
 
 
         StandardWebSocketClient gisClient = new StandardWebSocketClient();
-        AppClientHandler gisSessionHandler = new AppClientHandler();
+        AppClientHandler gisSessionHandler = new AppClientHandler(GIS_CLIENT_NAME);
 
         gisClient.doHandshake(gisSessionHandler,endpoint);
 
         ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
-        gisConnectMessage.setApiVersion("1.0");
+        gisConnectMessage.setApiVersion(CCC_PROTOCOL_VERSION);
         gisConnectMessage.setSession(sessionId);
-        gisConnectMessage.setClientName("Gis Client");
+        gisConnectMessage.setClientName(GIS_CLIENT_NAME);
 
         Thread.sleep(2000);
         if (gisSessionHandler.isConnected(gisSessionHandler)) {
             gisSessionHandler.sendMessage(gisConnectMessage);
         }
         else {
-            System.out.println("Session not open. Could not send gisConnectMessage");
+            logger.error("Session not open. Could not send "+gisConnectMessage.getMethod());
         }
 
         Thread.sleep(2000);
