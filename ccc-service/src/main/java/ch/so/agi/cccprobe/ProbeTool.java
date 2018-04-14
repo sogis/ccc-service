@@ -6,10 +6,12 @@ import ch.so.agi.cccservice.messages.ConnectGisMessage;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 /**
- * A simple websocket-client for testing the connection with the ccc-service from AGI Solothurn.
+ * A tool for testing the liveness of the ccc-service.
+ * The liveness is checked, by executing a basic happy flow of the ccc protocol.
  */
-public class SimpleClient {
+public class ProbeTool {
 
+    private static final String DEFAULT_ENDPOINT = "ws://localhost:8080/ccc-service";
     public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
 
     /**
@@ -20,8 +22,11 @@ public class SimpleClient {
     public static void main(String[] args) throws Exception {
         StandardWebSocketClient appClient = new StandardWebSocketClient();
         AppClientHandler appSessionHandler = new AppClientHandler();
-
-        appClient.doHandshake(appSessionHandler,"ws://localhost:8080/myHandler");
+        String endpoint=DEFAULT_ENDPOINT;
+        if(args.length==1) {
+            endpoint=args[0];
+        }
+        appClient.doHandshake(appSessionHandler,endpoint);
 
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setApiVersion("1.0");
@@ -40,7 +45,7 @@ public class SimpleClient {
         StandardWebSocketClient gisClient = new StandardWebSocketClient();
         AppClientHandler gisSessionHandler = new AppClientHandler();
 
-        gisClient.doHandshake(gisSessionHandler,"ws://localhost:8080/myHandler");
+        gisClient.doHandshake(gisSessionHandler,endpoint);
 
         ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
         gisConnectMessage.setApiVersion("1.0");
