@@ -27,7 +27,8 @@ task build(dependsOn: jardist){
 				"sogis/ccc-service:$buildident",
 				"sogis/ccc-service:latest"
 			}
-			// docker run -p 8080:8080 -d claeis/ccc-service
+			// docker run -p 8080:8080 -d sogis/ccc-service
+			// docker run -p 8080:8080 -e CCC_DEBUG=1 -d sogis/ccc-service
 			// docker run -it --rm alpine ping 172.17.0.2
         }
     }
