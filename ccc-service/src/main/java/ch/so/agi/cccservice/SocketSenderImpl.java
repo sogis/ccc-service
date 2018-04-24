@@ -2,6 +2,9 @@ package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -13,7 +16,8 @@ public class SocketSenderImpl implements SocketSender {
 
     private SessionPool sessionPool;
     private JsonConverter jsonConverter = new JsonConverter();
-
+    Logger logger = LoggerFactory.getLogger(SocketSenderImpl.class);
+    
     /**
      * Constructor
      * @param sessionPool with all Sessions
@@ -51,6 +55,8 @@ public class SocketSenderImpl implements SocketSender {
             TextMessage textMessage = new TextMessage(messageString);
 
             try {
+                String clientIpAddress = webSocketSession.getRemoteAddress().getAddress().getHostAddress();
+                logger.debug("send to "+clientIpAddress+":"+textMessage.getPayload());
                 webSocketSession.sendMessage(textMessage);
             } catch (Exception e) {
                 throw new ServiceException(503, "Could not send message : " + messageString + " to " + clientName +".");
