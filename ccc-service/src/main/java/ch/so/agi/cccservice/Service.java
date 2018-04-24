@@ -1,6 +1,9 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +19,7 @@ public class Service {
 
     private SessionPool sessionPool;
     private SocketSender sender;
-
+    
     @Autowired
     public Service(SessionPool sessionPool, SocketSender sender){
         this.sessionPool = sessionPool;
@@ -30,25 +33,25 @@ public class Service {
      * @throws ServiceException on Exception
      */
     public void handleAppMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
-
+        
         if (message instanceof ConnectAppMessage) {
             ConnectAppMessage appConnectMessage = (ConnectAppMessage) message;
-            handleAppConnect(appConnectMessage);
+            handleConnectApp(appConnectMessage);
         }else if (message instanceof CancelEditGeoObjectMessage){
             CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) message;
-            cancel(sessionId, cancelMessage);
+            handleCancelEditGeoObject(sessionId, cancelMessage);
         }else if (message instanceof CreateGeoObjectMessage){
             CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) message;
-            create(sessionId, createMessage);
+            handleCreateGeoObject(sessionId, createMessage);
         }else if (message instanceof NotifyObjectUpdatedMessage){
             NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) message;
-            dataWritten(sessionId, dataWrittenMessage);
+            handleNotifyObjectUpdated(sessionId, dataWrittenMessage);
         }else if (message instanceof EditGeoObjectMessage){
             EditGeoObjectMessage editMessage = (EditGeoObjectMessage) message;
-            edit(sessionId, editMessage);
+            handleEditGeoObject(sessionId, editMessage);
         }else if (message instanceof ShowGeoObjectMessage){
             ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) message;
-            show(sessionId, showMessage);
+            handleShowGeoObject(sessionId, showMessage);
         }else if (message instanceof NotifyErrorMessage){
             NotifyErrorMessage errorMessage = (NotifyErrorMessage) message;
             handleError(APP,sessionId, errorMessage);
@@ -66,13 +69,13 @@ public class Service {
 
         if (message instanceof ConnectGisMessage) {
             ConnectGisMessage gisConnectMessage = (ConnectGisMessage) message;
-            handleGisConnect(gisConnectMessage);
+            handleConnectGis(gisConnectMessage);
         }else if (message instanceof NotifyEditGeoObjectDoneMessage){
             NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) message;
-            changed(sessionId, changedMessage);
+            handleNotifyEditGeoObjectDone(sessionId, changedMessage);
         }else if (message instanceof NotifyGeoObjectSelectedMessage){
             NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) message;
-            selected(sessionId, selectedMessage);
+            handleNotifyGeoObjectSelected(sessionId, selectedMessage);
         }else if (message instanceof NotifyErrorMessage){
             NotifyErrorMessage errorMessage = (NotifyErrorMessage) message;
             handleError(GIS,sessionId, errorMessage);
@@ -99,7 +102,7 @@ public class Service {
      * @param msg AppConnectMessage
      * @throws ServiceException when there is no session in the sessionPool with the same sessionID
      */
-    public void handleAppConnect(ConnectAppMessage msg) throws ServiceException{
+    public void handleConnectApp(ConnectAppMessage msg) throws ServiceException{
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
@@ -119,7 +122,7 @@ public class Service {
             if (sessionState.isGisConnected()){
                 sessionTimeOut = checkForSessionTimeOut(sessionState);
                 if (!sessionTimeOut) {
-                    sendReady(sessionId, readyMessage);
+                    sendNotifySessionReady(sessionId, readyMessage);
                 }
             }
         } else {
@@ -197,7 +200,7 @@ public class Service {
      * When GIS sents handleGisConnect the SessionState will be set to connected to gis
      * @param msg GisConnectMessage sent from GIS
      */
-    public void handleGisConnect(ConnectGisMessage msg) throws ServiceException {
+    public void handleConnectGis(ConnectGisMessage msg) throws ServiceException {
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
@@ -217,7 +220,7 @@ public class Service {
             if (sessionState.isAppConnected()){
                 sessionTimeOut = checkForSessionTimeOut(sessionState);
                 if (!sessionTimeOut) {
-                    sendReady(sessionId, readyMessage);
+                    sendNotifySessionReady(sessionId, readyMessage);
                 }
             }
         } else {
@@ -233,7 +236,7 @@ public class Service {
      * @param sessionId sessionID of this specific connection
      * @param msg Ready-Message
      */
-    private void sendReady(SessionId sessionId, NotifySessionReadyMessage msg) throws ServiceException {
+    private void sendNotifySessionReady(SessionId sessionId, NotifySessionReadyMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
         msg.setApiVersion("1.0");
 
@@ -248,7 +251,7 @@ public class Service {
      * @param sessionId ID of Session
      * @param msg createMessage
      */
-    public void create(SessionId sessionId, CreateGeoObjectMessage msg) throws ServiceException {
+    public void handleCreateGeoObject(SessionId sessionId, CreateGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -272,7 +275,7 @@ public class Service {
      * @param msg editMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void edit(SessionId sessionId, EditGeoObjectMessage msg) throws ServiceException{
+    public void handleEditGeoObject(SessionId sessionId, EditGeoObjectMessage msg) throws ServiceException{
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -285,7 +288,7 @@ public class Service {
      * @param msg showMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void show(SessionId sessionId, ShowGeoObjectMessage msg) throws ServiceException {
+    public void handleShowGeoObject(SessionId sessionId, ShowGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -298,7 +301,7 @@ public class Service {
      * @param msg cancelMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void cancel(SessionId sessionId, CancelEditGeoObjectMessage msg) throws ServiceException {
+    public void handleCancelEditGeoObject(SessionId sessionId, CancelEditGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -312,7 +315,7 @@ public class Service {
      * @param msg changedMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void changed(SessionId sessionId, NotifyEditGeoObjectDoneMessage msg) throws ServiceException {
+    public void handleNotifyEditGeoObjectDone(SessionId sessionId, NotifyEditGeoObjectDoneMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -326,7 +329,7 @@ public class Service {
      * @param msg selectedMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void selected(SessionId sessionId, NotifyGeoObjectSelectedMessage msg) throws ServiceException {
+    public void handleNotifyGeoObjectSelected(SessionId sessionId, NotifyGeoObjectSelectedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -340,7 +343,7 @@ public class Service {
      * @param msg dataWrittenMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void dataWritten(SessionId sessionId, NotifyObjectUpdatedMessage msg) throws ServiceException {
+    public void handleNotifyObjectUpdated(SessionId sessionId, NotifyObjectUpdatedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
