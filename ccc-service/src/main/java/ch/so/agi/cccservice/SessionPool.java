@@ -3,6 +3,7 @@ package ch.so.agi.cccservice;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -133,7 +134,21 @@ public class SessionPool {
         } else {
             throw new IllegalArgumentException("Session does not happen to have a sessionState");
         }
+        if (gisSocket!=null && gisSocket.getRemoteAddress()!=null && gisSocket.isOpen()) {
+            try {
+                gisSocket.close();
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Can not Close gisSocket");
+            }
+        }
 
+        if (appSocket!=null && appSocket.getRemoteAddress()!=null && appSocket.isOpen()) {
+            try {
+                appSocket.close();
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Can not Close appSocket");
+            }
+        }
         if (gisSocket != null){
             idToGisSocket.remove(sessionId);
         }
