@@ -106,6 +106,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }
         }catch(ServiceException ex) {
             logger.error("failed to handle request",ex);
+            logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
             NotifyErrorMessage msg=new NotifyErrorMessage();
             msg.setCode(ex.getErrorCode());
             msg.setMessage(ex.getMessage());
@@ -116,6 +117,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }
         }catch(Exception ex) {
             logger.error("failed to handle request",ex);
+            logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
             NotifyErrorMessage msg=new NotifyErrorMessage();
             msg.setCode(500);
             String msgTxt=ex.getMessage();
