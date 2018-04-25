@@ -78,13 +78,13 @@ public class SocketHandler extends TextWebSocketHandler {
                 if (message instanceof ConnectAppMessage){
                     ConnectAppMessage connectAppMessage = (ConnectAppMessage) message;
                     sessionId=connectAppMessage.getSession();
-                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectAppMessage.getClientName());
+                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectAppMessage.getMethod()+": "+connectAppMessage.getClientName());
                     MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                     sessionPool.addAppWebSocketSession(connectAppMessage.getSession(), socket);
                 } else if (message instanceof ConnectGisMessage){
                     ConnectGisMessage connectGisMessage = (ConnectGisMessage) message;
                     sessionId=connectGisMessage.getSession();
-                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectGisMessage.getClientName());
+                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectGisMessage.getMethod()+": "+connectGisMessage.getClientName());
                     MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                     sessionPool.addGisWebSocketSession(connectGisMessage.getSession(), socket);
                 } else {
