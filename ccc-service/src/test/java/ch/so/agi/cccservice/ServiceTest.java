@@ -4,18 +4,19 @@ import ch.so.agi.cccservice.messages.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class ServiceTest {
 
-    private SessionPool sessionPool = new SessionPool();
     private final String expectedAppName = "App-Name";
     private final String expectedGisName = "GIS-Name";
     private final String sessionString = "{123-456-789-0}";
     private final SessionId sessionId = new SessionId(sessionString);
     private final String session2String = "{123-456-789-2}";
-    private final SessionId sessionId2 = new SessionId(sessionString);
+    private final SessionId sessionId2 = new SessionId(session2String);
     private final String apiVersion = "1.0";
     private final String readyString = "{\"method\":\""+NotifySessionReadyMessage.METHOD_NAME+"\",\"apiVersion\":\"1.0\"}";
     private final String createString =
@@ -43,6 +44,7 @@ public class ServiceTest {
     public void appConnectMethodTest() throws Exception {
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -73,6 +75,7 @@ public class ServiceTest {
     public void gisConnectMethodTest() throws Exception {
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectGisMessage gisConnectMessage = createConnectGisMessage(sessionId, apiVersion);
@@ -102,7 +105,8 @@ public class ServiceTest {
     @Test
     public void basicConnectionTestGisAfterApp() throws Exception {
 
-        establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         List<AbstractMessage> appMessages = socketSender.getAppMessages();
         Assert.assertTrue(appMessages.size() == 1);
@@ -117,7 +121,7 @@ public class ServiceTest {
         Assert.assertEquals(gisMessage, readyString);
     }
 
-    private Service establishConnection() throws Exception{
+    private Service establishConnection(SessionPool sessionPool) throws Exception{
 
         SessionState sessionState = new SessionState();
         Service service = new Service(sessionPool, socketSender);
@@ -138,6 +142,7 @@ public class ServiceTest {
     public void basicConnectionTestAppAfterGis() throws Exception {
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -164,24 +169,54 @@ public class ServiceTest {
 
 
 
-    @Test (expected = ServiceException.class)
-    public void failsWithInactivityTimeOut() throws Exception{
+    @Test
+    public void failsWithInactivityTimeOutDetectedBySameSession() throws Exception{
         long maxInactivityTime=20;
         System.setProperty(Service.CCC_MAX_INACTIVITY, Long.toString(maxInactivityTime));
-        SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
+        SessionState sessionState = new SessionState();
+        sessionPool.addSession(sessionId, sessionState);
+        
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
+        service.handleAppMessage(sessionId,appConnectMessage);
 
         ConnectGisMessage gisConnectMessage = createConnectGisMessage(sessionId, apiVersion);
-
-        sessionPool.addSession(sessionId, sessionState);
-
-        service.handleAppMessage(sessionId,appConnectMessage);
         service.handleGisMessage(sessionId,gisConnectMessage);
+
+
         TimeUnit.SECONDS.sleep(maxInactivityTime+2);
         ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
-        service.handleAppMessage(sessionId, showMessage);
+        try {
+            service.handleAppMessage(sessionId, showMessage);
+            fail();
+        }catch(ServiceException e) {
+            assertEquals(506,e.getErrorCode());
+        }
+    }
+    
+    @Test
+    public void failsWithInactivityTimeOutDetectedByOtherSession() throws Exception{
+        long maxInactivityTime=20;
+        System.setProperty(Service.CCC_MAX_INACTIVITY, Long.toString(maxInactivityTime));
+        SessionPool sessionPool = new SessionPool();
+        Service service = new Service(sessionPool, socketSender);
+
+        SessionState sessionState = new SessionState();
+        sessionPool.addSession(sessionId, sessionState);
+        
+        ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
+        service.handleAppMessage(sessionId,appConnectMessage);
+
+        ConnectGisMessage gisConnectMessage = createConnectGisMessage(sessionId, apiVersion);
+        service.handleGisMessage(sessionId,gisConnectMessage);
+
+
+        TimeUnit.SECONDS.sleep(maxInactivityTime+2);
+        
+        sessionPool.closeInactiveSessions(maxInactivityTime);
+        assertNull(sessionPool.getSession(sessionId));
     }
 
     @Test (expected = ServiceException.class)
@@ -190,6 +225,7 @@ public class ServiceTest {
         System.setProperty(Service.CCC_MAX_PAIRING, Long.toString(maxInactivityTime));
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -210,6 +246,7 @@ public class ServiceTest {
         long maxInactivityTime=20;
         System.setProperty(Service.CCC_MAX_PAIRING, Long.toString(maxInactivityTime));
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -236,6 +273,7 @@ public class ServiceTest {
         System.setProperty(Service.CCC_MAX_PAIRING, Long.toString(maxInactivityTime));
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -259,7 +297,8 @@ public class ServiceTest {
     @Test
     public void createMethodTest() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.handleAppMessage(sessionId, createMessage);
@@ -274,7 +313,8 @@ public class ServiceTest {
     @Test
     public void editMethodTest() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.handleAppMessage(sessionId, editMessage);
@@ -289,7 +329,8 @@ public class ServiceTest {
     @Test
     public void useCaseShow() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
         service.handleAppMessage(sessionId, showMessage);
@@ -304,7 +345,8 @@ public class ServiceTest {
     @Test
     public void cancelMethodTest() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) jsonConverter.stringToMessage(cancelString);
         service.handleAppMessage(sessionId, cancelMessage);
@@ -319,7 +361,8 @@ public class ServiceTest {
     @Test
     public void changedMethodTest() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) jsonConverter.stringToMessage(changedString);
         service.handleGisMessage(sessionId, changedMessage);
@@ -334,7 +377,8 @@ public class ServiceTest {
     @Test
     public void useCaseSelected() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) jsonConverter.stringToMessage(selectedString);
         service.handleGisMessage(sessionId, selectedMessage);
@@ -349,7 +393,8 @@ public class ServiceTest {
     @Test
     public void dataWrittenMethodTest() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.handleAppMessage(sessionId, dataWrittenMessage);
@@ -367,6 +412,7 @@ public class ServiceTest {
         String apiVersion = "2.0";
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
@@ -384,6 +430,7 @@ public class ServiceTest {
         String wrongApiVersion= "2.0";
 
         SessionState sessionState = new SessionState();
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
         ConnectAppMessage appConnectMessage = createConnectAppMessage(sessionId, apiVersion);
 
@@ -402,7 +449,8 @@ public class ServiceTest {
     @Test
     public void handleMessageDataWritten() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyObjectUpdatedMessage dataWrittenMessage = (NotifyObjectUpdatedMessage) jsonConverter.stringToMessage(dataWrittenString);
         service.handleAppMessage(sessionId, dataWrittenMessage);
@@ -419,7 +467,8 @@ public class ServiceTest {
     @Test
     public void handleMessageCancel() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CancelEditGeoObjectMessage cancelMessage = (CancelEditGeoObjectMessage) jsonConverter.stringToMessage(cancelString);
         service.handleAppMessage(sessionId, cancelMessage);
@@ -436,7 +485,8 @@ public class ServiceTest {
     @Test
     public void handleMessageSelected() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyGeoObjectSelectedMessage selectedMessage = (NotifyGeoObjectSelectedMessage) jsonConverter.stringToMessage(selectedString);
         service.handleGisMessage(sessionId, selectedMessage);
@@ -451,7 +501,8 @@ public class ServiceTest {
     @Test
     public void handleMessageChanged() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         NotifyEditGeoObjectDoneMessage changedMessage = (NotifyEditGeoObjectDoneMessage) jsonConverter.stringToMessage(changedString);
         service.handleGisMessage(sessionId, changedMessage);
@@ -466,7 +517,8 @@ public class ServiceTest {
     @Test
     public void handleMessageCreate() throws Exception{
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.handleAppMessage(sessionId, createMessage);
@@ -481,7 +533,8 @@ public class ServiceTest {
     @Test
     public void handleMessageEdit() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.handleAppMessage(sessionId, editMessage);
@@ -496,7 +549,8 @@ public class ServiceTest {
     @Test
     public void handleMessageShow() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
         service.handleAppMessage(sessionId, showMessage);
@@ -511,6 +565,7 @@ public class ServiceTest {
     @Test (expected=ServiceException.class)
     public void sendShowWithoutConnection() throws Exception {
 
+        SessionPool sessionPool = new SessionPool();
         Service service = new Service(sessionPool, socketSender);
 
         ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) jsonConverter.stringToMessage(showString);
@@ -521,7 +576,8 @@ public class ServiceTest {
     @Test
     public void useCaseCreateANewObject() throws Exception {
 
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.handleAppMessage(sessionId, createMessage);
@@ -555,7 +611,8 @@ public class ServiceTest {
 
     @Test
     public void useCaseEditExistingObject() throws Exception {
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.handleAppMessage(sessionId, editMessage);
@@ -587,7 +644,8 @@ public class ServiceTest {
 
     @Test
     public void useCaseCancelAfterEdit() throws Exception {
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         EditGeoObjectMessage editMessage = (EditGeoObjectMessage) jsonConverter.stringToMessage(editString);
         service.handleAppMessage(sessionId, editMessage);
@@ -610,7 +668,8 @@ public class ServiceTest {
 
     @Test
     public void useCaseCancelAfterCreate() throws Exception {
-        Service service = establishConnection();
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
 
         CreateGeoObjectMessage createMessage = (CreateGeoObjectMessage) jsonConverter.stringToMessage(createString);
         service.handleAppMessage(sessionId, createMessage);

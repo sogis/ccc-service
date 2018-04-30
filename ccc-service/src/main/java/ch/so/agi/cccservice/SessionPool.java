@@ -117,20 +117,26 @@ public class SessionPool {
      * @param sessionId to remove
      */
     public void removeSession(SessionId sessionId) {
+        
         WebSocketSession gisSocket = idToGisSocket.get(sessionId);
+        if(gisSocket!=null) {
+            idToGisSocket.remove(sessionId);
+            SessionId gisSessionId = socketToId.get(gisSocket);
+            if (gisSessionId != null){
+                socketToId.remove(gisSocket);
+            }
+        }
+
         WebSocketSession appSocket = idToAppSocket.get(sessionId);
+        if(appSocket!=null) {
+            idToAppSocket.remove(sessionId);
+            SessionId appSessionId = socketToId.get(appSocket);
+            if (appSessionId != null){
+                socketToId.remove(appSocket);
+            }
+        }
+
         SessionState sessionState = sessionStates.get(sessionId);
-        SessionId gisSessionId = socketToId.get(gisSocket);
-        SessionId appSessionId = socketToId.get(appSocket);
-
-        if (gisSessionId != null){
-            socketToId.remove(gisSocket);
-        }
-
-        if (appSessionId != null){
-            socketToId.remove(appSocket);
-        }
-
         if (sessionState != null) {
             sessionStates.remove(sessionId);
         } else {
@@ -150,13 +156,6 @@ public class SessionPool {
             } catch (IOException e) {
                 throw new IllegalArgumentException("Can not Close appSocket");
             }
-        }
-        if (gisSocket != null){
-            idToGisSocket.remove(sessionId);
-        }
-
-        if (appSocket != null){
-            idToAppSocket.remove(sessionId);
         }
     }
 
