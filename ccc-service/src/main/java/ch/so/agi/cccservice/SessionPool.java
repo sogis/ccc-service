@@ -1,5 +1,7 @@
 package ch.so.agi.cccservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -17,7 +19,7 @@ public class SessionPool {
     private HashMap<SessionId, WebSocketSession> idToGisSocket = new HashMap<>();
     private HashMap<WebSocketSession, SessionId> socketToId = new HashMap<>();
     private HashMap<SessionId, Long> sessionActivity = new HashMap<>();
-
+    Logger logger = LoggerFactory.getLogger(SessionPool.class);
 
     /**
      * Adds a SessionId with its SessionState to the sessionStates-Hashmap
@@ -117,7 +119,6 @@ public class SessionPool {
      * @param sessionId to remove
      */
     public void removeSession(SessionId sessionId) {
-        
         WebSocketSession gisSocket = idToGisSocket.get(sessionId);
         if(gisSocket!=null) {
             idToGisSocket.remove(sessionId);
@@ -185,6 +186,7 @@ public class SessionPool {
         for(Entry<SessionId, Long> entry:sessionActivity.entrySet()) {
             if(current-entry.getValue()>maxInactivity) {
                 removeSession(entry.getKey());
+                logger.info("Session "+entry.getKey()+" closed due to inactivity");
             }
         }
         

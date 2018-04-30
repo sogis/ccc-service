@@ -381,7 +381,7 @@ public class JsonConverterTest {
                 "grundbuch:Trimbach}\"}";
         jsonConverter.stringToMessage(dataWrittenString);
     }
-    @Test
+    @Test (expected = ServiceException.class)
     public void wrongArrayTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[{\"laufnr\":\"2017-820\"," +
                 "\"grundbuch\":\"Trimbach\"}]}";
