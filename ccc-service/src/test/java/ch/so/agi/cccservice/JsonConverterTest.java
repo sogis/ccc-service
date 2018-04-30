@@ -376,9 +376,15 @@ public class JsonConverterTest {
         jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
     }
     @Test (expected = ServiceException.class)
-    public void wrongTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
+    public void wrongStringTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":\"{laufnr:2017-820," +
                 "grundbuch:Trimbach}\"}";
+        jsonConverter.stringToMessage(dataWrittenString);
+    }
+    @Test
+    public void wrongArrayTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
+        String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[{\"laufnr\":\"2017-820\"," +
+                "\"grundbuch\":\"Trimbach\"}]}";
         jsonConverter.stringToMessage(dataWrittenString);
     }
 
