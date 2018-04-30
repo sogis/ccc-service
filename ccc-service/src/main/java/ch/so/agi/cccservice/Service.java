@@ -9,16 +9,26 @@ import org.springframework.stereotype.Component;
 
 import static java.lang.Math.abs;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 /**
  * Defines what happens if a message has been sent to the CCC-Server
  */
 @Component
 public class Service {
+    public static final String CCC_MAX_INACTIVITY = "CCC_MAX_INACTIVITY";
+    public static final String CCC_MAX_PAIRING = "CCC_MAX_PAIRING";
     public static final int APP=1;
     public static final int GIS=2;
 
     private SessionPool sessionPool;
     private SocketSender sender;
+    private Logger logger = LoggerFactory.getLogger(Service.class);
+    public static final long DEFAULT_MAX_INACTIVITYTIME = 2L*60L*60L; // 2 hours
+    public static final long DEFAULT_MAX_PAIRINGTIME = 60L;  // 60 seconds
+    private Long maxInactivityTime=null;
+    private Long maxPairingTime=null;
     
     @Autowired
     public Service(SessionPool sessionPool, SocketSender sender){
@@ -33,7 +43,7 @@ public class Service {
      * @throws ServiceException on Exception
      */
     public void handleAppMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
-        
+        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime()*1000);
         if (message instanceof ConnectAppMessage) {
             ConnectAppMessage appConnectMessage = (ConnectAppMessage) message;
             handleConnectApp(appConnectMessage);
@@ -66,7 +76,7 @@ public class Service {
      * @throws ServiceException on Exception
      */
     public void handleGisMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
-
+        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime()*1000);
         if (message instanceof ConnectGisMessage) {
             ConnectGisMessage gisConnectMessage = (ConnectGisMessage) message;
             handleConnectGis(gisConnectMessage);
@@ -102,7 +112,7 @@ public class Service {
      * @param msg AppConnectMessage
      * @throws ServiceException when there is no session in the sessionPool with the same sessionID
      */
-    public void handleConnectApp(ConnectAppMessage msg) throws ServiceException{
+    private void handleConnectApp(ConnectAppMessage msg) throws ServiceException{
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
@@ -155,7 +165,7 @@ public class Service {
      */
     private boolean checkForSessionTimeOut(SessionState sessionState) throws ServiceException{
         long timeDifference = getTimeDifference(sessionState);
-        long maxAllowedTimeDifference = 60 * 1000;  //60 seconds
+        long maxAllowedTimeDifference = getMaxPairingTime() * 1000;  //60 seconds
 
         if (timeDifference > maxAllowedTimeDifference){
             removeSessionFromSessionStateOnTimeOut(sessionState);
@@ -164,7 +174,7 @@ public class Service {
 
         return false;
     }
-
+    
     /**
      * Calculates time passed between appConnect and gisConnect
      * @param sessionState of specific session
@@ -200,7 +210,7 @@ public class Service {
      * When GIS sents handleGisConnect the SessionState will be set to connected to gis
      * @param msg GisConnectMessage sent from GIS
      */
-    public void handleConnectGis(ConnectGisMessage msg) throws ServiceException {
+    private void handleConnectGis(ConnectGisMessage msg) throws ServiceException {
 
         String clientName = msg.getClientName();
         SessionId sessionId = msg.getSession();
@@ -251,7 +261,7 @@ public class Service {
      * @param sessionId ID of Session
      * @param msg createMessage
      */
-    public void handleCreateGeoObject(SessionId sessionId, CreateGeoObjectMessage msg) throws ServiceException {
+    private void handleCreateGeoObject(SessionId sessionId, CreateGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -275,7 +285,7 @@ public class Service {
      * @param msg editMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleEditGeoObject(SessionId sessionId, EditGeoObjectMessage msg) throws ServiceException{
+    private void handleEditGeoObject(SessionId sessionId, EditGeoObjectMessage msg) throws ServiceException{
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -288,7 +298,7 @@ public class Service {
      * @param msg showMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleShowGeoObject(SessionId sessionId, ShowGeoObjectMessage msg) throws ServiceException {
+    private void handleShowGeoObject(SessionId sessionId, ShowGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -301,7 +311,7 @@ public class Service {
      * @param msg cancelMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleCancelEditGeoObject(SessionId sessionId, CancelEditGeoObjectMessage msg) throws ServiceException {
+    private void handleCancelEditGeoObject(SessionId sessionId, CancelEditGeoObjectMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -315,7 +325,7 @@ public class Service {
      * @param msg changedMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleNotifyEditGeoObjectDone(SessionId sessionId, NotifyEditGeoObjectDoneMessage msg) throws ServiceException {
+    private void handleNotifyEditGeoObjectDone(SessionId sessionId, NotifyEditGeoObjectDoneMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -329,7 +339,7 @@ public class Service {
      * @param msg selectedMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleNotifyGeoObjectSelected(SessionId sessionId, NotifyGeoObjectSelectedMessage msg) throws ServiceException {
+    private void handleNotifyGeoObjectSelected(SessionId sessionId, NotifyGeoObjectSelectedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
@@ -343,10 +353,41 @@ public class Service {
      * @param msg dataWrittenMessage
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
-    public void handleNotifyObjectUpdated(SessionId sessionId, NotifyObjectUpdatedMessage msg) throws ServiceException {
+    private void handleNotifyObjectUpdated(SessionId sessionId, NotifyObjectUpdatedMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);
         sender.sendMessageToGis(sessionId, msg);
+    }
+
+    public long getMaxInactivityTime() {
+        if(maxInactivityTime==null) {
+            maxInactivityTime=DEFAULT_MAX_INACTIVITYTIME;
+            String cccMaxInactivity=System.getProperty(CCC_MAX_INACTIVITY);
+            if(cccMaxInactivity!=null) {
+                try {
+                    maxInactivityTime=Long.parseLong(cccMaxInactivity);
+                    logger.debug(CCC_MAX_INACTIVITY+" <"+maxInactivityTime+">");
+                } catch (NumberFormatException e) {
+                    logger.warn("illegal formatted "+CCC_MAX_INACTIVITY+" <"+cccMaxInactivity+">");
+                }
+            }
+        }
+        return maxInactivityTime;
+    }
+    public long getMaxPairingTime() {
+        if(maxPairingTime==null) {
+            maxPairingTime=DEFAULT_MAX_INACTIVITYTIME;
+            String cccMaxPairing=System.getProperty(CCC_MAX_PAIRING);
+            if(cccMaxPairing!=null) {
+                try {
+                    maxPairingTime=Long.parseLong(cccMaxPairing);
+                    logger.debug(CCC_MAX_PAIRING+" <"+maxPairingTime+">");
+                } catch (NumberFormatException e) {
+                    logger.warn("illegal formatted "+CCC_MAX_PAIRING+" <"+cccMaxPairing+">");
+                }
+            }
+        }
+        return maxPairingTime;
     }
 }

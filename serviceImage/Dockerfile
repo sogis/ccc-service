@@ -12,4 +12,4 @@ RUN cd /home/ccc && \
 
 USER 1001
 EXPOSE 8080
-CMD java -jar ccc-service.jar ${CCC_DEBUG:+"--spring.profiles.active=ccc-debug"}
+CMD java -jar ccc-service.jar ${CCC_MAX_INACTIVITY:-"-DCCC_MAX_INACTIVITY=${CCC_MAX_INACTIVITY}"} ${CCC_MAX_PAIRING:-"-DCCC_MAX_PAIRING=${CCC_MAX_PAIRING}"} ${CCC_DEBUG:+"--spring.profiles.active=ccc-debug"}

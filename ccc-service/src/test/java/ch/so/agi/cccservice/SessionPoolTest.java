@@ -8,6 +8,7 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class SessionPoolTest {
@@ -30,6 +31,17 @@ public class SessionPoolTest {
         SessionState savedSessionState = sessionPool.getSession(sessionId);
 
         Assert.assertEquals(sessionState, savedSessionState);
+    }
+    @Test
+    public void closeInactiveSessions() throws Exception {
+        SessionPool sessionPool = new SessionPool();
+        sessionPool.addSession(sessionId, sessionState);
+
+        SessionState savedSessionState = sessionPool.getSession(sessionId);
+        sessionPool.checkActivityTimeout(sessionId, Service.DEFAULT_MAX_INACTIVITYTIME);
+        TimeUnit.SECONDS.sleep(2);
+        sessionPool.closeInactiveSessions(1);
+        Assert.assertNull(sessionPool.getSession(sessionId));
     }
 
     @Test
@@ -102,4 +114,5 @@ public class SessionPoolTest {
         SessionPool sessionPool = new SessionPool();
         sessionPool.removeSession(sessionId);
     }
+    
 }

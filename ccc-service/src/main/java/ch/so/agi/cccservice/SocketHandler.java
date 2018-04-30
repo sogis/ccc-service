@@ -104,6 +104,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }else {
                 service.handleGisMessage(sessionId, message);
             }
+            sessionPool.closeInactiveSessions(service.getMaxInactivityTime());
         }catch(ServiceException ex) {
             logger.error("failed to handle request",ex);
             logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
@@ -115,6 +116,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }catch(IOException ex2) {
                 logger.error("failed to send error back to client",ex);
             }
+            sessionPool.closeInactiveSessions(service.getMaxInactivityTime());
         }catch(Exception ex) {
             logger.error("failed to handle request",ex);
             logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
