@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class NotifyEditGeoObjectDoneMessage extends AbstractMessage {
 
-    public static final String METHOD_NAME = "notifyGeoObjectDone";
+    public static final String METHOD_NAME = "notifyEditGeoObjectDone";
     private JsonNode context;
     private JsonNode data;
 
