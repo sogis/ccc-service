@@ -33,8 +33,8 @@ public class ServiceTest {
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
     private final String selectedString = "{\"method\":\""+NotifyGeoObjectSelectedMessage.METHOD_NAME+"\",\"context_list\":[{\"bfs_num\":231,\"parz_num\":1951}," +
             "{\"bfs_num\":231,\"parz_num\":2634}]}";
-    private final String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":{\"laufnr\":\"2017-820\"," +
-            "\"grundbuch\":\"Trimbach\"}}";
+    private final String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[\"2017-820\"," +
+            "\"Trimbach\"]}";
     private final String errorString = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999,\"message\":\"test Errormessage\"," +
             "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
             "\"technicalDetails\":\"test technicalDetails\"}";

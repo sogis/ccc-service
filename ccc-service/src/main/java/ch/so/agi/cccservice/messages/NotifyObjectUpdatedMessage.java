@@ -1,6 +1,7 @@
 package ch.so.agi.cccservice.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 /**
  * Message sent from Application on changed Objects
@@ -29,6 +30,9 @@ public class NotifyObjectUpdatedMessage extends AbstractMessage {
      * @param properties as Json
      */
     public void setProperties(JsonNode properties) {
+        if(properties.getNodeType()!=JsonNodeType.ARRAY) {
+            throw new IllegalArgumentException("unexpected properties type "+properties.getNodeType());
+        }
         this.properties = properties;
     }
 }

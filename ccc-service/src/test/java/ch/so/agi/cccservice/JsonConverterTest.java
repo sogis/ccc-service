@@ -27,8 +27,8 @@ public class JsonConverterTest {
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
     private String createString = "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"zoomTo\":{\"gemeinde\":2542}}";
-    private String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":{\"laufnr\":\"2017-820\"," +
-            "\"grundbuch\":\"Trimbach\"}}";
+    private String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[\"2017-820\"," +
+            "\"Trimbach\"]}";
     private String editString = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
     private String errorString = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999,\"message\":\"test Errormessage\"," +
@@ -128,10 +128,6 @@ public class JsonConverterTest {
         assertTrue(resultingJson.equals(dataWrittenString));
     }
 
-    @Test
-    public void stringWithObjectToDataWrittenMessage() throws IOException, ServiceException {
-        assertTrue(jsonConverter.stringToMessage(dataWrittenString) instanceof NotifyObjectUpdatedMessage);
-    }
     @Test
     public void stringWithArrayToDataWrittenMessage() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[{\"laufnr\":\"2017-820\"," +
@@ -382,6 +378,12 @@ public class JsonConverterTest {
         jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
     }
     @Test (expected = ServiceException.class)
+    public void wrongObjectTypeOnPropertiesToDataWrittenMessage() throws IOException, ServiceException {
+        String message = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":{\"laufnr\":\"2017-820\"," +
+                "\"grundbuch\":\"Trimbach\"}}";
+        assertTrue(jsonConverter.stringToMessage(message) instanceof NotifyObjectUpdatedMessage);
+    }
+    @Test (expected = ServiceException.class)
     public void wrongStringTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":\"{laufnr:2017-820," +
                 "grundbuch:Trimbach}\"}";
@@ -435,7 +437,7 @@ public class JsonConverterTest {
         return createNode("{\"gemeinde\":2542}");
     }
     private JsonNode createPropertiesNode () throws IOException {
-        return createNode("{\"laufnr\":\"2017-820\",\"grundbuch\":\"Trimbach\"}");
+        return createNode("[\"2017-820\",\"Trimbach\"]");
     }
     private JsonNode createContextListNode () throws IOException {
         return createNode("[{\"bfs_num\":231,\"parz_num\":1951},{\"bfs_num\":231,\"parz_num\":2634}]");

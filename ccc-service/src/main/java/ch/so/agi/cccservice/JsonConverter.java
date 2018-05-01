@@ -100,7 +100,7 @@ public class JsonConverter {
         checkNodeTypeObject(obj, "context");
         checkNodeTypeObject(obj, "zoomTo" );
         checkNodeTypeObject(obj, "data" );
-        checkNodeTypeArrayOrObject(obj, "properties" );
+        checkNodeTypeArray(obj, "properties" );
         checkNodeTypeArrayOrObject(obj, "context_list" );
         checkNodeTypeInteger(obj, "code" );
         checkNodeTypeString(obj, "message" );
@@ -153,6 +153,22 @@ public class JsonConverter {
         JsonNode node = obj.get(attr);
         try {
             if (!node.getNodeType().equals(JsonNodeType.ARRAY) && !node.getNodeType().equals(JsonNodeType.OBJECT)) {
+                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an array or object.");
+            }
+        }catch(NullPointerException e) {
+            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        }
+    }
+    /**
+     * Checks if a property of json node is of type Array
+     * @param obj as JsonNode
+     * @param attr (property) as String
+     * @throws ServiceException if json node is not of type Array
+     */
+    private void checkNodeTypeArray(JsonNode obj, String attr) throws ServiceException {
+        JsonNode node = obj.get(attr);
+        try {
+            if (!node.getNodeType().equals(JsonNodeType.ARRAY)) {
                 throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an array.");
             }
         }catch(NullPointerException e) {
