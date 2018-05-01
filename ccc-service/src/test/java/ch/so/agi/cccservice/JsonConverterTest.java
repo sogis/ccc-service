@@ -129,7 +129,13 @@ public class JsonConverterTest {
     }
 
     @Test
-    public void stringToDataWrittenMessage() throws IOException, ServiceException {
+    public void stringWithObjectToDataWrittenMessage() throws IOException, ServiceException {
+        assertTrue(jsonConverter.stringToMessage(dataWrittenString) instanceof NotifyObjectUpdatedMessage);
+    }
+    @Test
+    public void stringWithArrayToDataWrittenMessage() throws IOException, ServiceException {
+        String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[{\"laufnr\":\"2017-820\"," +
+                "\"grundbuch\":\"Trimbach\"}]}";
         assertTrue(jsonConverter.stringToMessage(dataWrittenString) instanceof NotifyObjectUpdatedMessage);
     }
 
@@ -379,12 +385,6 @@ public class JsonConverterTest {
     public void wrongStringTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":\"{laufnr:2017-820," +
                 "grundbuch:Trimbach}\"}";
-        jsonConverter.stringToMessage(dataWrittenString);
-    }
-    @Test (expected = ServiceException.class)
-    public void wrongArrayTypeOnPropertiesInDataWrittenMessage() throws IOException, ServiceException {
-        String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":[{\"laufnr\":\"2017-820\"," +
-                "\"grundbuch\":\"Trimbach\"}]}";
         jsonConverter.stringToMessage(dataWrittenString);
     }
 

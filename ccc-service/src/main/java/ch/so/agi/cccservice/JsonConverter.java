@@ -100,7 +100,7 @@ public class JsonConverter {
         checkNodeTypeObject(obj, "context");
         checkNodeTypeObject(obj, "zoomTo" );
         checkNodeTypeObject(obj, "data" );
-        checkNodeTypeObject(obj, "properties" );
+        checkNodeTypeArrayOrObject(obj, "properties" );
         checkNodeTypeArrayOrObject(obj, "context_list" );
         checkNodeTypeInteger(obj, "code" );
         checkNodeTypeString(obj, "message" );
