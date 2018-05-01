@@ -1,6 +1,8 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.messages.*;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +41,11 @@ public class ServiceTest {
     private SocketSenderDummy socketSender = new SocketSenderDummy();
     private JsonConverter jsonConverter = new JsonConverter();
 
-
+    @After
+    public void cleanUpSystemProperties(){
+        System.clearProperty(Service.CCC_MAX_INACTIVITY);
+        System.clearProperty(Service.CCC_MAX_PAIRING);
+    }
     @Test
     public void appConnectMethodTest() throws Exception {
 
