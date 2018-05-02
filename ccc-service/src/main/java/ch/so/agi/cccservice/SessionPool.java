@@ -119,6 +119,7 @@ public class SessionPool {
      * @param sessionId to remove
      */
     public void removeSession(SessionId sessionId) {
+        logger.debug("removeSession "+sessionId.getSessionId());
         WebSocketSession gisSocket = idToGisSocket.get(sessionId);
         if(gisSocket!=null) {
             idToGisSocket.remove(sessionId);
@@ -140,8 +141,6 @@ public class SessionPool {
         SessionState sessionState = sessionStates.get(sessionId);
         if (sessionState != null) {
             sessionStates.remove(sessionId);
-        } else {
-            throw new IllegalArgumentException("Session does not happen to have a sessionState");
         }
         if (gisSocket!=null && gisSocket.getRemoteAddress()!=null && gisSocket.isOpen()) {
             try {
@@ -173,6 +172,20 @@ public class SessionPool {
         }
         throw new IllegalStateException();
     }
+    /** get the name of the client associated with the socket.
+     * Can only be called after the connect message has been processed.
+     * @param socket web socket to client. 
+     * @return client name as received by the connect message
+     */
+    public String getClientName(WebSocketSession socket) {
+        SessionId id=socketToId.get(socket);
+        if(idToAppSocket.get(id)==socket) {
+            return getSession(id).getAppName();
+        }else if(idToGisSocket.get(id)==socket) {
+            return getSession(id).getGisName();
+        }
+        throw new IllegalStateException();
+    }
     public void checkActivityTimeout(SessionId sessionId,long maxInactivity) throws ServiceException {
         Long lastActivity=sessionActivity.get(sessionId);
         long current=System.currentTimeMillis();
@@ -189,7 +202,6 @@ public class SessionPool {
                 logger.info("Session "+entry.getKey()+" closed due to inactivity");
             }
         }
-        
     }
 
 }

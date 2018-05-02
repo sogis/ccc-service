@@ -45,8 +45,9 @@ public class SocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession socket, CloseStatus status) throws Exception {
         SessionId sessionId = sessionPool.getSessionId(socket);
         if(sessionId != null) {
+            String clientName=sessionPool.getClientName(socket);
             sessionPool.removeSession(sessionId);
-            logger.info("Session "+sessionId.getSessionId()+" closed");
+            logger.info("Session "+sessionId.getSessionId()+": socket closed by client "+clientName);
         }
 
         // The WebSocket has been closed
