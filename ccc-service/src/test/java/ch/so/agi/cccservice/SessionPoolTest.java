@@ -108,11 +108,5 @@ public class SessionPoolTest {
         Assert.assertNull(sessionPool.getGisWebSocketSession(sessionId));
         Assert.assertNull(sessionPool.getSessionId(gisWebSocketSession));
     }
-
-    @Test (expected=IllegalArgumentException.class)
-    public void removeInexistentSessionFromSessionStateHashMap(){
-        SessionPool sessionPool = new SessionPool();
-        sessionPool.removeSession(sessionId);
-    }
     
 }

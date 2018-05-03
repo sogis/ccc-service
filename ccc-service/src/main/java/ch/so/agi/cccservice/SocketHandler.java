@@ -5,6 +5,7 @@ import ch.so.agi.cccservice.messages.ConnectAppMessage;
 import ch.so.agi.cccservice.messages.NotifyErrorMessage;
 import ch.so.agi.cccservice.messages.ConnectGisMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
@@ -65,7 +66,7 @@ public class SocketHandler extends TextWebSocketHandler {
         // A message has been received
 
         String clientIpAddress = socket.getRemoteAddress().getAddress().getHostAddress();
-        logger.debug(clientIpAddress+":"+textMessage.getPayload());
+        logger.trace(clientIpAddress+":"+textMessage.getPayload());
         try {
             AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
 
@@ -79,13 +80,13 @@ public class SocketHandler extends TextWebSocketHandler {
                 if (message instanceof ConnectAppMessage){
                     ConnectAppMessage connectAppMessage = (ConnectAppMessage) message;
                     sessionId=connectAppMessage.getSession();
-                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectAppMessage.getMethod()+": "+connectAppMessage.getClientName());
+                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectAppMessage.getClientName()+": "+connectAppMessage.getMethod());
                     MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                     sessionPool.addAppWebSocketSession(connectAppMessage.getSession(), socket);
                 } else if (message instanceof ConnectGisMessage){
                     ConnectGisMessage connectGisMessage = (ConnectGisMessage) message;
                     sessionId=connectGisMessage.getSession();
-                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectGisMessage.getMethod()+": "+connectGisMessage.getClientName());
+                    logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectGisMessage.getClientName()+": "+connectGisMessage.getMethod());
                     MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                     sessionPool.addGisWebSocketSession(connectGisMessage.getSession(), socket);
                 } else {
@@ -97,6 +98,7 @@ public class SocketHandler extends TextWebSocketHandler {
                     throw new ServiceException(500,"unexpected method <"+message.getMethod()+">; client must first send "+ConnectAppMessage.METHOD_NAME+" or "+ConnectGisMessage.METHOD_NAME);
                 }
                 MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
+                logger.debug(clientIpAddress+": "+sessionPool.getClientName(socket)+": "+message.getMethod());
             }
 
             int clientType=sessionPool.getClientType(socket);
