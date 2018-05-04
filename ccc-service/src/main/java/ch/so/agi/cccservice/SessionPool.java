@@ -142,7 +142,7 @@ public class SessionPool {
         if (sessionState != null) {
             sessionStates.remove(sessionId);
         }
-        if (gisSocket!=null && gisSocket.getRemoteAddress()!=null && gisSocket.isOpen()) {
+        if (gisSocket!=null && isSocketOpen(gisSocket)) {
             try {
                 gisSocket.close();
             } catch (IOException e) {
@@ -150,13 +150,17 @@ public class SessionPool {
             }
         }
 
-        if (appSocket!=null && appSocket.getRemoteAddress()!=null && appSocket.isOpen()) {
+        if (appSocket!=null && isSocketOpen(appSocket)) {
             try {
                 appSocket.close();
             } catch (IOException e) {
                 throw new IllegalArgumentException("Can not Close appSocket");
             }
         }
+    }
+
+    public static boolean isSocketOpen(WebSocketSession gisSocket) {
+        return gisSocket.getRemoteAddress()!=null && gisSocket.isOpen();
     }
 
     /** gets the type of the attached client.
