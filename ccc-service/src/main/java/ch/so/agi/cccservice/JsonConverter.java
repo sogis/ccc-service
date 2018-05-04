@@ -101,7 +101,7 @@ public class JsonConverter {
         checkNodeTypeObject(obj, "zoomTo" );
         checkNodeTypeObject(obj, "data" );
         checkNodeTypeArray(obj, "properties" );
-        checkNodeTypeArrayOrObject(obj, "context_list" );
+        checkNodeTypeArray(obj, "context_list" );
         checkNodeTypeInteger(obj, "code" );
         checkNodeTypeString(obj, "message" );
         checkNodeTypeObject(obj, "userData" );
@@ -167,12 +167,8 @@ public class JsonConverter {
      */
     private void checkNodeTypeArray(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
-        try {
-            if (!node.getNodeType().equals(JsonNodeType.ARRAY)) {
-                throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an array.");
-            }
-        }catch(NullPointerException e) {
-            //Do nothing. It is legal that some json-properties are null. This will be tested afterwards
+        if (node!=null && !node.getNodeType().equals(JsonNodeType.NULL) && !node.getNodeType().equals(JsonNodeType.ARRAY)) {
+            throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an array.");
         }
     }
 
