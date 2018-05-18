@@ -66,3 +66,8 @@ task jardist(type: Copy,dependsOn:bootJar){
 	// version = '1.0.6'
 	
 }
+task probe(type: JavaExec,dependsOn:classes){
+  classpath = sourceSets.main.runtimeClasspath
+  //classpath = sourceSets.probe.runtimeClasspath
+  main = 'ch.so.agi.cccprobe.ProbeTool'
+}

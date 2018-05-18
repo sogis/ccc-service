@@ -13,6 +13,11 @@ install: true
 
 script:
   - gradle -DTRAVIS_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER :ccc-service:build :serviceImage:build
+  - docker run -d -p 8080:8080 -e CCC_DEBUG=1 --name ccctest sogis/ccc-service
+  - gradle :ccc-service:probe
+  - docker logs ccctest
+  - docker kill ccctest
+  - docker rm ccctest
 
 deploy:
   - provider: script
