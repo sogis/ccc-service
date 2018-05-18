@@ -44,7 +44,7 @@ public class ProbeTool {
         appConnectMessage.setClientName(APP_CLIENT_NAME);
 
         Thread.sleep(2000);
-        if (appSessionHandler.isConnected(appSessionHandler)) {
+        if (appSessionHandler.isConnected()) {
             appSessionHandler.sendMessage(appConnectMessage);
         }
         else {
@@ -63,7 +63,7 @@ public class ProbeTool {
         gisConnectMessage.setClientName(GIS_CLIENT_NAME);
 
         Thread.sleep(2000);
-        if (gisSessionHandler.isConnected(gisSessionHandler)) {
+        if (gisSessionHandler.isConnected()) {
             gisSessionHandler.sendMessage(gisConnectMessage);
         }
         else {

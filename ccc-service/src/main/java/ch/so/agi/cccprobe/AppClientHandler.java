@@ -3,6 +3,7 @@ package ch.so.agi.cccprobe;
 import ch.so.agi.cccservice.JsonConverter;
 import ch.so.agi.cccservice.ServiceException;
 import ch.so.agi.cccservice.SessionId;
+import ch.so.agi.cccservice.SessionPool;
 import ch.so.agi.cccservice.SocketHandler;
 import ch.so.agi.cccservice.messages.AbstractMessage;
 import ch.so.agi.cccservice.messages.NotifyErrorMessage;
@@ -120,18 +121,8 @@ public class AppClientHandler implements WebSocketHandler {
         webSocketSession.sendMessage(new TextMessage(resultingJson));
     }
 
-    /**
-     * Checks if the connection is open or not.
-     * @param webSocketHandler: The webSocketHandler
-     * @return true or false (boolean)
-     */
-    public boolean isConnected(WebSocketHandler webSocketHandler) {
-        try {
-            webSocketSession.isOpen();
-            return true;
-        } catch(NullPointerException e){
-            logger.error("WebsocketSession is not open!",e);
-            return false;
-        }
+    public boolean isConnected() {
+        return webSocketSession!=null && SessionPool.isSocketOpen(webSocketSession);
     }
+
 }
