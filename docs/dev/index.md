@@ -31,6 +31,8 @@ An overview of the class structure can be found [here](classesuml.png).
 An overview of the interaction between these classes can be found [here](happyflow.png).
 For details, see the javadoc in the code.
 
+Use [UMLet](http://www.umlet.com/umletino/umletino.html) to edit the uml diagrams.
+
 ## Testing
 - SocketHandlerTest tests complete message exchange scenarios with real web sockets.
 - ServiceTest tests the ccc-service without real web sockets (by using SocketSenderDummy).
