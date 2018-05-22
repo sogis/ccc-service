@@ -3,7 +3,7 @@
 Der ccc-service dient dazu, eine Kommunikation 
 zwischen GIS und Fachapplikation zu ermöglichen.
 
-Der «Smoketest» um im Betrieb die Verfügbarkeit des ccc-services zu testen, ist [hier]((probetool.md) beschrieben.
+Der «Smoketest» um im Betrieb die Verfügbarkeit des ccc-services zu testen, ist [hier](probetool.md) beschrieben.
 
 ## System Anforderungen
 Um die aktuelle Version vom ccc-service auszuführen, muss 
