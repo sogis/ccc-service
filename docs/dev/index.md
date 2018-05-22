@@ -20,6 +20,12 @@ To build the docker image of the ccc-service
 
     gradle :serviceImage:build
 
+## ccc protocol
+An overview of the protocol is [here](protocol.md).
+
+## Requirements
+An overview of the requirements is [here](requirements.md).
+
 ## Design
 An overview of the class structure can be found [here](classesuml.png).
 An overview of the interaction between these classes can be found [here](happyflow.png).
