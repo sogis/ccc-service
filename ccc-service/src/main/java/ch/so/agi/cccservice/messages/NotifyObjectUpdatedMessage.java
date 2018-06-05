@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 /**
- * Message sent from Application on changed Objects
+ * Message sent from the domain-application to notify a change of a domain object.
  */
 public class NotifyObjectUpdatedMessage extends AbstractMessage {
     public static final String METHOD_NAME = "notifyObjectUpdated";

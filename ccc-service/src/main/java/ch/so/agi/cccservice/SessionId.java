@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * SessionId, which will be used to connect two WebSocketSessions
+ * Identifier to pair one gis- and one domain-application.
  */
 public class SessionId {
 

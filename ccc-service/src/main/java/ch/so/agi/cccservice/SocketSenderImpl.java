@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-/** Sends messages via the already open websocket to the client (APP or GIS).
+/** Sends ccc-messages via web socket to the client (domain- or GIS-application).
  */
 @Component
 public class SocketSenderImpl implements SocketSender {

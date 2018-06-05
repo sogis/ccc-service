@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import ch.so.agi.cccservice.SessionId;
 
 /**
- * Message which will be send from the application to start connection
+ * Message sent from the domain-application to start a ccc-session.
  */
 public class ConnectAppMessage extends AbstractMessage {
 

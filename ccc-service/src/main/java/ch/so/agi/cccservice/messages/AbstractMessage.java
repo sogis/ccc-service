@@ -1,7 +1,7 @@
 package ch.so.agi.cccservice.messages;
 
 /**
- * AbstractMessage-Class which provides a basis for all Message-classes
+ * Root of all classes that implement ccc-messages.
  */
 abstract public class AbstractMessage {
 
@@ -9,15 +9,15 @@ abstract public class AbstractMessage {
 
     /**
      * Constructor
-     * @param method as String
+     * @param method ccc-method-name
      */
     public AbstractMessage(String method) {
         this.method = method;
     }
 
     /**
-     * Gets method-properties of message
-     * @return method as string
+     * gets the ccc-method-name of message.
+     * @return ccc-method-name
      */
     public String getMethod() {
         return method;

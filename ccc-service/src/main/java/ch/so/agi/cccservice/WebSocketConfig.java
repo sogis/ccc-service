@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import javax.annotation.Resource;
 
-/** Configures the WebSocket request handling of the ccc-service.
+/** spring boot helper to configure the web socket request handling of the ccc-server.
  */
 @Configuration
 @EnableWebSocket

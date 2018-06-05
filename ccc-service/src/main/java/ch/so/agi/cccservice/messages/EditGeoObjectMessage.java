@@ -3,7 +3,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent by Application on change on object
+ * Message sent from the domain-application to start changing an existing object in the GIS-application.
  */
 public class EditGeoObjectMessage extends AbstractMessage  {
 

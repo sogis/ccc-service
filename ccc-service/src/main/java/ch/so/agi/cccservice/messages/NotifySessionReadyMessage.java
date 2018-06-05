@@ -1,7 +1,7 @@
 package ch.so.agi.cccservice.messages;
 
 /**
- * Message sent from CCC-Server to Application and GIS on sucessfull connection between them
+ * Message sent from the ccc-server to the domain-application and GIS to notify the successful pairing between them.
  */
 public class NotifySessionReadyMessage extends AbstractMessage {
     public static final String METHOD_NAME = "notifySessionReady";

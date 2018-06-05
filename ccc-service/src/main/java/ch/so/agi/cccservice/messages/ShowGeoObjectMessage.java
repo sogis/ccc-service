@@ -3,7 +3,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent from Application on order to show object
+ * Message sent from the domain-application to show an existing object in the GIS-application.
  */
 public class ShowGeoObjectMessage extends AbstractMessage {
 

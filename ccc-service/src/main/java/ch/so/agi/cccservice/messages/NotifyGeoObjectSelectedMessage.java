@@ -3,7 +3,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent from GIS on object selected
+ * Message sent from the GIS-application to notify that the user selected an object.
  */
 public class NotifyGeoObjectSelectedMessage extends AbstractMessage  {
 

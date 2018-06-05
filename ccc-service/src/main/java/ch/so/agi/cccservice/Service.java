@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 /**
- * Defines what happens if a message has been sent to the CCC-Server
+ * Implements the main logic of the ccc-protocol.
+ * Implements, what happens if a message has been sent to the ccc-server. 
+ * 
  */
 @Component
 public class Service {

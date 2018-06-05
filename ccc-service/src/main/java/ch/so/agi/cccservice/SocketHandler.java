@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/** maps the incoming web socket messages to ccc functionality. Main class of the ccc-service.
+/** Maps the incoming web socket messages to ccc-server functionality.
  */
 @Component
 public class SocketHandler extends TextWebSocketHandler {

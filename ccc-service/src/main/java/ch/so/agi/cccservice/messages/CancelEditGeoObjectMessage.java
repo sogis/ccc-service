@@ -3,7 +3,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message to cancel changes in WebGIS. Will be sent from Application
+ * Message sent from the domain-application to cancel the editing in the GIS-application.
  */
 public class CancelEditGeoObjectMessage extends AbstractMessage {
 

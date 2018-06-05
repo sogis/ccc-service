@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Allows transformation from a abstractMessage to String and vice versa
+ * Transforms a ccc message to JSON and vice versa.
  */
 @Component
 public class JsonConverter {
@@ -31,7 +31,8 @@ public class JsonConverter {
      * Convert a JSON-string to a message-object.
      * @param str JSON-string
      * @return Nothing
-     * @throws IOException, ServiceException
+     * @throws IOException if the message can not be converted
+     * @throws ServiceException  if the message can not be converted
      */
     public AbstractMessage stringToMessage(String str) throws IOException, ServiceException {
 

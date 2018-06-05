@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.*;
 
 /**
- * The AppClientHandler class is a supporting-class for SimpleClient.
+ * Handles the incoming web socket messages for the probe tool.
  */
 public class AppClientHandler implements WebSocketHandler {
 
@@ -48,7 +48,6 @@ public class AppClientHandler implements WebSocketHandler {
      * Handle an error from the underlying WebSocket message transport and write it into the error-log.
      * @param session: The WebSocketSession where the error occurred
      * @param exception: The thrown Error
-     * @throws Exception
      */
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
@@ -59,7 +58,6 @@ public class AppClientHandler implements WebSocketHandler {
      * Handles an incoming JSON message.
      * @param session The WebSocketSession
      * @param message The incoming message. Allows only the method "ready". "error" and anything else set appReady to "false"
-     * @throws Exception
      */
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
@@ -90,7 +88,6 @@ public class AppClientHandler implements WebSocketHandler {
     /**
      *Invoked after WebSocket negotiation has succeeded and the WebSocket connection is opened and ready for use.
      * @param session The WebSocketSession
-     * @throws Exception
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -103,7 +100,6 @@ public class AppClientHandler implements WebSocketHandler {
      * sending messages at this point is discouraged and most likely will not succeed.
      * @param session The WebSocketSession
      * @param closeStatus The close status
-     * @throws Exception
      */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
@@ -113,7 +109,7 @@ public class AppClientHandler implements WebSocketHandler {
     /**
      * Converts a message (class) to a string and send the resulting JSON to the WebSocket
      * @param msg The message (class)
-     * @throws Exception
+     * @throws Exception if the message can not be sent
      */
     public void sendMessage(AbstractMessage msg) throws Exception {
         JsonConverter jsonConverter = new JsonConverter();

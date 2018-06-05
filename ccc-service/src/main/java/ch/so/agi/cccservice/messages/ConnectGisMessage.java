@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import ch.so.agi.cccservice.SessionId;
 
 /**
- * Message which will be send from the GIS to start connection
+ * Message sent from the GIS-application to start a ccc-sesssion.
  */
 public class ConnectGisMessage extends AbstractMessage {
 

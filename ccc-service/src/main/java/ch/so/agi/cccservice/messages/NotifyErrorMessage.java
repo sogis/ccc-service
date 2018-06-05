@@ -3,7 +3,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent from CCC-Server to either Application or GIS in event of error
+ * Message sent from the ccc-server to either domain-application or GIS to notify an error.
  */
 public class NotifyErrorMessage extends AbstractMessage{
 

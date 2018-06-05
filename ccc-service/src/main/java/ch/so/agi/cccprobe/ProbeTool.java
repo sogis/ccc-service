@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 /**
- * A tool for testing the liveness of the ccc-service.
+ * Main class of the tool for testing the liveness of the ccc-service.
  * The liveness is checked, by executing a basic happy flow of the ccc protocol.
  */
 public class ProbeTool {
@@ -21,11 +21,6 @@ public class ProbeTool {
     public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
     Logger logger = LoggerFactory.getLogger(ProbeTool.class);
 
-    /**
-     * The main and only class
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
         new ProbeTool().mymain(args);
     }

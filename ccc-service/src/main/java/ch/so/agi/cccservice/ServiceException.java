@@ -1,7 +1,7 @@
 package ch.so.agi.cccservice;
 
 /**
- * Exception which will be thrown on specific CCC-Server-Errors
+ * Any exception thrown by the ccc-server.
  */
 public class ServiceException extends Exception{
 

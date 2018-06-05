@@ -3,8 +3,9 @@ package ch.so.agi.cccservice;
 import java.sql.Timestamp;
 
 /**
- * The current state of one active ccc session.
- * A ccc sesssion is a pairing of a domain application and a gis application.
+ * The current state of one ccc-session.
+ * A ccc sesssion is a pairing of a domain application and a gis application. 
+ * The pairing is completed, when both are connected, and the ccc-server has sent the ready message.
  */
 public class SessionState {
     private String appName;

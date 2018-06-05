@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 /**
- * Collection of active ccc sessions (Id, WebSocketSession, SessionStates)
+ * Collection of active ccc-sessions. One ccc-session has an id, one or two associated 
+ * web sockets and a session state.
  */
 @Component
 public class SessionPool {

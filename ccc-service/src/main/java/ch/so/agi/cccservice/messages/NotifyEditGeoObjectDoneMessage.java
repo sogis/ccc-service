@@ -4,7 +4,8 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent by GIS on changed object
+ * Message sent from the GIS-application to notify the domain-application about a finished recording/editing 
+ * of an object in the GIS-application.
  */
 public class NotifyEditGeoObjectDoneMessage extends AbstractMessage {
 

@@ -4,7 +4,7 @@ package ch.so.agi.cccservice.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Message sent by Application on new object
+ * Message sent from the domain-application to start recording a new object in the GIS-application.
  */
 public class CreateGeoObjectMessage extends AbstractMessage {
 
