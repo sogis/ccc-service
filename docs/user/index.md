@@ -1,18 +1,23 @@
 # ccc-service
 
 Der ccc-service dient dazu, eine Kommunikation 
-zwischen GIS und Fachapplikation zu ermˆglichen.
+zwischen GIS und Fachapplikation zu erm√∂glichen.
 
-Der ´Smoketestª um im Betrieb die Verf¸gbarkeit des ccc-services zu testen, ist [hier](probetool.md) beschrieben.
+Der ¬´Smoketest¬ª um im Betrieb die Verf√ºgbarkeit des ccc-services zu testen, ist [hier](probetool.md) beschrieben.
 
 ## System Anforderungen
-Um die aktuelle Version vom ccc-service auszuf¸hren, muss 
+Um die aktuelle Version vom ccc-service auszuf√ºhren, muss 
  - docker, Version 18.0 oder neuer, installiert sein.
 
 Die docker-Software kann auf der Website http://www.docker.com/ gratis bezogen werden.
 
-## Ausf¸hren
-Um den ccc-service auszuf¸hren, geben Sie auf der Kommandozeile folgendes Kommando ein:
+## Bezug des Image
+Das Image ist im Docker Hub unter https://hub.docker.com/r/sogis/ccc-service/ publiziert. Es wird bezogen mittels docker pull Befehl:
+
+    docker pull sogis/ccc-service
+
+## Ausf√ºhren
+Um den ccc-service auszuf√ºhren, geben Sie auf der Kommandozeile folgendes Kommando ein:
 
     docker run -d -p 8081:8080 --name ccctest sogis/ccc-service
 
@@ -27,14 +32,20 @@ Um den ccc-service zu beenden, geben Sie auf der Kommandozeile folgende Kommando
     docker kill ccctest
     docker rm ccctest
 
-Um den ccc-service mit ausf¸hrlicherem Log auszuf¸hren, geben Sie auf der Kommandozeile folgendes Kommando ein:
+Um den ccc-service mit ausf√ºhrlicherem Log auszuf√ºhren, geben Sie auf der Kommandozeile folgendes Kommando ein:
 
     docker run -d -p 8080:8080 -e CCC_DEBUG=1 --name ccctest sogis/ccc-service
     
-Der ccc-service unterst¸tz zus‰tzlich die folgenden Umgebungsvariablen:
+Der ccc-service unterst√ºtzt zus√§tzlich die folgenden Umgebungsvariablen:
 
 Variable           | Beschreibung
 -------------------|----------------
-CCC_MAX_INACTIVITY | Maximal zul‰ssige Zeit ohne Meldungsaustausch in Sekunden (Default: 2h)
-CCC_MAX_PAIRING    | Maximal zul‰ssige Zeit zwischen GIS- und Fachapplikations-Verbindungsaufbau in Sekunden (Default: 60s)
+CCC_MAX_INACTIVITY | Maximal zul√§ssige Zeit ohne Meldungsaustausch in Sekunden (Default: 7200s --> 2h)
+CCC_MAX_PAIRING    | Maximal zul√§ssige Zeit zwischen GIS- und Fachapplikations-Verbindungsaufbau in Sekunden (Default: 60s)
+CCC_DEBUG          | CCC_DEBUG=1 aktiviert das Schreiben von umfangreichen Logs zwecks debugging.
+
+## HTML-Client
+Im Verzeichnis ccc-service/htmlTestClient/ ist die Datei htmlTestClient.html enthalten. Diese stellt im Browser ein einfaches GUI dar, mit welchem Nachrichten mit einem Websocket Server ausgetauscht werden k√∂nnen. Durch Verbinden auf die Adresse des CCC-Service kann der Client als "Mock" sowohl f√ºr das GIS wie auch die Fachapplikation verwendet werden.
+
+
 
