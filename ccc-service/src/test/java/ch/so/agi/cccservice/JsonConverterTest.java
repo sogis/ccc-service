@@ -105,6 +105,22 @@ public class JsonConverterTest {
         JsonConverter jsonConverter = new JsonConverter();
         assertTrue(jsonConverter.stringToMessage(notifyEditGeoObjectDoneMessageString) instanceof NotifyEditGeoObjectDoneMessage);
     }
+    
+    @Test
+    public void stringToNotifyEditGeoObjectDoneMessageDataNull() throws IOException, ServiceException {
+        final String notifyEditGeoObjectDoneMessageString = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"data\":null}";
+        JsonConverter jsonConverter = new JsonConverter();
+        assertTrue(jsonConverter.stringToMessage(notifyEditGeoObjectDoneMessageString) instanceof NotifyEditGeoObjectDoneMessage);
+    }
+    @Test
+    public void stringToNotifyEditGeoObjectDoneMessageDataMissing() throws IOException, ServiceException {
+        final String notifyEditGeoObjectDoneMessageString = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}" +
+                "}";
+        JsonConverter jsonConverter = new JsonConverter();
+        assertTrue(jsonConverter.stringToMessage(notifyEditGeoObjectDoneMessageString) instanceof NotifyEditGeoObjectDoneMessage);
+    }
+
 
     @Test
     public void createGeoObjectMessageToString() throws IOException {
@@ -117,6 +133,12 @@ public class JsonConverterTest {
 
     @Test
     public void stringToCreateGeoObjectMessage() throws IOException, ServiceException {
+        assertTrue(jsonConverter.stringToMessage(createGeoObjectString) instanceof CreateGeoObjectMessage);
+    }
+    @Test
+    public void stringToCreateGeoObjectMessageZoomToNull() throws IOException, ServiceException {
+        final String createGeoObjectString = "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
+                "\"zoomTo\":null}";
         assertTrue(jsonConverter.stringToMessage(createGeoObjectString) instanceof CreateGeoObjectMessage);
     }
 
@@ -190,6 +212,11 @@ public class JsonConverterTest {
 
     @Test
     public void stringToNotifyGeoObjectSelectedMessage() throws IOException, ServiceException {
+        assertTrue(jsonConverter.stringToMessage(notifyGeoObjectSelectedString) instanceof NotifyGeoObjectSelectedMessage);
+    }
+    @Test
+    public void stringToNotifyGeoObjectSelectedMessageContext_listNull() throws IOException, ServiceException {
+        final String notifyGeoObjectSelectedString = "{\"method\":\""+NotifyGeoObjectSelectedMessage.METHOD_NAME+"\",\"context_list\":null}";
         assertTrue(jsonConverter.stringToMessage(notifyGeoObjectSelectedString) instanceof NotifyGeoObjectSelectedMessage);
     }
 

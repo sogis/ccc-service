@@ -136,7 +136,10 @@ public class JsonConverter {
     private void checkNodeTypeObject(JsonNode obj, String attr) throws ServiceException {
         JsonNode node = obj.get(attr);
         try {
-            if (!node.getNodeType().equals(JsonNodeType.OBJECT)) {
+            JsonNodeType nodeType = node.getNodeType();
+            if (nodeType.equals(JsonNodeType.NULL)) {
+            }else if (nodeType.equals(JsonNodeType.OBJECT)) {
+            }else {
                 throw new ServiceException(400, "Property " + attr + " in " + Thread.currentThread().getStackTrace()[3].getMethodName() + " has to be an object.");
             }
         }catch(NullPointerException e) {
