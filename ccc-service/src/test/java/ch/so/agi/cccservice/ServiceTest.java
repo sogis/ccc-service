@@ -15,9 +15,9 @@ public class ServiceTest {
 
     private final String expectedAppName = "App-Name";
     private final String expectedGisName = "GIS-Name";
-    private final String sessionString = "{123-456-789-0}";
+    private final String sessionString = "{235ea7d3-8069-4bbc-b7de-17ff15239e7c}";
     private final SessionId sessionId = new SessionId(sessionString);
-    private final String session2String = "{123-456-789-2}";
+    private final String session2String = "{8ea547f3-94ea-464a-ad1b-bea5beafdef1}";
     private final SessionId sessionId2 = new SessionId(session2String);
     private final String apiVersion = "1.0";
     private final String readyString = "{\"method\":\""+NotifySessionReadyMessage.METHOD_NAME+"\",\"apiVersion\":\"1.0\"}";

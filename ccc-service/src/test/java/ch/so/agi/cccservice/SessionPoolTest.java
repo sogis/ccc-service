@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class SessionPoolTest {
-    private SessionId sessionId = new SessionId("{123-456-789-0}");
+    private SessionId sessionId = new SessionId("{235ea7d3-8069-4bbc-b7de-17ff15239e7c}");
     private SessionState sessionState = new SessionState();
     private final HttpHeaders headers = new HttpHeaders();
     private final Map<String, Object> attributes = new HashMap<>();

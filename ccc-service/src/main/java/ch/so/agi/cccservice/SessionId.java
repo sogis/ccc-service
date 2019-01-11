@@ -16,7 +16,14 @@ public class SessionId {
      * @param id SessionId as String
      */
     public SessionId (String id) {
+        // validate uuid
+        if(!isValidUuid(id)) {
+            throw new IllegalArgumentException("not a valid uuid");
+        }
         sessionId = id;
+    }
+    public static boolean isValidUuid(String valueStr) {
+        return valueStr.length() == 38 && valueStr.matches("^\\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\}?");
     }
 
     /**

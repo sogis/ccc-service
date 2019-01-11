@@ -18,7 +18,7 @@ public class ProbeTool {
     public static final String CCC_PROTOCOL_VERSION = "1.0";
     public static final String APP_CLIENT_NAME = "ProbeTool APP";
     private static final String DEFAULT_ENDPOINT = "ws://localhost:8080/ccc-service";
-    public static final SessionId sessionId = new SessionId("{E11-TRALLALLA-UND-BLA-BLA-BLA-666}");
+    public static final SessionId sessionId = new SessionId("{314e0cc3-1d26-47d1-8cd4-3e7dd88e643d}");
     Logger logger = LoggerFactory.getLogger(ProbeTool.class);
 
     public static void main(String[] args) throws Exception {

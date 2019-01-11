@@ -203,10 +203,14 @@ public class JsonConverter {
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setApiVersion(obj.get("apiVersion").asText());
         appConnectMessage.setClientName(obj.get("clientName").asText());
-        appConnectMessage.setSession(new SessionId(obj.get("session").asText()));
+        final String sessionIdTxt = obj.get("session").asText();
+        if(!SessionId.isValidUuid(sessionIdTxt)) {
+            throw new ServiceException(400, "Attribute session in "+ConnectAppMessage.METHOD_NAME+" is invalid.");
+        }
+        appConnectMessage.setSession(new SessionId(sessionIdTxt));
         if (appConnectMessage.getSession() == null || appConnectMessage.getApiVersion() == null
                 || appConnectMessage.getClientName() == null){
-            throw new ServiceException(400, "Attribute in appConnect is missing or wrong.");
+            throw new ServiceException(400, "Attribute in "+ConnectAppMessage.METHOD_NAME+" is missing or wrong.");
         }
         return appConnectMessage;
     }
@@ -221,7 +225,11 @@ public class JsonConverter {
         ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
         gisConnectMessage.setApiVersion(obj.get("apiVersion").asText());
         gisConnectMessage.setClientName(obj.get("clientName").asText());
-        gisConnectMessage.setSession(new SessionId(obj.get("session").asText()));
+        final String sessionIdTxt = obj.get("session").asText();
+        if(!SessionId.isValidUuid(sessionIdTxt)) {
+            throw new ServiceException(400, "Attribute session in "+ConnectGisMessage.METHOD_NAME+" is invalid.");
+        }
+        gisConnectMessage.setSession(new SessionId(sessionIdTxt));
         if (gisConnectMessage.getSession() == null || gisConnectMessage.getApiVersion() == null ||
                 gisConnectMessage.getClientName() == null){
             throw new ServiceException(400, "Attribute in gisConnect is missing or wrong.");

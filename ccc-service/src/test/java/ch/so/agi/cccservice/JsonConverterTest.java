@@ -15,11 +15,11 @@ import static org.junit.Assert.assertEquals;
 public class JsonConverterTest {
     //private String appConnectString = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
     private String connectAppString = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
-            "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+            "\"session\":\"{235ea7d3-8069-4bbc-b7de-17ff15239e7c}\"," +
             "\"clientName\":\"Axioma Mandant AfU\"," +
             "\"apiVersion\":\"1.0\"}";
     private String connectGisString = "{\"method\":\""+ConnectGisMessage.METHOD_NAME+"\"," +
-            "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
+            "\"session\":\"{235ea7d3-8069-4bbc-b7de-17ff15239e7c}\"," +
             "\"clientName\":\"Web GIS Client\"," +
             "\"apiVersion\":\"1.0\"}";
     private String cancelEditGeoObjectString = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
@@ -46,7 +46,7 @@ public class JsonConverterTest {
     public void connectAppMessageToString() throws IOException {
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setApiVersion("1.0");
-        appConnectMessage.setSession(new SessionId("{E9-TRALLALLA-UND-BLA-BLA-BLA-666}"));
+        appConnectMessage.setSession(new SessionId("{235ea7d3-8069-4bbc-b7de-17ff15239e7c}"));
         appConnectMessage.setClientName("Axioma Mandant AfU");
 
         String resultingJson = jsonConverter.messageToString(appConnectMessage);
@@ -65,7 +65,7 @@ public class JsonConverterTest {
     public void connectGisMessageToString() throws IOException {
         ConnectGisMessage gisConnectMessage = new ConnectGisMessage();
         gisConnectMessage.setApiVersion("1.0");
-        gisConnectMessage.setSession(new SessionId("{E9-TRALLALLA-UND-BLA-BLA-BLA-666}"));
+        gisConnectMessage.setSession(new SessionId("{235ea7d3-8069-4bbc-b7de-17ff15239e7c}"));
         gisConnectMessage.setClientName("Web GIS Client");
 
         String resultingJson = jsonConverter.messageToString(gisConnectMessage);
