@@ -22,9 +22,10 @@ public class ProbeTool {
     Logger logger = LoggerFactory.getLogger(ProbeTool.class);
 
     public static void main(String[] args) throws Exception {
-        new ProbeTool().mymain(args);
+        int exitCode=new ProbeTool().mymain(args);
+        System.exit(exitCode);
     }
-    public void mymain(String[] args) throws Exception {
+    public int mymain(String[] args) throws Exception {
         StandardWebSocketClient appClient = new StandardWebSocketClient();
         AppClientHandler appSessionHandler = new AppClientHandler(APP_CLIENT_NAME);
         String endpoint=DEFAULT_ENDPOINT;
@@ -67,10 +68,10 @@ public class ProbeTool {
 
         Thread.sleep(2000);
         if (gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true && appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true) {
-            System.exit(0);
+            return 0;
         }
 
-        System.exit(1);
+        return 1;
 
     }
 }
