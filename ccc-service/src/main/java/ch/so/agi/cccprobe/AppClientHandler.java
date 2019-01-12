@@ -25,7 +25,7 @@ public class AppClientHandler implements WebSocketHandler {
     Boolean appReady = null;
     private String clientName;
     private SessionId sessionId;
-    private WebSocketSession webSocketSession;
+    private WebSocketSession webSocketSession=null;
 
     public AppClientHandler(String appClientName) {
         this.clientName=appClientName;
@@ -119,6 +119,12 @@ public class AppClientHandler implements WebSocketHandler {
 
     public boolean isConnected() {
         return webSocketSession!=null && SessionPool.isSocketOpen(webSocketSession);
+    }
+    public void close() throws Exception {
+        if(isConnected()) {
+            webSocketSession.close();
+            webSocketSession=null;
+        }
     }
 
 }

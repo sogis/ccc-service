@@ -1,8 +1,12 @@
 package ch.so.agi.cccprobe;
 
+import ch.so.agi.cccservice.Service;
 import ch.so.agi.cccservice.SessionId;
 import ch.so.agi.cccservice.messages.ConnectAppMessage;
 import ch.so.agi.cccservice.messages.ConnectGisMessage;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,17 +22,48 @@ public class ProbeTool {
     public static final String CCC_PROTOCOL_VERSION = "1.0";
     public static final String APP_CLIENT_NAME = "ProbeTool APP";
     private static final String DEFAULT_ENDPOINT = "ws://localhost:8080/ccc-service";
-    public static final SessionId sessionId = new SessionId("{314e0cc3-1d26-47d1-8cd4-3e7dd88e643d}");
     Logger logger = LoggerFactory.getLogger(ProbeTool.class);
+    private AppClientHandler appSessionHandler;
+    private AppClientHandler gisSessionHandler;
 
     public static void main(String[] args) throws Exception {
+        
         int exitCode=new ProbeTool().mymain(args);
         System.exit(exitCode);
     }
+    private static void alternativeMainToTestConcurrentUseCases(String[] args) throws Exception {
+        
+        for(int i=0;i<10;i++) {
+            Thread thread=new Thread(new Runnable() {
+                Logger logger = LoggerFactory.getLogger(ProbeTool.class);
+                public int nr=0;
+
+                @Override
+                public void run() {
+                    try {
+                        int id=Integer.parseInt(Thread.currentThread().getName().substring("ProbeTool-".length()));
+                        ProbeTool tool=new ProbeTool();
+                        tool.mymain(new String[] {});
+                        TimeUnit.SECONDS.sleep(2+60);
+                        if(id<9) {
+                            TimeUnit.SECONDS.sleep(60);
+                        }
+                        tool.close();
+                    } catch (Exception e) {
+                        logger.error("ProbeTool failed",e);
+                    }
+                }
+                
+            },"ProbeTool-"+i);
+            thread.start();
+        }
+    }
     public int mymain(String[] args) throws Exception {
+        final SessionId sessionId = new SessionId("{"+UUID.randomUUID().toString()+"}");
         StandardWebSocketClient appClient = new StandardWebSocketClient();
-        AppClientHandler appSessionHandler = new AppClientHandler(APP_CLIENT_NAME);
+        appSessionHandler = new AppClientHandler(APP_CLIENT_NAME);
         String endpoint=DEFAULT_ENDPOINT;
+        
         if(args.length==1) {
             endpoint=args[0];
         }
@@ -49,7 +84,7 @@ public class ProbeTool {
 
 
         StandardWebSocketClient gisClient = new StandardWebSocketClient();
-        AppClientHandler gisSessionHandler = new AppClientHandler(GIS_CLIENT_NAME);
+        gisSessionHandler = new AppClientHandler(GIS_CLIENT_NAME);
 
         gisClient.doHandshake(gisSessionHandler,endpoint);
 
@@ -73,5 +108,13 @@ public class ProbeTool {
 
         return 1;
 
+    }
+    private void close() throws Exception {
+        if(appSessionHandler!=null) {
+            appSessionHandler.close();
+        }
+        if(gisSessionHandler!=null) {
+            gisSessionHandler.close();
+        }
     }
 }

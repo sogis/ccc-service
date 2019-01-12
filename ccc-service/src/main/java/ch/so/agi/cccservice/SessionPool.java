@@ -158,6 +158,7 @@ public class SessionPool {
                 throw new IllegalArgumentException("Can not Close appSocket");
             }
         }
+        sessionActivity.remove(sessionId);
     }
 
     public static boolean isSocketOpen(WebSocketSession gisSocket) {
@@ -194,15 +195,19 @@ public class SessionPool {
     public void checkActivityTimeout(SessionId sessionId,long maxInactivity) throws ServiceException {
         Long lastActivity=sessionActivity.get(sessionId);
         long current=System.currentTimeMillis();
-        if(lastActivity!=null && current-lastActivity>maxInactivity) {
+        if(lastActivity!=null && current-lastActivity>maxInactivity*1000) {
             throw new ServiceException(506, "Session-Timeout");
         }
         sessionActivity.put(sessionId, current);
     }
     public void closeInactiveSessions(long maxInactivity) {
+        logger.debug("closeInactiveSessions maxInactivity "+maxInactivity);
         long current=System.currentTimeMillis();
-        for(Entry<SessionId, Long> entry:sessionActivity.entrySet()) {
-            if(current-entry.getValue()>maxInactivity) {
+        java.util.Iterator<Entry<SessionId, Long>> it=sessionActivity.entrySet().iterator();
+        while(it.hasNext()) {
+            Entry<SessionId, Long> entry=it.next();
+            if(current-entry.getValue()>maxInactivity*1000) {
+                it.remove(); // remove it here to avoid concurrent modification exception in removeSession()
                 removeSession(entry.getKey());
                 logger.info("Session "+entry.getKey()+" closed due to inactivity");
             }

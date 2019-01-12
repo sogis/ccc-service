@@ -45,7 +45,7 @@ public class Service {
      * @throws ServiceException on Exception
      */
     public void handleAppMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
-        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime()*1000);
+        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime());
         if (message instanceof ConnectAppMessage) {
             ConnectAppMessage appConnectMessage = (ConnectAppMessage) message;
             handleConnectApp(appConnectMessage);
@@ -78,7 +78,7 @@ public class Service {
      * @throws ServiceException on Exception
      */
     public void handleGisMessage(SessionId sessionId, AbstractMessage message) throws ServiceException{
-        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime()*1000);
+        sessionPool.checkActivityTimeout(sessionId,getMaxInactivityTime());
         if (message instanceof ConnectGisMessage) {
             ConnectGisMessage gisConnectMessage = (ConnectGisMessage) message;
             handleConnectGis(gisConnectMessage);
