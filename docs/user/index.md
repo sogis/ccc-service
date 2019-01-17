@@ -42,6 +42,7 @@ Variable           | Beschreibung
 -------------------|----------------
 CCC_MAX_INACTIVITY | Maximal zulässige Zeit ohne Meldungsaustausch in Sekunden (Default: 7200s --> 2h)
 CCC_MAX_PAIRING    | Maximal zulässige Zeit zwischen GIS- und Fachapplikations-Verbindungsaufbau in Sekunden (Default: 60s)
+CCC_PING_INTERVAL  | Nach Ablauf dieser Zeit (in Sekunden; Default: 300s) ohne Meldungsaustausch, sendet der Service eine Ping-Meldung an GIS und Fachapplikation
 CCC_DEBUG          | CCC_DEBUG=1 aktiviert das Schreiben von umfangreichen Logs zwecks debugging.
 
 ## HTML-Client

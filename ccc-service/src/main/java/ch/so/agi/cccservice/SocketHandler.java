@@ -14,6 +14,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
@@ -27,6 +30,8 @@ public class SocketHandler extends TextWebSocketHandler {
 
     private static final String MDC_KEY_SESSIONID = "ccc.sessionid";
     Logger logger = LoggerFactory.getLogger(SocketHandler.class);
+    private ScheduledExecutorService executorService=Executors.newScheduledThreadPool(1);
+
 
     @Autowired
     public SocketHandler(SessionPool sessionPool, Service service, SocketSender socketSender, JsonConverter jsonConverter) {
@@ -34,6 +39,8 @@ public class SocketHandler extends TextWebSocketHandler {
         this.service = service;
         this.socketSender = socketSender;
         this.jsonConverter = jsonConverter;
+        BackgroundService backgroundService=new BackgroundService(sessionPool,service.getMaxInactivityTime(),service.getPingIntervalTime());
+        executorService.scheduleAtFixedRate(backgroundService, 0,service.getMaxPairingTime() , TimeUnit.SECONDS);
     }
 
     private SessionPool sessionPool;
@@ -52,7 +59,6 @@ public class SocketHandler extends TextWebSocketHandler {
                     String clientName=sessionPool.getClientName(socket);
                     sessionPool.removeSession(sessionId);
                     logger.info("Session "+sessionId.getSessionId()+": socket closed by client "+clientName);
-                    sessionPool.closeInactiveSessions(service.getMaxInactivityTime());
                 }finally {
                     MDC.remove(MDC_KEY_SESSIONID);
                 }
@@ -65,9 +71,38 @@ public class SocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession socket) throws Exception {
-
     }
+/*
+    private class PingTask implements Runnable{
+        private WebSocketSession session;
+        private Logger logger = Logger.getLogger(String.valueOf(PingTask.class));
 
+        public PingTask(WebSocketSession session){
+            this.session=session;
+        }
+        @Override
+        public void run() {
+            try {
+                TextMessage pingMessage = createPingMessage();
+                logger.info("Sending ping message...");
+                session.sendMessage(pingMessage);
+            }
+            catch (Exception e){
+                logger.info("Exception!! " +e);
+            }
+        }
+
+        private TextMessage createPingMessage() {
+            JSONObject pingMessage=new JSONObject();
+            try {
+                pingMessage.put("messageType",MessageType.PING_MESSAGE.getValue());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return new TextMessage(pingMessage.toString());
+        }
+    }
+ */
     @Override
     protected void handleTextMessage(WebSocketSession socket, TextMessage textMessage) throws Exception {
         try {
@@ -116,7 +151,6 @@ public class SocketHandler extends TextWebSocketHandler {
                     }else {
                         service.handleGisMessage(sessionId, message);
                     }
-                    sessionPool.closeInactiveSessions(service.getMaxInactivityTime());
                 }
             }catch(ServiceException ex) {
                 logger.error("failed to handle request",ex);
@@ -128,9 +162,6 @@ public class SocketHandler extends TextWebSocketHandler {
                     socket.sendMessage(new TextMessage(jsonConverter.messageToString(msg)));
                 }catch(IOException ex2) {
                     logger.error("failed to send error back to client",ex);
-                }
-                synchronized(sessionPool) {
-                    sessionPool.closeInactiveSessions(service.getMaxInactivityTime());
                 }
             }catch(Exception ex) {
                 logger.error("failed to handle request",ex);

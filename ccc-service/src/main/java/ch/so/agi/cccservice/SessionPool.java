@@ -3,6 +3,7 @@ package ch.so.agi.cccservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -201,7 +202,6 @@ public class SessionPool {
         sessionActivity.put(sessionId, current);
     }
     public void closeInactiveSessions(long maxInactivity) {
-        logger.debug("closeInactiveSessions maxInactivity "+maxInactivity);
         long current=System.currentTimeMillis();
         java.util.Iterator<Entry<SessionId, Long>> it=sessionActivity.entrySet().iterator();
         while(it.hasNext()) {
@@ -212,6 +212,32 @@ public class SessionPool {
                 logger.info("Session "+entry.getKey()+" closed due to inactivity");
             }
         }
+    }
+    public void sendPingToInactiveSessions(long pingInterval) {
+        long current=System.currentTimeMillis();
+        java.util.Iterator<Entry<SessionId, Long>> it=sessionActivity.entrySet().iterator();
+        while(it.hasNext()) {
+            Entry<SessionId, Long> entry=it.next();
+            if(current-entry.getValue()>pingInterval*1000) {
+                logger.debug("Session "+entry.getKey()+" send ping...");
+                PingMessage pingMessage = new PingMessage();
+                WebSocketSession session=null;
+                session=getAppWebSocketSession(entry.getKey());
+                try {
+                    session.sendMessage(pingMessage);
+                } catch (IOException e) {
+                    logger.error("failed to send ping to APP", e);
+                }
+                session=getGisWebSocketSession(entry.getKey());
+                try {
+                    session.sendMessage(pingMessage);
+                } catch (IOException e) {
+                    logger.error("failed to send ping to GIS", e);
+                }
+                entry.setValue(current);
+            }
+        }
+        
     }
 
 }

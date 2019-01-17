@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 public class Service {
     public static final String CCC_MAX_INACTIVITY = "CCC_MAX_INACTIVITY";
     public static final String CCC_MAX_PAIRING = "CCC_MAX_PAIRING";
+    public static final String CCC_PING_INTERVAL ="CCC_PING_INTERVAL";
     public static final int APP=1;
     public static final int GIS=2;
 
@@ -29,8 +30,10 @@ public class Service {
     private Logger logger = LoggerFactory.getLogger(Service.class);
     public static final long DEFAULT_MAX_INACTIVITYTIME = 2L*60L*60L; // 2 hours
     public static final long DEFAULT_MAX_PAIRINGTIME = 60L;  // 60 seconds
+    public static final long DEFAULT_PING_INTERVAL = 300L;  // 300 seconds
     private Long maxInactivityTime=null;
     private Long maxPairingTime=null;
+    private Long pingIntervalTime=null;
     
     @Autowired
     public Service(SessionPool sessionPool, SocketSender sender){
@@ -379,7 +382,7 @@ public class Service {
     }
     public long getMaxPairingTime() {
         if(maxPairingTime==null) {
-            maxPairingTime=DEFAULT_MAX_INACTIVITYTIME;
+            maxPairingTime=DEFAULT_MAX_PAIRINGTIME;
             String cccMaxPairing=System.getProperty(CCC_MAX_PAIRING);
             if(cccMaxPairing!=null) {
                 try {
@@ -391,5 +394,21 @@ public class Service {
             }
         }
         return maxPairingTime;
+    }
+
+    public long getPingIntervalTime() {
+        if(pingIntervalTime==null) {
+            pingIntervalTime=DEFAULT_PING_INTERVAL;
+            String cccPingInterval=System.getProperty(CCC_PING_INTERVAL);
+            if(cccPingInterval!=null) {
+                try {
+                    pingIntervalTime=Long.parseLong(cccPingInterval);
+                    logger.debug(CCC_PING_INTERVAL+" <"+pingIntervalTime+">");
+                } catch (NumberFormatException e) {
+                    logger.warn("illegal formatted "+CCC_PING_INTERVAL+" <"+cccPingInterval+">");
+                }
+            }
+        }
+        return pingIntervalTime;
     }
 }
