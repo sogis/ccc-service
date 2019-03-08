@@ -18,10 +18,5 @@ script:
   - docker logs ccctest
   - docker kill ccctest
   - docker rm ccctest
-
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ; docker push sogis/ccc-service:$TRAVIS_BUILD_NUMBER
-    on:
-      branch: master
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker push sogis/ccc-service:$TRAVIS_BUILD_NUMBER
