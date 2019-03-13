@@ -19,4 +19,5 @@ script:
   - docker kill ccctest
   - docker rm ccctest
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker push sogis/ccc-service:latest
   - docker push sogis/ccc-service:$TRAVIS_BUILD_NUMBER
