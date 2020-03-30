@@ -6,6 +6,7 @@ task jardist(type: Copy,dependsOn: ':ccc-service:jardist'){
 	// docker run -p 8080:8080 -d claeis/ccc-service
 	// docker run -it --rm alpine ping 172.17.0.2
 }
+
 task build(dependsOn: jardist){
 	doLast { task ->
 			// https://github.com/nemerosa/versioning
@@ -32,6 +33,7 @@ task build(dependsOn: jardist){
 			// docker run -it --rm alpine ping 172.17.0.2
         }
     }
+    
 task push(dependsOn: build){
 	doLast { task ->
 			exec {
@@ -40,6 +42,7 @@ task push(dependsOn: build){
 			}
         }
     }
+    
 def getTimestamp() {
     def date = new Date()
     return date.format('yyyy-MM-dd HH:mm:ss')

@@ -1,0 +1,50 @@
+@startuml
+node "CCC-Service" {
+[Session 1] as s1
+[Session 2] as s2
+[Session 3] as s3
+}
+
+node "Fachapplikation 1" {
+[FA1, U1] as fu1
+[FA1, U2] as fu2
+}
+
+node "Fachapplikation 2" {
+[FA2, U3] as fu3
+}
+
+s1 -[hidden]down-> s2
+s2 -[hidden]down-> s3
+
+fu1-[hidden]down-> fu2
+fu2-[hidden]down-> fu3
+
+
+node "Web GIS Client" {
+	[WGC, U1] as wg1
+	[WGC, U2] as wg2
+}
+
+wg1-[hidden]down-> wg2
+
+node "AGI Kartenapplikation 2" {
+	[AGI-APP 2, U3] as aa3
+}
+
+fu1 - s1
+fu2 - s2
+
+s3 - fu3
+s3 - aa3
+
+s1 - wg1
+s2 - wg2
+
+
+
+legend bottom
+	FA: Fachapplikation
+    U: User - Benutzer
+end legend
+@enduml
