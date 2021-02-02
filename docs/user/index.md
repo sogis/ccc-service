@@ -16,7 +16,7 @@ Das Image ist im Docker Hub unter https://hub.docker.com/r/sogis/ccc-service/ pu
 
     docker pull sogis/ccc-service
 
-## Ausführen
+## Starten
 Um den ccc-service auszuführen, geben Sie auf der Kommandozeile folgendes Kommando ein:
 
     docker run -d -p 8081:8080 --name ccctest sogis/ccc-service
@@ -44,6 +44,14 @@ CCC_MAX_INACTIVITY | Maximal zulässige Zeit ohne Meldungsaustausch in Sekunden 
 CCC_MAX_PAIRING    | Maximal zulässige Zeit zwischen GIS- und Fachapplikations-Verbindungsaufbau in Sekunden (Default: 60s)
 CCC_PING_INTERVAL  | Nach Ablauf dieser Zeit (in Sekunden; Default: 300s) ohne Meldungsaustausch, sendet der Service eine Ping-Meldung an GIS und Fachapplikation
 CCC_DEBUG          | CCC_DEBUG=1 aktiviert das Schreiben von umfangreichen Logs zwecks debugging.
+
+## Prüfen (Health-Check)
+
+Der standart Health-Check von Spring Boot ist aktiviert und unter 
+
+    http://localhost:8081/actuator/health
+    
+erreichbar.
 
 ## HTML-Client
 Im Verzeichnis ccc-service/htmlTestClient/ ist die Datei htmlTestClient.html enthalten. Diese stellt im Browser ein einfaches GUI dar, mit welchem Nachrichten mit einem Websocket Server ausgetauscht werden können. Durch Verbinden auf die Adresse des CCC-Service kann der Client als "Mock" sowohl für das GIS wie auch die Fachapplikation verwendet werden.
