@@ -22,9 +22,9 @@ jobs:
         java-version: 11
     - name: docker login
       env:
-        CCC_DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
-        CCC_DOCKER_TOK: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      run: echo "CCC_DOCKER_TOK" | docker login -u "CCC_DOCKER_USER" --password-stdin
+        CCC_DOCKER_USER: ${{ secrets.CCC_DOCKER_USER }}
+        CCC_DOCKER_PASS: ${{ secrets.CCC_DOCKER_PASS }}
+      run: echo "$CCC_DOCKER_PASS" | docker login -u "$CCC_DOCKER_USER" --password-stdin
 
     - name: Set version for new ccc-service
       run: ./set_version_env.sh
