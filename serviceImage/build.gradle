@@ -5,7 +5,7 @@ task jardist(type: Copy, dependsOn: ':ccc-service:build'){
 
 task build(type:Exec, dependsOn: jardist) {
 	def githash = getCheckedOutGitCommitHash()
-	def buildident = findProperty("AgiComponentVersion")
+	def buildident = fetchProperty("AgiComponentVersion")
 	def build_timestamp = getTimestamp()
 
 	commandLine 'docker', 'build',
@@ -44,6 +44,14 @@ task build(dependsOn: jardist){
 
  */
 
+def String fetchProperty(String name) {
+	String val = findProperty(name)
+
+	if (val == null)
+		throw new RuntimeException("Property not set: " + name)
+
+	return val
+}
 
 def getCheckedOutGitCommitHash() {
 	String val = 'git log -1 --pretty=%H'.execute().text.trim()

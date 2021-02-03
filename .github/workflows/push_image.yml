@@ -22,16 +22,18 @@ jobs:
         java-version: 11
     - name: docker login
       env:
-        CCC_DOCKER_USER: ${{ secrets.CCC_DOCKER_USER }}
-        CCC_DOCKER_PASS: ${{ secrets.CCC_DOCKER_PASS }}
+        CCC_DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
+        CCC_DOCKER_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: echo "$CCC_DOCKER_PASS" | docker login -u "$CCC_DOCKER_USER" --password-stdin
 
     - name: Set version for new ccc-service
-      run: ./set_version_env.sh
+      run: export CCC_VERSION=$(./concat_version.sh)
+    - name: Print version
+      run: echo "************* Building Version "$CCC_VERSION" *************"
     - name: Build ccc-service.jar
       run: ./gradlew :ccc-service:build
     - name: Build image
-      run: ./gradlew -PAgiComponentVersion=$AGI_COMPONENT_VERSION :serviceImage:build
+      run: ./gradlew -PAgiComponentVersion=$CCC_VERSION :serviceImage:build
     - name: Run image
       run: docker run -d -p 8080:8080 -e CCC_DEBUG=1 --name ccctest sogis/ccc-service
     - name: Verify image
@@ -40,4 +42,4 @@ jobs:
     - name: docker push latest
       run: docker push sogis/ccc-service:latest
     - name: docker push version
-      run: docker push sogis/ccc-service:$AGI_COMPONENT_VERSION
+      run: docker push sogis/ccc-service:$CCC_VERSION
