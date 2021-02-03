@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     env:
-      AGI_COMPONENT_VERSION: $(./concat_version.sh)
+      AGI_COMPONENT_VERSION: ${{ ./concat_version.sh }}
     runs-on: ubuntu-latest
 
     steps:
