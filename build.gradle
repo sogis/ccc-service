@@ -1,5 +1,92 @@
-task hello {
-        doLast { task ->
-            println "hello from main build.gradle"
-        }
+plugins {
+    id 'org.springframework.boot' version '2.2.13.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:2.2.13.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-websocket:2.2.13.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-actuator:2.2.13.RELEASE")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test:2.2.13.RELEASE")
+}
+
+task jardist(type: Copy, dependsOn: build){
+    from file("$buildDir/libs/ccc-service.jar")
+    into file('docker/ccc')
+}
+
+task buildImage(type:Exec, dependsOn: jardist) {
+    def githash = getCheckedOutGitCommitHash()
+    def buildident = buildIdent()
+    def build_timestamp = getTimestamp()
+
+    commandLine 'docker', 'build',
+            '--no-cache', '--force-rm',
+            '-t', "sogis/ccc-service:latest",
+            '-t', "sogis/ccc-service:$buildident",
+            '--label', "ccc-service.created=$build_timestamp",
+            '--label', "ccc-service.git_commit=$githash",
+            '--label', "ccc-service.build_nr=$buildident",
+            '-f', 'Dockerfile',  '.'
+
+    workingDir "docker"
+}
+
+task runImage(type:Exec, dependsOn: buildImage) {
+    commandLine 'docker', 'run', '-d',
+            '-p', '8080:8080',
+            '-e', 'CCC_DEBUG=1',
+            '--name', 'ccctest',
+            'sogis/ccc-service'
+}
+
+task waitUntilUp(type:Exec, dependsOn: runImage) {
+    commandLine './await_url.sh', 'http://localhost:8080/actuator/health'
+    workingDir "docker"
+
+    doLast {
+        Thread.sleep(2000) // wait extra 2 seconds
     }
+}
+
+task testImage(type: JavaExec, dependsOn: waitUntilUp){ //tests the image with the probe tool
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'ch.so.agi.cccprobe.ProbeTool'
+}
+
+task pushLatestImage(type:Exec, dependsOn: testImage) {
+    commandLine 'docker', 'push', 'sogis/ccc-service:latest'
+}
+
+task pushImage(type:Exec, dependsOn: pushLatestImage) {
+    def buildident = buildIdent()
+
+    commandLine 'docker', 'push', "sogis/ccc-service:$buildident"
+}
+
+def String buildIdent() {
+    String prefix = '1.1.'
+    String suffix = System.getenv('GITHUB_RUN_NUMBER')
+
+    if(suffix == null)
+        suffix = 'localbuild'
+
+    return prefix + suffix
+}
+
+def getCheckedOutGitCommitHash() {
+    String val = 'git log -1 --pretty=%H'.execute().text.trim()
+    return val
+}
+
+def getTimestamp() {
+    def date = new Date()
+    return date.format('yyyy-MM-dd HH:mm:ss')
+}
+

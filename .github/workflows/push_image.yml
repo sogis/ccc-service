@@ -27,13 +27,9 @@ jobs:
       run: echo "$CCC_DOCKER_PASS" | docker login -u "$CCC_DOCKER_USER" --password-stdin
 
     - name: Build ccc-service.jar
-      run: ./gradlew :ccc-service:build
-    - name: Build image
-      run: ./gradlew :serviceImage:build
-    - name: Run image
-      run: docker run -d -p 8080:8080 -e CCC_DEBUG=1 --name ccctest sogis/ccc-service
-    - name: Verify image
-      run: ./gradlew :ccc-service:execProbeFromClasses
+      run: ./gradlew build
+    - name: Build and test image
+      run: ./gradlew testImage
 
     - name: push image to docker hub
-      run: ./gradlew :serviceImage:push
+      run: ./gradlew pushImage
