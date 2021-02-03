@@ -5,17 +5,29 @@ task jardist(type: Copy, dependsOn: ':ccc-service:build'){
 
 task build(type:Exec, dependsOn: jardist) {
 	def githash = getCheckedOutGitCommitHash()
-	def buildident = fetchProperty("AgiComponentVersion")
+	def buildident = buildIdent()
 	def build_timestamp = getTimestamp()
 
 	commandLine 'docker', 'build',
 			'--no-cache', '--force-rm',
+			'-t', "sogis/ccc-service:latest",
 			'-t', "sogis/ccc-service:$buildident",
 			'--label', "ccc-service.created=$build_timestamp",
 			'--label', "ccc-service.git_commit=$githash",
 			'--label', "ccc-service.build_nr=$buildident",
 			'-f', 'Dockerfile',  '.'
 }
+
+task pushLatest(type:Exec, dependsOn: build) {
+	commandLine 'docker', 'push', 'sogis/ccc-service:latest'
+}
+
+task push(type:Exec, dependsOn: pushLatest) {
+	def buildident = buildIdent()
+
+	commandLine 'docker', 'push', "sogis/ccc-service:$buildident"
+}
+
 /*
 task build(dependsOn: jardist){
 	doLast { task ->
@@ -44,13 +56,14 @@ task build(dependsOn: jardist){
 
  */
 
-def String fetchProperty(String name) {
-	String val = findProperty(name)
+def String buildIdent() {
+	String prefix = '1.1.'
+	String suffix = System.getenv('GITHUB_RUN_NUMBER')
 
-	if (val == null)
-		throw new RuntimeException("Property not set: " + name)
+	if(suffix == null)
+		suffix = 'localbuild'
 
-	return val
+	return prefix + suffix
 }
 
 def getCheckedOutGitCommitHash() {
