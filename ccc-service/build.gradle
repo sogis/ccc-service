@@ -21,12 +21,14 @@ dependencies {
 	testCompile("org.springframework.boot:spring-boot-starter-test:2.2.13.RELEASE")
 }
 
+/*
 task jardist(type: Copy, dependsOn:bootJar){
 	delete fileTree('jardist')
 	destinationDir = file('jardist')
 	from bootJar
 	from configurations.runtimeClasspath
 }
+*/
 
 task execProbeFromClasses(type: JavaExec, dependsOn:classes){
   classpath = sourceSets.main.runtimeClasspath
