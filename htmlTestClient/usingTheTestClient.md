@@ -63,27 +63,27 @@ Beispielsweise, um ein Fachobjekt auf der Karte darzustellen
 * Aus dem "App-Client" folgende Nachricht senden
   (wobei die UUID unter `session` beliebig sein kann;
   sie muss aber in beiden Requests gleich sein):
-```
-{
-  "apiVersion": "1.0",
-  "method": "connectApp",
-  "session": "{E9C62508-025A-4A0F-B342-1B632282ABD8}",
-  "clientName": "Test app"
-}
+  ```
+  {
+    "apiVersion": "1.0",
+    "method": "connectApp",
+    "session": "{E9C62508-025A-4A0F-B342-1B632282ABD8}",
+    "clientName": "Test app"
+  }
 
-```
+  ```
   In den Entwicklertools sieht man nun beim markierten Request
   (in Firefox unter *Response*), dass die Nachricht gesendet worden ist
   (grüner Pfeil)
 * Aus dem "GIS-Client" folgende Nachricht senden:
-```
-{
-  "apiVersion": "1.0",
-  "method": "connectGis",
-  "session": "{E9C62508-025A-4A0F-B342-1B632282ABD8}",
-  "clientName": "Test GIS"
-}
-```
+  ```
+  {
+    "apiVersion": "1.0",
+    "method": "connectGis",
+    "session": "{E9C62508-025A-4A0F-B342-1B632282ABD8}",
+    "clientName": "Test GIS"
+  }
+  ```
 
 In den Entwicklertools des "App-Clients" muss nun angezeigt werden,
 dass ein `notifySessionReady` empfangen worden ist (roter Pfeil).
