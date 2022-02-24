@@ -32,7 +32,7 @@ Typischerweise in der Rolle der Fachapplikation:
         "session": "{[UUID]]}",
         "clientName": "Axioma Mandant AfU"
     }
-    
+
 ## Payload Nachricht schicken
 
 Beispielsweise, um ein Fachobjekt auf der Karte darzustellen
