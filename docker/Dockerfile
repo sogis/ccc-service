@@ -1,6 +1,8 @@
 FROM openjdk:11
 
-USER root
+# Create ccc user
+ARG UID=1001
+RUN useradd ccc --uid $UID --create-home
 
 WORKDIR /home/ccc
 COPY ccc /home/ccc
@@ -10,7 +12,7 @@ RUN cd /home/ccc && \
     chmod -R g+rw /home/ccc && \
     ls -la /home/ccc
 
-USER 1001
+USER ccc
 EXPOSE 8080
 
 #Log4j 2 CVE-2021-44228
