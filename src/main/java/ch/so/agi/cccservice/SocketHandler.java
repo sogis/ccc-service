@@ -14,11 +14,13 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,12 @@ public class SocketHandler extends TextWebSocketHandler {
     private SocketSender socketSender;
     private JsonConverter jsonConverter;
 
+    private final List<String> messageBuffer = new ArrayList<>();
+
+    @Override
+    public boolean supportsPartialMessages() {
+        return true;
+    }
 
     @Override
     public void afterConnectionClosed(WebSocketSession socket, CloseStatus status) throws Exception {
@@ -109,9 +117,24 @@ public class SocketHandler extends TextWebSocketHandler {
             // A message has been received
 
             String clientIpAddress = socket.getRemoteAddress().getAddress().getHostAddress();
-            logger.trace(clientIpAddress+":"+textMessage.getPayload());
+            String completeMessage = "";
             try {
-                AbstractMessage message = jsonConverter.stringToMessage(textMessage.getPayload());
+
+                /////////////////////////////////////////////////////////////
+                // Implementierung für Partial Messages
+                messageBuffer.add(textMessage.getPayload());
+                // Überprüfen Sie, ob die vollständige Nachricht empfangen wurde
+                if (isCompleteMessage()) {
+                    completeMessage = assembleCompleteMessage();
+                    // Verarbeiten Sie die vollständige Nachricht
+                    logger.debug("Received and assembled complete message: \n" + completeMessage);
+                    // Leeren Sie den Puffer für die nächste Nachricht
+                    messageBuffer.clear();
+                }
+                /////////////////////////////////////////////////////////////
+
+                logger.trace(clientIpAddress+":" + completeMessage);
+                AbstractMessage message = jsonConverter.stringToMessage(completeMessage);
 
                 SessionId sessionId = null;
                 synchronized(sessionPool) {
@@ -144,7 +167,7 @@ public class SocketHandler extends TextWebSocketHandler {
                         MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                         logger.debug(clientIpAddress+": "+sessionPool.getClientName(socket)+": "+message.getMethod());
                     }
-                    
+
                     int clientType=sessionPool.getClientType(socket);
                     if(clientType==Service.APP) {
                         service.handleAppMessage(sessionId, message);
@@ -154,7 +177,7 @@ public class SocketHandler extends TextWebSocketHandler {
                 }
             }catch(ServiceException ex) {
                 logger.error("failed to handle request",ex);
-                logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
+                logger.info("request that failed: "+ clientIpAddress+":" + completeMessage);
                 NotifyErrorMessage msg=new NotifyErrorMessage();
                 msg.setCode(ex.getErrorCode());
                 msg.setMessage(ex.getMessage());
@@ -165,7 +188,7 @@ public class SocketHandler extends TextWebSocketHandler {
                 }
             }catch(Exception ex) {
                 logger.error("failed to handle request",ex);
-                logger.info("request that failed: "+clientIpAddress+":"+textMessage.getPayload());
+                logger.info("request that failed: "+clientIpAddress+":"+completeMessage);
                 NotifyErrorMessage msg=new NotifyErrorMessage();
                 msg.setCode(500);
                 String msgTxt=ex.getMessage();
@@ -182,6 +205,37 @@ public class SocketHandler extends TextWebSocketHandler {
         }finally {
             MDC.remove(MDC_KEY_SESSIONID);
         }
+    }
+
+    private boolean isCompleteMessage() {
+        // Zählen Sie die geschweiften Klammern
+        int openBraces = 0;
+        int closeBraces = 0;
+
+        for (String part : messageBuffer) {
+            openBraces += countOccurrences(part, '{');
+            closeBraces += countOccurrences(part, '}');
+            openBraces += countOccurrences(part, '[');
+            closeBraces += countOccurrences(part, ']');
+        }
+
+        // Eine vollständige JSON-Nachricht hat die gleiche Anzahl an öffnenden und schließenden Klammern
+        return openBraces == closeBraces;
+    }
+
+    private int countOccurrences(String str, char ch) {
+        int count = 0;
+        for (char c : str.toCharArray()) {
+            if (c == ch) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private String assembleCompleteMessage() {
+        // Kombinieren Sie die Teile der Nachricht aus dem Puffer
+        return String.join("", messageBuffer);
     }
 
 }

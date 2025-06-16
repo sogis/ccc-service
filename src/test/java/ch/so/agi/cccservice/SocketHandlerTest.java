@@ -8,14 +8,14 @@ import ch.so.agi.cccservice.messages.NotifyErrorMessage;
 import ch.so.agi.cccservice.messages.NotifyGeoObjectSelectedMessage;
 import ch.so.agi.cccservice.messages.NotifySessionReadyMessage;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -29,29 +29,29 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(org.springframework.test.context.junit4.SpringRunner.class)
+@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 public class SocketHandlerTest {
-    
+
     public static final String GIS_CLIENT_NAME = "SocketHandlerTest GIS";
     public static final String CCC_PROTOCOL_VERSION = "1.0";
     public static final String APP_CLIENT_NAME = "SocketHandlerTest APP";
     private static final String DEFAULT_ENDPOINT = "ws://localhost:8080/ccc-service";
     private static final long MAX_INACTIVITY_TIME=20;
     private static final long MAX_PAIRING_TIME=10;
-  
+
     Logger logger = LoggerFactory.getLogger(SocketHandlerTest.class);
     String endpoint=DEFAULT_ENDPOINT;
 
-    @BeforeClass
+    @BeforeAll
     static public void startService() {
-        
+
         System.setProperty(Service.CCC_MAX_INACTIVITY, Long.toString(MAX_INACTIVITY_TIME));
         System.setProperty(Service.CCC_MAX_PAIRING, Long.toString(MAX_PAIRING_TIME));
         SpringApplication.run(Application.class, new String[0]);
 
-        
+
     }
-    
+
     public class ClientSocketHandler implements WebSocketHandler {
 
         Logger logger = LoggerFactory.getLogger(SocketHandler.class);
@@ -75,7 +75,7 @@ public class SocketHandlerTest {
          */
         @Override
         public boolean supportsPartialMessages() {
-            return false;
+            return true;
         }
 
         /**
@@ -170,7 +170,7 @@ public class SocketHandlerTest {
             }
         }
     }
-    
+
     @Test
     public void simpleHappyFlow() throws Exception {
 
@@ -180,9 +180,9 @@ public class SocketHandlerTest {
 
         Thread.sleep(2000);
         assertTrue(appSessionHandler.isConnected());
-        
+
         SessionId sessionId = new SessionId("{"+UUID.randomUUID().toString()+"}");
-        
+
         ConnectAppMessage appConnectMessage = new ConnectAppMessage();
         appConnectMessage.setApiVersion(CCC_PROTOCOL_VERSION);
         appConnectMessage.setSession(sessionId);
@@ -224,9 +224,9 @@ public class SocketHandlerTest {
 
                     Thread.sleep(2000);
                     assertTrue(appSessionHandler.isConnected());
-                    
+
                     SessionId sessionId = new SessionId("{"+UUID.randomUUID().toString()+"}");
-                    
+
                     ConnectAppMessage appConnectMessage = new ConnectAppMessage();
                     appConnectMessage.setApiVersion(CCC_PROTOCOL_VERSION);
                     appConnectMessage.setSession(sessionId);
@@ -251,17 +251,17 @@ public class SocketHandlerTest {
                     assertTrue(gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true);
                     assertTrue(appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true);
                     // end of setup session 1
-                    
+
                     gisSessionHandler.closeConnection();
                     Thread.sleep(1000);
                     assertFalse(gisSessionHandler.isConnected());
                     assertFalse(appSessionHandler.isConnected());
-                    
+
                 }catch(Exception e) {
                     throw new IllegalStateException(e);
                 }
             }
-            
+
         }).start();
         // session 2: connectGis, assert after CCC_MAX_UNJOINED expiry that gis client is disconnected
         new Thread(new Runnable() {
@@ -295,11 +295,11 @@ public class SocketHandlerTest {
                 }catch(Exception e) {
                     throw new IllegalStateException(e);
                 }
-                
+
             }
-            
+
         }).start();
-        
+
         // session 3: connectApp, connectGis, assert after CCC_MAX_INACTIVITY expiry that both clients are disconnected
         new Thread(new Runnable() {
 
@@ -312,9 +312,9 @@ public class SocketHandlerTest {
 
                     Thread.sleep(2000);
                     assertTrue(appSessionHandler.isConnected());
-                    
+
                     SessionId sessionId = new SessionId("{"+UUID.randomUUID().toString()+"}");
-                    
+
                     ConnectAppMessage appConnectMessage = new ConnectAppMessage();
                     appConnectMessage.setApiVersion(CCC_PROTOCOL_VERSION);
                     appConnectMessage.setSession(sessionId);
@@ -339,7 +339,7 @@ public class SocketHandlerTest {
                     assertTrue(gisSessionHandler.getAppReady() != null && gisSessionHandler.getAppReady() == true);
                     assertTrue(appSessionHandler.getAppReady() != null && appSessionHandler.getAppReady() == true);
                     // end of setup session 1
-                    
+
                     Thread.sleep(1000);
                     Thread.sleep(MAX_INACTIVITY_TIME*1000);
                     NotifyGeoObjectSelectedMessage notifyGeoObjectSelectedMessage=new NotifyGeoObjectSelectedMessage();
@@ -349,16 +349,16 @@ public class SocketHandlerTest {
                     Thread.sleep(2000);
                     assertFalse(gisSessionHandler.isConnected());
                     assertFalse(appSessionHandler.isConnected());
-                    
+
                 }catch(Exception e) {
                     throw new IllegalStateException(e);
                 }
-                
+
             }
-            
+
         }).start();
 
         Thread.sleep(MAX_INACTIVITY_TIME*1000);
-        
+
     }
 }
