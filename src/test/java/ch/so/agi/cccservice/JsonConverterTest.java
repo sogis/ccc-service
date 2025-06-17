@@ -5,12 +5,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonConverterTest {
     //private String appConnectString = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
@@ -105,7 +105,7 @@ public class JsonConverterTest {
         JsonConverter jsonConverter = new JsonConverter();
         assertTrue(jsonConverter.stringToMessage(notifyEditGeoObjectDoneMessageString) instanceof NotifyEditGeoObjectDoneMessage);
     }
-    
+
     @Test
     public void stringToNotifyEditGeoObjectDoneMessageDataNull() throws IOException, ServiceException {
         final String notifyEditGeoObjectDoneMessageString = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
@@ -235,216 +235,273 @@ public class JsonConverterTest {
     }
 
 
-    @Test (expected = JsonEOFException.class)
+    @Test
     public void stringToCorruptJsonEofTest() throws IOException, ServiceException {
         String json = "{\"method\":\"appConnect\"," +
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\""; //Es fehlt die letzte Klammer }
-        jsonConverter.stringToMessage(json);
+        assertThrows(JsonEOFException.class, () -> {
+            jsonConverter.stringToMessage(json);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNoMethodTest() throws IOException, ServiceException {
         String json = "{" + //Keine Methode
                 "\"session\":{\"sessionId\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"}," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(json);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(json);
+        });
     }
 
-    @Test (expected = JsonParseException.class)
+    @Test
     public void stringToCorruptJsonTest() throws IOException, ServiceException {
         String json = "{\"method\":\"appConnect\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"clientNameAxioma Mandant AfU\"," + //Hier ist doch was faul...
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(json);
+        assertThrows(JsonParseException.class, () -> {
+            jsonConverter.stringToMessage(json);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectAppMessageMissingJsonProperty() throws IOException, ServiceException {
         String json = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 //missing client name
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(json);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(json);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyEditGeoObjectDoneMessageWrongNameOfContextAttribute() throws IOException, ServiceException {
         String messageWithMissingCode = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"contect\":{\"afu_geschaeft\":\"3671951\"}," +
                 "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        jsonConverter.stringToMessage(messageWithMissingCode);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(messageWithMissingCode);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectAppMessageMissingApiVersion() throws IOException, ServiceException {
         String appConnectMessageWithoutApiVersion = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"clientName\":\"Axioma Mandant AfU\"}";
-        jsonConverter.stringToMessage(appConnectMessageWithoutApiVersion);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(appConnectMessageWithoutApiVersion);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectAppMessageMissingSession() throws IOException, ServiceException {
         String appConnectMessageWithoutSession = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(appConnectMessageWithoutSession);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(appConnectMessageWithoutSession);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectAppMessageMissingClientName() throws IOException, ServiceException {
         String appConnectMessageWithoutClientName = "{\"method\":\""+ConnectAppMessage.METHOD_NAME+"\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(appConnectMessageWithoutClientName);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(appConnectMessageWithoutClientName);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectGisMessageMissingApiVersion() throws IOException, ServiceException {
         String gisConnectMessageWithoutApiVersion = "{\"method\":\""+ConnectGisMessage.METHOD_NAME+"\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"clientName\":\"Axioma Mandant AfU\"}";
-        jsonConverter.stringToMessage(gisConnectMessageWithoutApiVersion);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(gisConnectMessageWithoutApiVersion);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectGisMessageMissingSession() throws IOException, ServiceException {
         String gisConnectMessageWithoutSession = "{\"method\":\""+ConnectGisMessage.METHOD_NAME+"\"," +
                 "\"clientName\":\"Axioma Mandant AfU\"," +
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(gisConnectMessageWithoutSession);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(gisConnectMessageWithoutSession);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToConnectGisMessageMissingClientName() throws IOException, ServiceException {
         String gisConnectMessageWithoutClientName = "{\"method\":\""+ConnectGisMessage.METHOD_NAME+"\"," +
                 "\"session\":\"{E9-TRALLALLA-UND-BLA-BLA-BLA-666}\"," +
                 "\"apiVersion\":\"1.0\"}";
-        jsonConverter.stringToMessage(gisConnectMessageWithoutClientName);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(gisConnectMessageWithoutClientName);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToCreateGeoObjectMessageMissingContext() throws IOException, ServiceException {
         String createMessageWithoutContext = "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\"," +
                 "\"zoomTo\":{\"gemeinde\":2542}}";
-        jsonConverter.stringToMessage(createMessageWithoutContext);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(createMessageWithoutContext);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToCreateGeoObjectMessageWrongTypeOnZoomTo() throws IOException, ServiceException {
         String createString = "{\"method\":\""+CreateGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
                 "\"zoomTo\":\"gemeinde: 2542\"}";
-        jsonConverter.stringToMessage(createString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(createString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToEditGeoObjectMessageMissingContext() throws IOException, ServiceException {
         String editMessageWithoutContext = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\"," +
                 "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        jsonConverter.stringToMessage(editMessageWithoutContext);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(editMessageWithoutContext);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToEditGeoObjectMessageMissingData() throws IOException, ServiceException {
         String editMessageWithoutData = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
-        jsonConverter.stringToMessage(editMessageWithoutData);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(editMessageWithoutData);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToEditGeoObjectMessageWrongTypeOnData() throws IOException, ServiceException {
         String editString = "{\"method\":\""+EditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
                 "\"data\":\"{type:Point,coordinates:[2609190,1226652]}\"}";
-        jsonConverter.stringToMessage(editString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(editString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToShowGeoObjectMessageMissingContext() throws IOException, ServiceException {
         String showMessageWithoutContext = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\"," +
                 "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        jsonConverter.stringToMessage(showMessageWithoutContext);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(showMessageWithoutContext);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToShowGeoObjectMessageMissingData() throws IOException, ServiceException {
         String showMessageWithoutData = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
-        jsonConverter.stringToMessage(showMessageWithoutData);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(showMessageWithoutData);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToShowGeoObjectMessageWrongTypeOnData() throws IOException, ServiceException {
         String showString = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
                 "\"data\":\"{type:Point,coordinates:[2609190,1226652]}\"}";
-        jsonConverter.stringToMessage(showString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(showString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToCancelEditGeoObjectMessageMissingContext() throws IOException, ServiceException {
         String cancelMessageWithoutContext = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\"}";
-        jsonConverter.stringToMessage(cancelMessageWithoutContext);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(cancelMessageWithoutContext);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToCancelEditGeoObjectMessageWrongTypeOnContext() throws IOException, ServiceException {
         String cancelString = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\",\"context\":\"{afu_geschaeft:3671951}\"}";
-        jsonConverter.stringToMessage(cancelString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(cancelString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyEditGeoObjectDoneMessageMissingContextAttribute() throws IOException, ServiceException {
         String messageWithMissingContext = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\"," +
                 "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
-        jsonConverter.stringToMessage(messageWithMissingContext);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(messageWithMissingContext);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyObjectUpdatedMessageMissingProperties() throws IOException, ServiceException {
         String dataWrittenMessageWithoutProperties = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\"}";
-        jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(dataWrittenMessageWithoutProperties);
+        });
     }
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyObjectUpdatedMessageWrongObjectTypeOnProperties() throws IOException, ServiceException {
         String message = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":{\"laufnr\":\"2017-820\"," +
                 "\"grundbuch\":\"Trimbach\"}}";
-        assertTrue(jsonConverter.stringToMessage(message) instanceof NotifyObjectUpdatedMessage);
+        assertThrows(ServiceException.class, () -> {
+            assertTrue(jsonConverter.stringToMessage(message) instanceof NotifyObjectUpdatedMessage);
+        });
     }
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyObjectUpdatedMessageWrongStringTypeOnProperties() throws IOException, ServiceException {
         String dataWrittenString = "{\"method\":\""+NotifyObjectUpdatedMessage.METHOD_NAME+"\",\"properties\":\"{laufnr:2017-820," +
                 "grundbuch:Trimbach}\"}";
-        jsonConverter.stringToMessage(dataWrittenString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(dataWrittenString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyGeoObjectSelectedMessageWrongTypeOnContext_list() throws IOException, ServiceException {
         String selectedString = "{\"method\":\""+NotifyGeoObjectSelectedMessage.METHOD_NAME+"\",\"context_list\":" +
                 "\"[{bfs_num:231,parz_num:1951},{bfs_num:231,parz_num:2634}]\"}";
-        jsonConverter.stringToMessage(selectedString);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(selectedString);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyErrorMessageMissingCodeAttribute() throws IOException, ServiceException {
         String errorMessageWithoutCode = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"message\":\"test Errormessage\"," +
                 "\"userData\":{\"test\":\"3671951\"},\"nativeCode\":\"test nativeCode\"," +
                 "\"technicalDetails\":\"test technicalDetails\"}";
-        jsonConverter.stringToMessage(errorMessageWithoutCode);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(errorMessageWithoutCode);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyErrorMessageMissingMessageAttribute() throws IOException, ServiceException {
         String errorMessageWithoutMessage = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999}";
-        jsonConverter.stringToMessage(errorMessageWithoutMessage);
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(errorMessageWithoutMessage);
+        });
     }
 
-    @Test (expected = ServiceException.class)
+    @Test
     public void stringToNotifyErrorMessageWrongTypOnUserData() throws IOException, ServiceException {
         String errorString = "{\"method\":\""+NotifyErrorMessage.METHOD_NAME+"\",\"code\":999,\"message\":\"test Errormessage\"," +
                 "\"userData\":\"{test:3671951}\",\"nativeCode\":\"test nativeCode\"," +
                 "\"technicalDetails\":\"test technicalDetails\"}";
-        jsonConverter.stringToMessage(errorString);
-
+        assertThrows(ServiceException.class, () -> {
+            jsonConverter.stringToMessage(errorString);
+        });
     }
 
 

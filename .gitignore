@@ -1,1 +1,14 @@
+# Gradle build output
 .gradle/
+**/build/
+
+# Java build output
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar

@@ -1,7 +1,21 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.13.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.springframework.boot' version '3.5.0'
+    id 'io.spring.dependency-management' version '1.1.5'
     id 'java'
+    id 'maven-publish'
+}
+
+group = 'ch.so.agi'
+version = buildIdent()
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Gradle JVM explizit setzen
+tasks.withType(JavaCompile) {
+    options.release = 21
 }
 
 repositories {
@@ -9,84 +23,96 @@ repositories {
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:2.2.13.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-websocket:2.2.13.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-actuator:2.2.13.RELEASE")
-
-    testCompile("org.springframework.boot:spring-boot-starter-test:2.2.13.RELEASE")
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.jboss.logging:jboss-logging:3.5.3.Final' // JBoss MDC
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-task jardist(type: Copy, dependsOn: build){
+test {
+    useJUnitPlatform()
+}
+
+// Für das ausführbare Spring Boot JAR
+bootJar {
+    archiveFileName = 'ccc-service.jar'
+}
+
+jar {
+    enabled = false // Normales JAR nicht benötigt
+}
+
+task jardist(type: Copy, dependsOn: bootJar) {
     from file("$buildDir/libs/ccc-service.jar")
     into file('docker/ccc')
 }
 
-task buildImage(type:Exec, dependsOn: jardist) {
+task buildImage(type: Exec, dependsOn: jardist) {
     def githash = getCheckedOutGitCommitHash()
     def buildident = buildIdent()
     def build_timestamp = getTimestamp()
 
     commandLine 'docker', 'build',
-            '--no-cache', '--force-rm',
-            '-t', "sogis/ccc-service:latest",
-            '-t', "sogis/ccc-service:$buildident",
-            '--label', "ccc-service.created=$build_timestamp",
-            '--label', "ccc-service.git_commit=$githash",
-            '--label', "ccc-service.build_nr=$buildident",
-            '-f', 'Dockerfile',  '.'
-
+        '--no-cache', '--force-rm',
+        '-t', "sogis/ccc-service:latest",
+        '-t', "sogis/ccc-service:$buildident",
+        '--label', "ccc-service.created=$build_timestamp",
+        '--label', "ccc-service.git_commit=$githash",
+        '--label', "ccc-service.build_nr=$buildident",
+        '-f', 'Dockerfile', '.'
     workingDir "docker"
 }
 
-task runImage(type:Exec, dependsOn: buildImage) {
+task runImage(type: Exec, dependsOn: buildImage) {
     commandLine 'docker', 'run', '-d',
-            '-p', '8080:8080',
-            '-e', 'CCC_DEBUG=1',
-            '--name', 'ccctest',
-            'sogis/ccc-service'
+        '-p', '8080:8080',
+        '-e', 'CCC_DEBUG=1',
+        '--name', 'ccctest',
+        'sogis/ccc-service'
 }
 
-task waitUntilUp(type:Exec, dependsOn: runImage) {
+task waitUntilUp(type: Exec, dependsOn: runImage) {
     commandLine './await_url.sh', 'http://localhost:8080/actuator/health'
     workingDir "docker"
-
     doLast {
         Thread.sleep(2000) // wait extra 2 seconds
     }
 }
 
-task testImage(type: JavaExec, dependsOn: waitUntilUp){ //tests the image with the probe tool
+task testImage(type: JavaExec, dependsOn: waitUntilUp) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'ch.so.agi.cccprobe.ProbeTool'
+    mainClass = 'ch.so.agi.cccprobe.ProbeTool'
 }
 
-task pushLatestImage(type:Exec) {
+task pushLatestImage(type: Exec) {
     commandLine 'docker', 'push', 'sogis/ccc-service:latest'
 }
 
-task pushImage(type:Exec, dependsOn: pushLatestImage) {
+task pushImage(type: Exec, dependsOn: pushLatestImage) {
     def buildident = buildIdent()
-
     commandLine 'docker', 'push', "sogis/ccc-service:$buildident"
 }
 
 def String buildIdent() {
     String prefix = '1.1.'
     String suffix = System.getenv('GITHUB_RUN_NUMBER')
-
-    if(suffix == null)
+    if (suffix == null) {
         suffix = 'localbuild'
-
+    }
     return prefix + suffix
 }
 
 def getCheckedOutGitCommitHash() {
-    String val = 'git log -1 --pretty=%H'.execute().text.trim()
-    return val
+    try {
+        return 'git log -1 --pretty=%H'.execute().text.trim()
+    } catch (Exception e) {
+        logger.warn("Could not get git commit hash: ${e.message}")
+        return 'unknown'
+    }
 }
 
 def getTimestamp() {
     def date = new Date()
     return date.format('yyyy-MM-dd HH:mm:ss')
 }
-
