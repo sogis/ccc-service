@@ -132,7 +132,13 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 }
 ```
 
-Zu beachten: 
+## connectGis und connectApp für V2 Clients
+
+Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V2-Fähigen Clients wird neu 2.0 als "apiVersion" übergeben.
+
+## Rückwärtskompatibilität
+
+Die Erweiterung ist für V 1.0 Clients transparent. Diese laufen ohne Anpassung weiter.
 
 ## Konsequenzen / Fragen für SEIN
 
@@ -142,3 +148,4 @@ OK-Lösung wäre durch den ARP-Superuser konfigurierbare Layer-Identifier in SEI
 ## Todos
 
 Fehlerszenarien für reconnect und keyChange überlegen und dokumentieren
+Bestätigen: CCC bleibt nicht 12-Factor, 
