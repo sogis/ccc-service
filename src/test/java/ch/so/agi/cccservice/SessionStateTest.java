@@ -1,10 +1,9 @@
 package ch.so.agi.cccservice;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class SessionStateTest {
     private String expectedGisName = "GIS-Name";
@@ -21,8 +20,8 @@ public class SessionStateTest {
         String gisName = sessionState.getGisName();
         String appName = sessionState.getAppName();
 
-        Assert.assertNotEquals(expectedAppName, gisName);
-        Assert.assertNotEquals(expectedGisName, appName);
+        assertNotEquals(expectedAppName, gisName);
+        assertNotEquals(expectedGisName, appName);
     }
 
     @Test
@@ -31,10 +30,10 @@ public class SessionStateTest {
 
         sessionState.addAppConnection(expectedAppName);
 
-        Assert.assertEquals(expectedAppName, sessionState.getAppName());
-        Assert.assertTrue(sessionState.isAppConnected());
-        Assert.assertFalse(sessionState.isGisConnected());
-        Assert.assertFalse(sessionState.isReadySent());
+        assertEquals(expectedAppName, sessionState.getAppName());
+        assertTrue(sessionState.isAppConnected());
+        assertFalse(sessionState.isGisConnected());
+        assertFalse(sessionState.isReadySent());
 
     }
 
@@ -44,10 +43,10 @@ public class SessionStateTest {
 
         sessionState.addGisConnection(expectedGisName);
 
-        Assert.assertEquals(expectedGisName, sessionState.getGisName());
-        Assert.assertTrue(sessionState.isGisConnected());
-        Assert.assertFalse(sessionState.isAppConnected());
-        Assert.assertFalse(sessionState.isReadySent());
+        assertEquals(expectedGisName, sessionState.getGisName());
+        assertTrue(sessionState.isGisConnected());
+        assertFalse(sessionState.isAppConnected());
+        assertFalse(sessionState.isReadySent());
     }
 
     @Test
@@ -56,7 +55,7 @@ public class SessionStateTest {
 
         sessionState.setConnectionsToReady();
 
-        Assert.assertTrue(sessionState.isReadySent());
+        assertTrue(sessionState.isReadySent());
     }
 
     @Test
@@ -64,7 +63,7 @@ public class SessionStateTest {
         SessionState sessionState = new SessionState();
         sessionState.addAppConnection(expectedAppName);
 
-        Assert.assertTrue(sessionState.getAppConnectTime() > 0);
+        assertTrue(sessionState.getAppConnectTime() > 0);
     }
 
     @Test
@@ -73,6 +72,6 @@ public class SessionStateTest {
         SessionState sessionState = new SessionState();
         sessionState.addGisConnection(expectedGisName);
 
-        Assert.assertTrue(sessionState.getGisConnectTime() > 0);
+        assertTrue(sessionState.getGisConnectTime() > 0);
     }
 }

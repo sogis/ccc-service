@@ -8,14 +8,13 @@ import ch.so.agi.cccservice.messages.NotifyErrorMessage;
 import ch.so.agi.cccservice.messages.NotifyGeoObjectSelectedMessage;
 import ch.so.agi.cccservice.messages.NotifySessionReadyMessage;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -29,7 +28,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(org.springframework.test.context.junit4.SpringRunner.class)
+//@RunWith(org.springframework.test.context.junit4.SpringRunner.class)
 public class SocketHandlerTest {
     
     public static final String GIS_CLIENT_NAME = "SocketHandlerTest GIS";
@@ -42,7 +41,7 @@ public class SocketHandlerTest {
     Logger logger = LoggerFactory.getLogger(SocketHandlerTest.class);
     String endpoint=DEFAULT_ENDPOINT;
 
-    @BeforeClass
+    @BeforeAll
     static public void startService() {
         
         System.setProperty(Service.CCC_MAX_INACTIVITY, Long.toString(MAX_INACTIVITY_TIME));

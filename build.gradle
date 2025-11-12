@@ -1,21 +1,47 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.13.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.springframework.boot' version '3.5.7'
+    //id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
 }
 
+apply plugin: 'io.spring.dependency-management'
+
 repositories {
+    // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:2.2.13.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-websocket:2.2.13.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-actuator:2.2.13.RELEASE")
+    /*
+    // Use JUnit Jupiter for testing.
+    testImplementation libs.junit.jupiter
 
-    testCompile("org.springframework.boot:spring-boot-starter-test:2.2.13.RELEASE")
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // This dependency is used by the application.
+    implementation libs.guava
+*/
+
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-websocket')
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
+// Apply a specific Java toolchain to ease working on different environments.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
+
+/* $td upgradle to current gradle version
 task jardist(type: Copy, dependsOn: build){
     from file("$buildDir/libs/ccc-service.jar")
     into file('docker/ccc')
@@ -89,4 +115,4 @@ def getTimestamp() {
     def date = new Date()
     return date.format('yyyy-MM-dd HH:mm:ss')
 }
-
+*/

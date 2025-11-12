@@ -1,7 +1,6 @@
 package ch.so.agi.cccservice;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
@@ -9,6 +8,8 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class SessionPoolTest {
@@ -30,7 +31,7 @@ public class SessionPoolTest {
 
         SessionState savedSessionState = sessionPool.getSession(sessionId);
 
-        Assert.assertEquals(sessionState, savedSessionState);
+        assertEquals(sessionState, savedSessionState);
     }
     @Test
     public void closeInactiveSessions() throws Exception {
@@ -41,7 +42,7 @@ public class SessionPoolTest {
         sessionPool.checkActivityTimeout(sessionId, Service.DEFAULT_MAX_INACTIVITYTIME);
         TimeUnit.SECONDS.sleep(2);
         sessionPool.closeInactiveSessions(1);
-        Assert.assertNull(sessionPool.getSession(sessionId));
+        assertNull(sessionPool.getSession(sessionId));
     }
 
     @Test
@@ -51,7 +52,7 @@ public class SessionPoolTest {
 
         WebSocketSession savedWebSocketSession = sessionPool.getAppWebSocketSession(sessionId);
 
-        Assert.assertEquals(appWebSocketSession,savedWebSocketSession );
+        assertEquals(appWebSocketSession,savedWebSocketSession );
     }
 
     @Test
@@ -61,7 +62,7 @@ public class SessionPoolTest {
 
         WebSocketSession savedWebSocketSession = sessionPool.getGisWebSocketSession(sessionId);
 
-        Assert.assertEquals(gisWebSocketSession, savedWebSocketSession);
+        assertEquals(gisWebSocketSession, savedWebSocketSession);
     }
 
 
@@ -72,7 +73,7 @@ public class SessionPoolTest {
 
         SessionId savedSessionId = sessionPool.getSessionId(gisWebSocketSession);
 
-        Assert.assertEquals(sessionId, savedSessionId);
+        assertEquals(sessionId, savedSessionId);
     }
 
     @Test
@@ -82,7 +83,7 @@ public class SessionPoolTest {
 
         sessionPool.removeSession(sessionId);
 
-        Assert.assertNull(sessionPool.getSession(sessionId));
+        assertNull(sessionPool.getSession(sessionId));
     }
 
     @Test
@@ -93,8 +94,8 @@ public class SessionPoolTest {
 
         sessionPool.removeSession(sessionId);
 
-        Assert.assertNull(sessionPool.getAppWebSocketSession(sessionId));
-        Assert.assertNull(sessionPool.getSessionId(appWebSocketSession));
+        assertNull(sessionPool.getAppWebSocketSession(sessionId));
+        assertNull(sessionPool.getSessionId(appWebSocketSession));
     }
 
     @Test
@@ -105,8 +106,8 @@ public class SessionPoolTest {
 
         sessionPool.removeSession(sessionId);
 
-        Assert.assertNull(sessionPool.getGisWebSocketSession(sessionId));
-        Assert.assertNull(sessionPool.getSessionId(gisWebSocketSession));
+        assertNull(sessionPool.getGisWebSocketSession(sessionId));
+        assertNull(sessionPool.getSessionId(gisWebSocketSession));
     }
     
 }

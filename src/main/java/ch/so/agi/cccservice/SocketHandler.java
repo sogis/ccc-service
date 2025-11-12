@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.logging.MDC;
+//import org.jboss.logging.MDC; $td Logging ändert sowieso mit dem Ersatz der Sessions mit Routen
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +55,12 @@ public class SocketHandler extends TextWebSocketHandler {
             SessionId sessionId = sessionPool.getSessionId(socket);
             if(sessionId != null) {
                 try {
-                    MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
+                    //MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                     String clientName=sessionPool.getClientName(socket);
                     sessionPool.removeSession(sessionId);
                     logger.info("Session "+sessionId.getSessionId()+": socket closed by client "+clientName);
                 }finally {
-                    MDC.remove(MDC_KEY_SESSIONID);
+                    //MDC.remove(MDC_KEY_SESSIONID);
                 }
             }
         }
@@ -125,13 +125,13 @@ public class SocketHandler extends TextWebSocketHandler {
                             ConnectAppMessage connectAppMessage = (ConnectAppMessage) message;
                             sessionId=connectAppMessage.getSession();
                             logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectAppMessage.getClientName()+": "+connectAppMessage.getMethod());
-                            MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
+                            //MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                             sessionPool.addAppWebSocketSession(connectAppMessage.getSession(), socket);
                         } else if (message instanceof ConnectGisMessage){
                             ConnectGisMessage connectGisMessage = (ConnectGisMessage) message;
                             sessionId=connectGisMessage.getSession();
                             logger.info(clientIpAddress+":"+sessionId.getSessionId()+": "+connectGisMessage.getClientName()+": "+connectGisMessage.getMethod());
-                            MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
+                            //MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                             sessionPool.addGisWebSocketSession(connectGisMessage.getSession(), socket);
                         } else {
                             throw new IllegalStateException();
@@ -141,7 +141,7 @@ public class SocketHandler extends TextWebSocketHandler {
                         if(sessionId==null) {
                             throw new ServiceException(500,"unexpected method <"+message.getMethod()+">; client must first send "+ConnectAppMessage.METHOD_NAME+" or "+ConnectGisMessage.METHOD_NAME);
                         }
-                        MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
+                        //MDC.put(MDC_KEY_SESSIONID, sessionId.getSessionId());
                         logger.debug(clientIpAddress+": "+sessionPool.getClientName(socket)+": "+message.getMethod());
                     }
                     
@@ -180,7 +180,7 @@ public class SocketHandler extends TextWebSocketHandler {
                 }
             }
         }finally {
-            MDC.remove(MDC_KEY_SESSIONID);
+            //MDC.remove(MDC_KEY_SESSIONID);
         }
     }
 
