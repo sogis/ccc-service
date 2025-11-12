@@ -67,6 +67,9 @@ public class Service {
         }else if (message instanceof ShowGeoObjectMessage){
             ShowGeoObjectMessage showMessage = (ShowGeoObjectMessage) message;
             handleShowGeoObject(sessionId, showMessage);
+        }else if (message instanceof ChangeLayerVisibilityMessage){
+            ChangeLayerVisibilityMessage changeLayerVisibilityMessage = (ChangeLayerVisibilityMessage) message;
+            handleChangeLayerVisibility(sessionId, changeLayerVisibilityMessage);
         }else if (message instanceof NotifyErrorMessage){
             NotifyErrorMessage errorMessage = (NotifyErrorMessage) message;
             handleError(APP,sessionId, errorMessage);
@@ -304,6 +307,19 @@ public class Service {
      * @throws ServiceException on missing sessionState or if ready has not been sent
      */
     private void handleShowGeoObject(SessionId sessionId, ShowGeoObjectMessage msg) throws ServiceException {
+        SessionState sessionState = sessionPool.getSession(sessionId);
+
+        checkIfConnectionIsEstablished(sessionState);
+        sender.sendMessageToGis(sessionId, msg);
+    }
+
+    /**
+     * sends changeLayerVisibilityMessage from App to GIS
+     * @param sessionId ID of session
+     * @param msg changeLayerVisibilityMessage
+     * @throws ServiceException on missing sessionState or if ready has not been sent
+     */
+    private void handleChangeLayerVisibility(SessionId sessionId, ChangeLayerVisibilityMessage msg) throws ServiceException {
         SessionState sessionState = sessionPool.getSession(sessionId);
 
         checkIfConnectionIsEstablished(sessionState);

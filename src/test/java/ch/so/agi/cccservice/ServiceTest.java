@@ -28,6 +28,7 @@ public class ServiceTest {
                     "\"coordinates\":\"[2609190,1226652]\"}}";
     private final String showString = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+    private final String changeLayerVisibilityString = "{\"method\":\""+ChangeLayerVisibilityMessage.METHOD_NAME+"\",\"data\":{\"layer_identifier\":\"ch.so.afu.abbaustellen\",\"visible\":true}}";
     private final String cancelString = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}}";
     private final String changedString = "{\"method\":\""+NotifyEditGeoObjectDoneMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
@@ -346,6 +347,22 @@ public class ServiceTest {
 
         String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
         Assert.assertEquals(showString, gisMessage);
+    }
+
+    @Test
+    public void changeLayerVisibilityMethodTest() throws Exception {
+
+        SessionPool sessionPool = new SessionPool();
+        Service service = establishConnection(sessionPool);
+
+        ChangeLayerVisibilityMessage changeLayerVisibilityMessage = (ChangeLayerVisibilityMessage) jsonConverter.stringToMessage(changeLayerVisibilityString);
+        service.handleAppMessage(sessionId, changeLayerVisibilityMessage);
+
+        List<AbstractMessage> gisMessages = socketSender.getGisMessages();
+        Assert.assertTrue(gisMessages.size() == 2);
+
+        String gisMessage = jsonConverter.messageToString(gisMessages.get(1));
+        Assert.assertEquals(changeLayerVisibilityString, gisMessage);
     }
 
     @Test

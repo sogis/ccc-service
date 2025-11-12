@@ -66,6 +66,9 @@ public class JsonConverter {
              if (method.equals(ShowGeoObjectMessage.METHOD_NAME)) {
                  return createShowGeoObjectMessage(obj);
              }
+             if (method.equals(ChangeLayerVisibilityMessage.METHOD_NAME)) {
+                 return createChangeLayerVisibilityMessage(obj);
+             }
              if (method.equals(CancelEditGeoObjectMessage.METHOD_NAME)) {
                  return createCancelEditGeoObjectMessage(obj);
              }
@@ -298,6 +301,21 @@ public class JsonConverter {
             throw new ServiceException(400, "Attribute in showMessage is missing or wrong.");
         }
         return showMessage;
+    }
+
+    /**
+     * Generates ChangeLayerVisibilityMessage
+     * @param obj JsonNode with ChangeLayerVisibilityMessage-Properties
+     * @return ChangeLayerVisibilityMessage
+     * @throws ServiceException on missing or wrong properties
+     */
+    private ChangeLayerVisibilityMessage createChangeLayerVisibilityMessage(JsonNode obj) throws ServiceException {
+        ChangeLayerVisibilityMessage changeLayerVisibilityMessage = new ChangeLayerVisibilityMessage();
+        changeLayerVisibilityMessage.setData(obj.get("data"));
+        if (changeLayerVisibilityMessage.getData() == null) {
+            throw new ServiceException(400, "Attribute data is missing or wrong.");
+        }
+        return changeLayerVisibilityMessage;
     }
 
     /**

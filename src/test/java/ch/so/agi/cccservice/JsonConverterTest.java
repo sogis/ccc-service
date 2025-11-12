@@ -39,6 +39,7 @@ public class JsonConverterTest {
     private String notifySessionReadyString = "{\"method\":\""+NotifySessionReadyMessage.METHOD_NAME+"\",\"apiVersion\":\"1.0\"}";
     private String showGeoObjectString = "{\"method\":\""+ShowGeoObjectMessage.METHOD_NAME+"\",\"context\":{\"afu_geschaeft\":\"3671951\"}," +
             "\"data\":{\"type\":\"Point\",\"coordinates\":\"[2609190,1226652]\"}}";
+    private String changeLayerVisibilityString = "{\"method\":\""+ChangeLayerVisibilityMessage.METHOD_NAME+"\",\"data\":{\"layer_identifier\":\"ch.so.afu.abbaustellen\",\"visible\":true}}";
 
     private JsonConverter jsonConverter = new JsonConverter();
 
@@ -380,6 +381,31 @@ public class JsonConverterTest {
         jsonConverter.stringToMessage(showString);
     }
 
+    @Test
+    public void changeLayerVisibilityMessageToString() throws IOException {
+        ChangeLayerVisibilityMessage changeLayerVisibilityMessage = new ChangeLayerVisibilityMessage();
+        changeLayerVisibilityMessage.setData(createLayerVisibilityDataNode());
+        String resultingJson = jsonConverter.messageToString(changeLayerVisibilityMessage);
+        assertEquals(changeLayerVisibilityString, resultingJson);
+    }
+
+    @Test
+    public void stringToChangeLayerVisibilityMessage() throws IOException, ServiceException {
+        assertTrue(jsonConverter.stringToMessage(changeLayerVisibilityString) instanceof ChangeLayerVisibilityMessage);
+    }
+
+    @Test(expected = ServiceException.class)
+    public void stringToChangeLayerVisibilityMessageMissingData() throws IOException, ServiceException {
+        String changeLayerVisibilityMessageWithoutData = "{\"method\":\""+ChangeLayerVisibilityMessage.METHOD_NAME+"\"}";
+        jsonConverter.stringToMessage(changeLayerVisibilityMessageWithoutData);
+    }
+
+    @Test(expected = ServiceException.class)
+    public void stringToChangeLayerVisibilityMessageWrongTypeOnData() throws IOException, ServiceException {
+        String changeLayerVisibilityMessageWithWrongData = "{\"method\":\""+ChangeLayerVisibilityMessage.METHOD_NAME+"\",\"data\":\"{layer_identifier:ch.so.afu.abbaustellen,visible:true}\"}";
+        jsonConverter.stringToMessage(changeLayerVisibilityMessageWithWrongData);
+    }
+
     @Test (expected = ServiceException.class)
     public void stringToCancelEditGeoObjectMessageMissingContext() throws IOException, ServiceException {
         String cancelMessageWithoutContext = "{\"method\":\""+CancelEditGeoObjectMessage.METHOD_NAME+"\"}";
@@ -472,5 +498,9 @@ public class JsonConverterTest {
 
     private JsonNode createUserDataToNode() throws IOException {
         return createNode("{\"test\":\"3671951\"}");
+    }
+
+    private JsonNode createLayerVisibilityDataNode() throws IOException {
+        return createNode("{\"layer_identifier\":\"ch.so.afu.abbaustellen\",\"visible\":true}");
     }
 }
