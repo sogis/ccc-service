@@ -33,14 +33,16 @@ Vom GIS wird keine Antwort zurückgeschickt, sofern der Befehl ausgeführt werde
 Dies gilt für die Fälle:
 * Die Sichtbarkeit der Ebene wurde wie angefordert umgeschaltet.
 * Die angeforderte Sichtbarkeit liegt bereits vor. Der Einfachheit halber wird dies nicht als Fehler behandelt.
+* Die auf sichtbar zu schaltende Ebene ist noch nicht geladen: Die Ebene wird zuoberst im Ebenenstapel dazugeladen und auf sichtbar gestellt.
+* Die auf unsichtbar zu schaltende Ebene ist noch nicht geladen: Die Ebene wird zuoberst im Ebenenstapel dazugeladen und auf unsichtbar gestellt.
 
-NotifyError-Antwort, falls der Layer nicht geladen ist:
+NotifyError-Antwort, falls der Layer nicht bekannt ist:
 
 ```json
 {
     "method": "notifyError",
     "code": todo - numerischen code zuweisen,
-    "message": "Can not set the layer visibility. Layer [layerIdentifier] not found in Map",
+    "message": "Can not set the layer visibility. Layer [layerIdentifier] is unknown",
     "userData": null,
     "nativeCode": "Err-165",
     "technicalDetails": "java.lang.IllegalArgumentException:
@@ -81,15 +83,15 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 {
     "session_key": "{d9e1e112-73f2-4797-9346-35fce16b6c40}",
     "session_nr": 3,
-    "gis_key": "{d1a431e9-5e39-48ab-a902-05134967a123}",
-    "app_key": "{3851cfe8-adfe-46bc-b637-e96547b5f8f1}",
+    "gis_key": "U2FsdGVkX1+Hd3MABxVKN7RGzwLHBOydEWeFwyaV7PE=",
+    "app_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
 * session_key: UUID, welche die Fachapplikation beim Aufruf des Web GIS Client übermittelt. Ist nur während dem "Handshake" relevant und bleibt über die ganze Lebensdauer der Session gleich.
 * session_nr: Einfache Ganzzahl, zum einfachen Identifizieren der Session bei einer Problemanalyse. Bleibt ebenfalls über die ganze Lebensdauer der Session gleich.
-* gis_key: Flüchtige UUID der Verbindung gis - ccc.
-* app_key: Füchtige UUID der Verbindung (fach)app - ccc.
+* gis_key: Flüchtiger kryptografischer Hash der Verbindung gis - ccc.
+* app_key: Füchtiger kryptografischer Hash der Verbindung (fach)app - ccc.
 
 ## reconnect
 
@@ -98,7 +100,7 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 ```json
 {
     "method": "reconnect",
-    "old_connection_key": "{E9C62508-025A-4A0F-B342-5A632282ABD8}",
+    "old_connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
@@ -111,7 +113,7 @@ Falls das reconnect vom CCC-Server akzeptiert wird, sendet dieser in der Folge e
 ```json
 {
     "method": "keyChange",
-    "new_connection_key": "{E9C62508-025A-4A0F-B342-5A632282ABD8}",
+    "new_connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
@@ -127,7 +129,7 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 {
     "apiVersion": "2.0",
     "method": "notifySessionReady",
-    "connection_key": "{E9C62508-025A-4A0F-B342-5A632282ABD8}",
+    "connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
     "session_nr": 3
 }
 ```
@@ -140,12 +142,6 @@ Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V2-Fähigen 
 
 Die Erweiterung ist für V 1.0 Clients transparent. Diese laufen ohne Anpassung weiter.
 
-## Konsequenzen / Fragen für SEIN
+## Konsequenzen für SEIN
 
-Woher kennt SEIN die Identifier der entsprechenden Ebenen?
-OK-Lösung wäre durch den ARP-Superuser konfigurierbare Layer-Identifier in SEIN
-
-## Todos
-
-Fehlerszenarien für reconnect und keyChange überlegen und dokumentieren
-Bestätigen: CCC bleibt nicht 12-Factor, 
+Die Identifier aller von SEIN "fernzusteuernden" Ebenen müssen in SEIN durch den "ARP-Superuser" konfiguriert werden können.
