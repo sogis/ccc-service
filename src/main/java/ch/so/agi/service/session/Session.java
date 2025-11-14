@@ -31,4 +31,14 @@ public class Session {
      * initiated the handshake
      */
     private LocalDateTime handShakeInitialized;
+
+    /**
+     * Websocket connection server - app
+     */
+    private Connection appConnection;
+
+    /**
+     * Websocket connection server - gis
+     */
+    private Connection gisConnection;
 }
