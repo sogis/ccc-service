@@ -1,6 +1,6 @@
-package ch.so.agi.service.messages;
+package ch.so.agi.service.message;
 
-import ch.so.agi.service.messages.exceptions.MessageParseException;
+import ch.so.agi.service.message.exception.MessageParseException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

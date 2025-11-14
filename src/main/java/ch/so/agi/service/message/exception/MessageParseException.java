@@ -1,6 +1,4 @@
-package ch.so.agi.service.messages.exceptions;
-
-import org.springframework.core.ExceptionDepthComparator;
+package ch.so.agi.service.message.exception;
 
 /**
  * Thrown when a incoming message can not be parsed and converted
