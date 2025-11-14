@@ -30,4 +30,13 @@ public class Connection {
      * The spring websocket connection
      */
     private WebSocketSession socketConnection;
+
+    public WebSocketSession getSocketConnection() {
+        return socketConnection;
+    }
+
+    public void setSocketConnection(WebSocketSession socketConnection) {
+        this.socketConnection = socketConnection;
+    }
+
 }
