@@ -27,7 +27,7 @@ class SessionsTest {
         MockWebSocketSession gisSession = new MockWebSocketSession();
         Session session = createSession(appSession, gisSession);
 
-        Sessions.add(session);
+        Sessions.addOrReplace(session);
 
         assertSame(session, Sessions.findByConnection(appSession));
         assertSame(session, Sessions.findByConnection(gisSession));
@@ -35,14 +35,15 @@ class SessionsTest {
 
     @Test
     void addReplacesExistingSessionForSameSocket() {
+        UUID sesUid = UUID.randomUUID();
         MockWebSocketSession sharedSession = new MockWebSocketSession();
         MockWebSocketSession gisSession = new MockWebSocketSession();
-        Session original = createSession(sharedSession, gisSession);
-        Sessions.add(original);
+        Session original = createSession(sesUid, sharedSession, gisSession);
+        Sessions.addOrReplace(original);
 
         MockWebSocketSession newGisSession = new MockWebSocketSession();
-        Session replacement = createSession(sharedSession, newGisSession);
-        Sessions.add(replacement);
+        Session replacement = createSession(sesUid, sharedSession, newGisSession);
+        Sessions.addOrReplace(replacement);
 
         assertSame(replacement, Sessions.findByConnection(sharedSession));
         assertSame(replacement, Sessions.findByConnection(newGisSession));
@@ -58,8 +59,12 @@ class SessionsTest {
     }
 
     private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+        return  createSession(UUID.randomUUID(), appSession, gisSession);
+    }
+
+    private Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
         SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
-        Session session = new Session(UUID.randomUUID(), appConnection, true);
+        Session session = new Session(sessionUid, appConnection, true);
 
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisSession);
         session.tryToAddSecondConnection(gisConnection, false);

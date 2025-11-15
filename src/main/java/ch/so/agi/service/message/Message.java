@@ -82,7 +82,7 @@ abstract public class Message {
         Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
             Session newSes = new Session(sessionUid, con, isAppConnection);
-            Sessions.add(newSes);
+            Sessions.addOrReplace(newSes);
         }
         else if(s.getAppWebSocket() == null){
             boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);

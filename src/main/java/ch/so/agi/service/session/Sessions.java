@@ -39,11 +39,20 @@ public class Sessions {
     }
 
     /**
-     * Adds a session to the sessions collection.
+     * Adds a session to the sessions collection and removes
+     * any previous occurrences of the session in the collection.
      */
-    public static synchronized void add(Session s){
-        sessionsBySocket.remove(s.getAppWebSocket());
-        sessionsBySocket.remove(s.getGisWebSocket());
+    public static synchronized void addOrReplace(Session s){
+        if(s == null)
+            return;
+
+        // remove by the old sockets of the session
+        Session old = findBySessionUid(s.getSessionUid());
+        if(old != null){
+            sessionsBySocket.remove(old.getAppWebSocket());
+            sessionsBySocket.remove(old.getGisWebSocket());
+        }
+
         sessionsBySocket.put(s.getAppWebSocket(), s);
         sessionsBySocket.put(s.getGisWebSocket(), s);
     }
