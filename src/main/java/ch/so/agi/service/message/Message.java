@@ -88,7 +88,7 @@ abstract public class Message {
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
         Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
-            Session newSes = new Session(sessionUid, con, isAppConnection);
+            Session newSes = new Session(sessionUid, con, isAppConnection, Session.DEFAULT_HANDSHAKE_MAX_DURATION);
             Sessions.addOrReplace(newSes);
         }
         else if(s.getAppWebSocket() == null){
