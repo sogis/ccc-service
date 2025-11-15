@@ -64,7 +64,7 @@ class SessionsTest {
 
     public Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
         SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
-        Session session = new Session(sessionUid, appConnection, true, Session.DEFAULT_HANDSHAKE_MAX_DURATION);
+        Session session = new Session(sessionUid, appConnection, true);
 
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisSession);
         assertTrue(session.tryToAddSecondConnection(gisConnection, false));

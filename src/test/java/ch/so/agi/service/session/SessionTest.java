@@ -1,5 +1,7 @@
 package ch.so.agi.service.session;
 
+import ch.so.agi.service.TestUtil;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -16,7 +18,7 @@ class SessionTest {
         UUID sessionUid = UUID.randomUUID();
         MockWebSocketSession gisWebSocket = new MockWebSocketSession();
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisWebSocket);
-        Session session = new Session(sessionUid, gisConnection, false, Duration.ofSeconds(5));
+        Session session = new Session(sessionUid, gisConnection, false);
 
         MockWebSocketSession appWebSocket = new MockWebSocketSession();
         SockConnection appConnection = new SockConnection("app-client", "1.0", appWebSocket);
@@ -31,14 +33,12 @@ class SessionTest {
     @Test
     void secondConnectionRejectedAfterHandshakeWindowElapsed() throws Exception {
         UUID sessionUid = UUID.randomUUID();
-        Duration handshakeDuration = Duration.ofSeconds(1);
         MockWebSocketSession gisWebSocket = new MockWebSocketSession();
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisWebSocket);
-        Session session = new Session(sessionUid, gisConnection, false, handshakeDuration);
+        Session session = new Session(sessionUid, gisConnection, false);
+        session.setHandShakeMaxDuration(Duration.ofMillis(100));
 
-        Field initializedField = Session.class.getDeclaredField("handShakeInitialized");
-        initializedField.setAccessible(true);
-        initializedField.set(session, LocalDateTime.now().minus(handshakeDuration).minusSeconds(1));
+        TestUtil.wait(110);
 
         MockWebSocketSession appWebSocket = new MockWebSocketSession();
         SockConnection appConnection = new SockConnection("app-client", "1.0", appWebSocket);

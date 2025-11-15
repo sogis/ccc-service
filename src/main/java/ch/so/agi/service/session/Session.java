@@ -16,7 +16,7 @@ public class Session {
     /**
      * Maximum delay accepted between start and finish of the handshake
      */
-    private final Duration handShakeMaxDuration;
+    private Duration handShakeMaxDuration;
     /**
      * Counter to make sure each session gets a unique
      * number. Counts up from 0 as long as the server runs.
@@ -49,27 +49,6 @@ public class Session {
      */
     private SockConnection gisConnection;
 
-    public static final Duration DEFAULT_HANDSHAKE_MAX_DURATION = Duration.ofSeconds(60);
-
-    /**
-     * Opens the Session and the handshake as reaction to either the connectApp or connectGIS message.
-     */
-    public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection, Duration handShakeMaxDuration){
-        this.sessionUid = sessionUid;
-        if(isAppConnection)
-            this.appConnection = connection;
-        else
-            this.gisConnection = connection;
-        this.sessionNr = getNextSessionNr();
-        this.handShakeInitialized = LocalDateTime.now();
-        Duration duration = handShakeMaxDuration == null ? DEFAULT_HANDSHAKE_MAX_DURATION : handShakeMaxDuration;
-        if (duration.isZero() || duration.isNegative()) {
-            throw new IllegalArgumentException("Handshake duration must be positive");
-        }
-        this.handShakeMaxDuration = duration;
-    }
-
-    /*
     public SockConnection getAppConnection() {
         return appConnection;
     }
@@ -78,7 +57,20 @@ public class Session {
         return gisConnection;
     }
 
+    /**
+     * Opens the Session and the handshake as reaction to either the connectApp or connectGIS message.
      */
+    public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection){
+        this.sessionUid = sessionUid;
+        if(isAppConnection)
+            this.appConnection = connection;
+        else
+            this.gisConnection = connection;
+        this.sessionNr = getNextSessionNr();
+        this.handShakeInitialized = LocalDateTime.now();
+        this.handShakeMaxDuration = Duration.ofSeconds(60);
+    }
+
     public WebSocketSession getAppWebSocket(){
         if(appConnection == null)
             return null;
@@ -113,6 +105,13 @@ public class Session {
             gisConnection = con;
         }
         return true;
+    }
+
+    /**
+     * Setter for the unit tests
+     */
+    void setHandShakeMaxDuration(Duration d){
+        this.handShakeMaxDuration = d;
     }
 
     private synchronized int getNextSessionNr(){

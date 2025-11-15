@@ -8,13 +8,17 @@ import org.springframework.web.socket.WebSocketSession;
  * and either app or gis client.
  */
 public class SockConnection {
-    private static final String PROTOCOL_V1 = "1.0";
-    private static final String PROTOCOL_V2 = "2.0";
+    public static final String PROTOCOL_V1 = "1.0";
+    public static final String PROTOCOL_V2 = "2.0";
     /**
      * Name of the client, as declared
      * by the client in the handshake
      */
     private final String clientName;
+
+    public String getApiVersion() {
+        return apiVersion;
+    }
 
     /**
      * Version of the CCC-Protocol used

@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class MockWebSocketSession implements WebSocketSession {
+public final class MockWebSocketSession implements WebSocketSession {
     private final String key;
     private final Map<String, Object> attributes = new HashMap<>();
     private boolean open = true;
 
-    MockWebSocketSession() {
+    public MockWebSocketSession() {
         CryptoKey cryptoKey = new CryptoKey();
         this.key = cryptoKey.getKeyString();
     }

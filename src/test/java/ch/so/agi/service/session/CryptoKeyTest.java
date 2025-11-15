@@ -1,5 +1,6 @@
 package ch.so.agi.service.session;
 
+import ch.so.agi.service.TestUtil;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,11 +27,7 @@ public class CryptoKeyTest {
         String hash = key.getKeyString();
         key.refreshKey();
 
-        try {
-            Thread.sleep(990);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        TestUtil.wait(990);
 
         assertTrue(key.isEqual(hash));
     }
@@ -41,11 +38,7 @@ public class CryptoKeyTest {
         String hash = key.getKeyString();
         key.refreshKey();
 
-        try {
-            Thread.sleep(1010);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        TestUtil.wait(1010);
 
         assertFalse(key.isEqual(hash));
     }
