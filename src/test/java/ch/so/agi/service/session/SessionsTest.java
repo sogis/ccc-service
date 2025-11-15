@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class SessionsTest {
 
@@ -18,38 +17,52 @@ class SessionsTest {
         Field field = Sessions.class.getDeclaredField("sessionsBySocket");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        Map<WebSocketSession, Session> sessions = (Map<WebSocketSession, Session>) field.get(null);
-        sessions.clear();
+        Map<WebSocketSession, Session> map = (Map<WebSocketSession, Session>) field.get(null);
+        map.clear();
     }
 
     @Test
-    void findBySessionReturnsMatchingSession() {
-        UUID sessionUid = UUID.randomUUID();
-        WebSocketSession appSocket = mock(WebSocketSession.class);
-        SockConnection appConnection = new SockConnection("app-client", "1.0", appSocket);
-        Session session = new Session(sessionUid, appConnection, true);
+    void findByConnectionReturnsSessionForRegisteredSocket() {
+        MockWebSocketSession appSession = new MockWebSocketSession();
+        MockWebSocketSession gisSession = new MockWebSocketSession();
+        Session session = createSession(appSession, gisSession);
 
         Sessions.add(session);
 
-        Session found = Sessions.findBySession(sessionUid);
-
-        assertNotNull(found);
-        assertSame(session, found);
+        assertSame(session, Sessions.findByConnection(appSession));
+        assertSame(session, Sessions.findByConnection(gisSession));
     }
 
     @Test
-    void findBySessionReturnsNullWhenNotFound() {
-        UUID sessionUid = UUID.randomUUID();
+    void addReplacesExistingSessionForSameSocket() {
+        MockWebSocketSession sharedSession = new MockWebSocketSession();
+        MockWebSocketSession gisSession = new MockWebSocketSession();
+        Session original = createSession(sharedSession, gisSession);
+        Sessions.add(original);
 
-        Session found = Sessions.findBySession(sessionUid);
+        MockWebSocketSession newGisSession = new MockWebSocketSession();
+        Session replacement = createSession(sharedSession, newGisSession);
+        Sessions.add(replacement);
 
-        assertNull(found);
+        assertSame(replacement, Sessions.findByConnection(sharedSession));
+        assertSame(replacement, Sessions.findByConnection(newGisSession));
+        assertNull(Sessions.findByConnection(gisSession));
     }
 
     @Test
-    void findBySessionReturnsNullWhenUuidIsNull() {
-        Session found = Sessions.findBySession(null);
+    void findByConnectionReturnsNullWhenSessionUnknown() {
+        MockWebSocketSession unknownSession = new MockWebSocketSession();
 
-        assertNull(found);
+        assertNull(Sessions.findByConnection(unknownSession));
+        assertNull(Sessions.findByConnection(null));
+    }
+
+    private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+        SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
+        Session session = new Session(UUID.randomUUID(), appConnection, true);
+
+        SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisSession);
+        session.tryToAddSecondConnection(gisConnection, false);
+        return session;
     }
 }
