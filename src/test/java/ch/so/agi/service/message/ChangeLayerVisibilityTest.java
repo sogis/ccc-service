@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ChangeLayerVisibilityTest {
     @Test
-    void forJsonString_validJson_parses(){
+    void validJson_parses(){
         String validJson = """
                 {
                     "method": "changeLayerVisibility",

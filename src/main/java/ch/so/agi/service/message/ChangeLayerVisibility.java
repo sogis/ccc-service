@@ -3,23 +3,20 @@ package ch.so.agi.service.message;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChangeLayerVisibility extends Message {
 
+    public static final String MESSAGE = "changeLayerVisibility";
+
     private String layerIdentifier;
     private boolean visible;
 
     public ChangeLayerVisibility() {
         // Default constructor for Jackson
-    }
-
-    // Jackson sets the "method" property
-    @JsonProperty("method")
-    public void setMethod(String method) {
-        this.method = method;
     }
 
     // Jackson sets the nested "data" object
@@ -38,7 +35,7 @@ public class ChangeLayerVisibility extends Message {
     }
 
     @Override
-    public void process() {
+    public void process(WebSocketSession sourceConnection) {
         System.out.printf("Layer '%s' visibility changed to %s%n",
                 layerIdentifier, visible);
     }

@@ -3,9 +3,7 @@ package ch.so.agi.service.session;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents one bidirectional route via the two websocket
@@ -14,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * both running on the same machine for one user.
  */
 public class Session {
+    /**
+     * Maximum delay accepted between start and finish of the handshake
+     */
+    private final int handShakeMaxDuration;
     /**
      * Counter to make sure each session gets a unique
      * number. Counts up from 0 as long as the server runs.
@@ -39,54 +41,67 @@ public class Session {
     /**
      * Websocket connection server - app
      */
-    private Connection appConnection;
+    private SockConnection appConnection;
 
     /**
      * Websocket connection server - gis
      */
-    private Connection gisConnection;
+    private SockConnection gisConnection;
 
-    private static final Map<WebSocketSession, Session> sessionsBySocket = new ConcurrentHashMap<>();
+    public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection){
+        this(sessionUid, connection, isAppConnection, 60);
+    }
 
-    public Connection getAppConnection() {
+    protected Session(UUID sessionUid, SockConnection connection, boolean isAppConnection, int handShakeMaxDuration){
+        this.sessionUid = sessionUid;
+        if(isAppConnection)
+            this.appConnection = connection;
+        else
+            this.gisConnection = connection;
+        this.sessionNr = getNextSessionNr();
+        this.handShakeInitialized = LocalDateTime.now();
+        this.handShakeMaxDuration = handShakeMaxDuration;
+    }
+
+    /*
+    public SockConnection getAppConnection() {
         return appConnection;
     }
 
-    public void setAppConnection(Connection appConnection) {
-        updateSocketMapping(this.appConnection, false);
-        this.appConnection = appConnection;
-        updateSocketMapping(appConnection, true);
-    }
-
-    public Connection getGisConnection() {
+    public SockConnection getGisConnection() {
         return gisConnection;
     }
 
-    public void setGisConnection(Connection gisConnection) {
-        updateSocketMapping(this.gisConnection, false);
-        this.gisConnection = gisConnection;
-        updateSocketMapping(gisConnection, true);
-    }
-
-    private void updateSocketMapping(Connection connection, boolean add) {
-        if (connection == null) {
-            return;
-        }
-        WebSocketSession socket = connection.getSocketConnection();
-        if (socket == null) {
-            return;
-        }
-        if (add) {
-            sessionsBySocket.put(socket, this);
-        } else {
-            sessionsBySocket.remove(socket);
-        }
-    }
-
-    public static Session findByConnection(WebSocketSession webSocketSession) {
-        if (webSocketSession == null) {
+     */
+    public WebSocketSession getAppWebSocket(){
+        if(appConnection == null)
             return null;
+
+        return appConnection.getWebSocketConnection();
+    }
+
+    public WebSocketSession getGisWebSocket(){
+        if(gisConnection == null)
+            return null;
+
+        return gisConnection.getWebSocketConnection();
+    }
+
+    public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
+        if(handShakeInitialized.plusSeconds(handShakeMaxDuration).isBefore(LocalDateTime.now()))
+            return false;
+
+        if(isAppConnection){
+            appConnection = con;
         }
-        return sessionsBySocket.get(webSocketSession);
+        else {
+            gisConnection = con;
+        }
+        return true;
+    }
+
+    private synchronized int getNextSessionNr(){
+        lastSessionNr++;
+        return lastSessionNr;
     }
 }

@@ -1,20 +1,22 @@
 package ch.so.agi.service.message;
 
 import ch.so.agi.service.message.exception.MessageParseException;
+import ch.so.agi.service.session.Session;
+import ch.so.agi.service.session.Sessions;
+import ch.so.agi.service.session.SockConnection;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Root of all classes that implement ccc-messages.
  */
 abstract public class Message {
-
-    @JsonProperty("method")
-    protected String method;
 
     protected Message() {}
 
@@ -24,7 +26,9 @@ abstract public class Message {
      */
     private static final Map<String, Class<? extends Message>> MESSAGE_TYPES = new HashMap<>();
     static {
-        MESSAGE_TYPES.put("changeLayerVisibility", ChangeLayerVisibility.class);
+        MESSAGE_TYPES.put(ChangeLayerVisibility.MESSAGE, ChangeLayerVisibility.class);
+        MESSAGE_TYPES.put(ConnectApp.MESSAGE, ConnectApp.class);
+        MESSAGE_TYPES.put(ConnectGis.MESSAGE, ConnectGis.class);
     }
 
     /**
@@ -57,11 +61,36 @@ abstract public class Message {
         }
     }
 
-    /** gets the ccc-method-name of message. */
-    public String getMethod() {
-        return method;
+    /** Processes the Message (to be implemented by subclasses). */
+    protected abstract void process(WebSocketSession sourceConnection);
+
+    protected UUID uidFromString(String uid){
+        if(uid == null)
+            return null;
+
+        if(uid.startsWith("{"))
+            uid = uid.substring(1);
+
+        if (uid.endsWith("}")) {
+            uid = uid.substring(0, uid.length() - 1);
+        }
+        return UUID.fromString(uid);
     }
 
-    /** Processes the Message (to be implemented by subclasses). */
-    public abstract void process();
+    protected static void addClient(WebSocketSession sourceConnection, boolean isAppConnection, String clientName, String apiVersion, UUID sessionUid) {
+        SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
+        Session s = Sessions.findByConnection(sourceConnection);
+        if(s == null){
+            Session newSes = new Session(sessionUid, con, isAppConnection);
+            Sessions.add(newSes);
+        }
+        else if(s.getAppWebSocket() == null){
+            boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
+            if(!inTime)
+                throw new RuntimeException("Second connection not added as time window for handshake is closed");
+        }
+        else{ // Connection already exists
+            throw new RuntimeException("Second connection not added as it already exists in session");
+        }
+    }
 }
