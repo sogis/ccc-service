@@ -4,6 +4,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Sessions {
     private static final Map<WebSocketSession, Session> sessionsBySocket = new HashMap<>();
@@ -13,6 +14,20 @@ public class Sessions {
             return null;
         }
         return sessionsBySocket.get(webSocketSession);
+    }
+
+    public static synchronized Session findBySession(UUID sessionUid) {
+        if (sessionUid == null) {
+            return null;
+        }
+
+        for (Session session : sessionsBySocket.values()) {
+            if (session != null && sessionUid.equals(session.getSessionUid())) {
+                return session;
+            }
+        }
+
+        return null;
     }
 
     public static synchronized void add(Session s){
