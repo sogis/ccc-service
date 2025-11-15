@@ -58,11 +58,11 @@ class SessionsTest {
         assertNull(Sessions.findByConnection(null));
     }
 
-    private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+    public Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
         return  createSession(UUID.randomUUID(), appSession, gisSession);
     }
 
-    private Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+    public Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
         SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
         Session session = new Session(sessionUid, appConnection, true);
 

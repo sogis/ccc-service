@@ -1,3 +1,33 @@
+# Weiterfahren
+
+## Session
+
+Test erweitern mit handshakes via connectApp und connectGis:
+- Innerhalb graceperiod
+- Ausserhalb graceperiod
+
+Innerhalb graceperiod ist gleichzeitig die Vorbedingung für alle tests der payload-commands
+
+## "Empfänger"
+
+Logik implementieren, mit der beim Testen überprüft werden kann, dass die eingehenden Nachrichten
+zu den erwarteten aktionen führen (Meist: Weiterleitung an den entsprechenden Socket)
+
+## Logging
+
+Gutes logging andenken und implementieren:
+- Genau ein info-Log pro verarbeiteter Nachricht
+- Debug logging wo sinnvoll - beispielsweise an der Schnittstelle Spring - CCC
+
+## Error-Notifikationen
+
+Ueberblick verschaffen, wo heute Error-Notifikationen verschickt werden, und diese übernehmen.
+Zwecks Kompatibilität für die bestehenden Nachrichten: Keine dazunehmen, keine wegfallen lassen. 
+
+Fr: 17:00 - 21:00
+Sa: 9:45 - 12:15
+
+
 # Codeänderungen für die SEIN-Ereiterungen
 
 ## Verantwortung und Beziehung der grundlegenden Klassen

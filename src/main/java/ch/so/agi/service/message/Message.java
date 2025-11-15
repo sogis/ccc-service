@@ -62,8 +62,12 @@ abstract public class Message {
     }
 
     /** Processes the Message (to be implemented by subclasses). */
-    protected abstract void process(WebSocketSession sourceConnection);
+    public abstract void process(WebSocketSession sourceConnection);
 
+    /**
+     * Helper class dealing with the leading and trailing braces defined for uuid representations
+     * in the ccc protocol.
+     */
     protected UUID uidFromString(String uid){
         if(uid == null)
             return null;
@@ -77,6 +81,9 @@ abstract public class Message {
         return UUID.fromString(uid);
     }
 
+    /**
+     * Helper method to avoid code duplication between the ConnectApp and ConnectGis message.
+     */
     protected static void addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
         Session s = Sessions.findBySessionUid(sessionUid);
