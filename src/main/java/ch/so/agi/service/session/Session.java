@@ -87,6 +87,10 @@ public class Session {
         return gisConnection.getWebSocketConnection();
     }
 
+    public UUID getSessionUid() {
+        return sessionUid;
+    }
+
     public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
         if(handShakeInitialized.plusSeconds(handShakeMaxDuration).isBefore(LocalDateTime.now()))
             return false;
