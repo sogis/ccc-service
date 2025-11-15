@@ -2,6 +2,7 @@ package ch.so.agi.service.session;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketExtension;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Map;
 final class MockWebSocketSession implements WebSocketSession {
     private final String key;
     private final Map<String, Object> attributes = new HashMap<>();
+    private final List<String> sentTextMessages = new ArrayList<>();
     private boolean open = true;
 
     MockWebSocketSession() {
@@ -92,7 +95,20 @@ final class MockWebSocketSession implements WebSocketSession {
 
     @Override
     public void sendMessage(WebSocketMessage<?> message) throws IOException {
-        // no-op for tests
+        if (message instanceof TextMessage textMessage) {
+            sentTextMessages.add(textMessage.getPayload());
+        }
+    }
+
+    List<String> getSentTextMessages() {
+        return Collections.unmodifiableList(sentTextMessages);
+    }
+
+    String getLastSentTextMessage() {
+        if (sentTextMessages.isEmpty()) {
+            return null;
+        }
+        return sentTextMessages.get(sentTextMessages.size() - 1);
     }
 
     @Override
