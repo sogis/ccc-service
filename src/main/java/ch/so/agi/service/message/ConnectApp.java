@@ -36,6 +36,6 @@ public class ConnectApp extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        addClient(sourceConnection, true, clientName, apiVersion, getSessionUid());
+        addClient(getSessionUid(), true, clientName, apiVersion, sourceConnection);
     }
 }

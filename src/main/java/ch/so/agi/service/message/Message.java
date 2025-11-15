@@ -79,7 +79,7 @@ abstract public class Message {
 
     protected static void addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
-        Session s = Sessions.findByUid(sessionUid);
+        Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
             Session newSes = new Session(sessionUid, con, isAppConnection);
             Sessions.add(newSes);

@@ -37,7 +37,7 @@ public class ConnectGis extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        addClient(sourceConnection, false, clientName, apiVersion, getSessionUid());
+        addClient(getSessionUid(), false, clientName, apiVersion, sourceConnection);
     }
 }
 

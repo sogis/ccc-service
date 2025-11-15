@@ -52,6 +52,9 @@ public class Session {
         this(sessionUid, connection, isAppConnection, 60);
     }
 
+    /**
+     * Opens the Session and the handshake as reaction to either the connectApp or connectGIS message.
+     */
     protected Session(UUID sessionUid, SockConnection connection, boolean isAppConnection, int handShakeMaxDuration){
         this.sessionUid = sessionUid;
         if(isAppConnection)
@@ -91,6 +94,11 @@ public class Session {
         return sessionUid;
     }
 
+    /**
+     * Adds the second connection (app or gis) to the session, given that the time window for the
+     * handshake is still open.
+     * Returns true if added, false if adding failed due to closed handshake window.
+     */
     public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
         if(handShakeInitialized.plusSeconds(handShakeMaxDuration).isBefore(LocalDateTime.now()))
             return false;
