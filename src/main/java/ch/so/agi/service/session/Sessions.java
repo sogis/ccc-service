@@ -36,4 +36,8 @@ public class Sessions {
         sessionsBySocket.put(s.getAppWebSocket(), s);
         sessionsBySocket.put(s.getGisWebSocket(), s);
     }
+
+    public static synchronized Session findByUid(UUID sessionUid){
+        return null;
+    }
 }
