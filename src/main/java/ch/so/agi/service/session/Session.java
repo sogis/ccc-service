@@ -2,6 +2,7 @@ package ch.so.agi.service.session;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ public class Session {
     /**
      * Maximum delay accepted between start and finish of the handshake
      */
-    private final int handShakeMaxDuration;
+    private final Duration handShakeMaxDuration;
     /**
      * Counter to make sure each session gets a unique
      * number. Counts up from 0 as long as the server runs.
@@ -48,14 +49,12 @@ public class Session {
      */
     private SockConnection gisConnection;
 
-    public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection){
-        this(sessionUid, connection, isAppConnection, 60);
-    }
+    public static final Duration DEFAULT_HANDSHAKE_MAX_DURATION = Duration.ofSeconds(60);
 
     /**
      * Opens the Session and the handshake as reaction to either the connectApp or connectGIS message.
      */
-    protected Session(UUID sessionUid, SockConnection connection, boolean isAppConnection, int handShakeMaxDuration){
+    public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection, Duration handShakeMaxDuration){
         this.sessionUid = sessionUid;
         if(isAppConnection)
             this.appConnection = connection;
@@ -63,7 +62,11 @@ public class Session {
             this.gisConnection = connection;
         this.sessionNr = getNextSessionNr();
         this.handShakeInitialized = LocalDateTime.now();
-        this.handShakeMaxDuration = handShakeMaxDuration;
+        Duration duration = handShakeMaxDuration == null ? DEFAULT_HANDSHAKE_MAX_DURATION : handShakeMaxDuration;
+        if (duration.isZero() || duration.isNegative()) {
+            throw new IllegalArgumentException("Handshake duration must be positive");
+        }
+        this.handShakeMaxDuration = duration;
     }
 
     /*
@@ -100,7 +103,7 @@ public class Session {
      * Returns true if added, false if adding failed due to closed handshake window.
      */
     public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
-        if(handShakeInitialized.plusSeconds(handShakeMaxDuration).isBefore(LocalDateTime.now()))
+        if(handShakeInitialized.plus(handShakeMaxDuration).isBefore(LocalDateTime.now()))
             return false;
 
         if(isAppConnection){
