@@ -1,5 +1,7 @@
 package ch.so.agi.service.message;
 
+import ch.so.agi.service.session.Session;
+import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -36,7 +38,7 @@ public class ChangeLayerVisibility extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        System.out.printf("Layer '%s' visibility changed to %s%n",
-                layerIdentifier, visible);
+        Session s = Sessions.findByConnection(sourceConnection);
+        s.assertConnected();
     }
 }

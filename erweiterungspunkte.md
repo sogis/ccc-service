@@ -1,17 +1,9 @@
 # Weiterfahren
 
-## Session
+## Test für changeLayerVisivility implementieren
 
-Test erweitern mit handshakes via connectApp und connectGis:
-- Innerhalb graceperiod
-- Ausserhalb graceperiod
-
-Innerhalb graceperiod ist gleichzeitig die Vorbedingung für alle tests der payload-commands
-
-## "Empfänger"
-
-Logik implementieren, mit der beim Testen überprüft werden kann, dass die eingehenden Nachrichten
-zu den erwarteten aktionen führen (Meist: Weiterleitung an den entsprechenden Socket)
+Test mit verifikation, dass die Nachricht auch richtung gis geschickt wurde.
+Wichtig: connectApp muss im Test vorgängig auf demselben socket erfolgen, damit es funktioniert. 
 
 ## Logging
 

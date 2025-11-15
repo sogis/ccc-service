@@ -107,6 +107,14 @@ public class Session {
         return true;
     }
 
+    public void assertConnected(){
+        if(gisConnection == null || appConnection == null)
+            throw new RuntimeException(String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
+
+        if(!gisConnection.isOpen() || !appConnection.isOpen())
+            throw new RuntimeException(String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
+    }
+
     /**
      * Setter for the unit tests
      */

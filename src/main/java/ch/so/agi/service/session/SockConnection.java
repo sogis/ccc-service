@@ -54,4 +54,11 @@ public class SockConnection {
         if(!validProtocol)
             throw new RuntimeException(String.format("Protocol must be either %s or %s, but was %s", PROTOCOL_V1, PROTOCOL_V2, apiVersion));
     }
+
+    public boolean isOpen(){
+        if (webSocketConnection == null)
+            return false;
+
+        return  webSocketConnection.isOpen();
+    }
 }
