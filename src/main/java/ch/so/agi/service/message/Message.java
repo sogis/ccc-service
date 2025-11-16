@@ -4,9 +4,10 @@ import ch.so.agi.service.message.exception.MessageParseException;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
@@ -21,14 +22,32 @@ abstract public class Message {
     protected Message() {}
 
     /**
+     * The raw message as received through the websocket connection.
+     * Provided as convenience to avoid having to deserialize and
+     * serialize for messages just passing through the server.
+     */
+    private String rawMessage;
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    public String getRawMessage() {
+        return rawMessage;
+    }
+
+    public void setRawMessage(String rawMessage) {
+        this.rawMessage = rawMessage;
+    }
+
+    /**
      * Registry of all message types by their "method" name.
      * (Can easily be extended as new message types are added.)
      */
     private static final Map<String, Class<? extends Message>> MESSAGE_TYPES = new HashMap<>();
     static {
-        MESSAGE_TYPES.put(ChangeLayerVisibility.MESSAGE, ChangeLayerVisibility.class);
-        MESSAGE_TYPES.put(ConnectApp.MESSAGE, ConnectApp.class);
-        MESSAGE_TYPES.put(ConnectGis.MESSAGE, ConnectGis.class);
+        MESSAGE_TYPES.put(ChangeLayerVisibility.MESSAGE_TYPE, ChangeLayerVisibility.class);
+        MESSAGE_TYPES.put(ConnectApp.MESSAGE_TYPE, ConnectApp.class);
+        MESSAGE_TYPES.put(ConnectGis.MESSAGE_TYPE, ConnectGis.class);
+        MESSAGE_TYPES.put(NotifyError.MESSAGE_TYPE, NotifyError.class);
     }
 
     /**
@@ -61,7 +80,9 @@ abstract public class Message {
         }
     }
 
-    /** Processes the Message (to be implemented by subclasses). */
+    /**
+     * Processes the Message (to be implemented by subclasses).
+     */
     public abstract void process(WebSocketSession sourceConnection);
 
     /**
@@ -84,12 +105,12 @@ abstract public class Message {
     /**
      * Helper method to avoid code duplication between the ConnectApp and ConnectGis message.
      */
-    protected static void addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
+    protected static Session addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
         Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
-            Session newSes = new Session(sessionUid, con, isAppConnection);
-            Sessions.addOrReplace(newSes);
+            s = new Session(sessionUid, con, isAppConnection);
+            Sessions.addOrReplace(s);
         }
         else if(s.getAppWebSocket() == null){
             boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
@@ -99,5 +120,6 @@ abstract public class Message {
         else{ // Connection already exists
             throw new RuntimeException("Second connection not added as it already exists in session");
         }
+        return s;
     }
 }

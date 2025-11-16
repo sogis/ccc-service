@@ -16,6 +16,17 @@ Gutes logging andenken und implementieren:
 Ueberblick verschaffen, wo heute Error-Notifikationen verschickt werden, und diese übernehmen.
 Zwecks Kompatibilität für die bestehenden Nachrichten: Keine dazunehmen, keine wegfallen lassen. 
 
+## Errors
+
+- MessageMalformed: The sent message json is malformed
+- MessageUnknown: The sent message type is not known
+- HandshakeIncomplete: Sent message can not be processed as handshake is not complete
+- ConnectionRepeat: Can not connect as connection already exists
+- HandshakeToLate: Can not pair the clients as the connectApp/connectGis message is too late.
+- ReceivingConnectionClosed: Can not forward message as the receiving connection is closed.
+
+## Background worker migrieren und mit keyChange-Nachricht versehen
+
 Fr: 17:00 - 21:00
 Sa: 9:45 - 12:15
 

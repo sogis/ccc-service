@@ -3,7 +3,6 @@ package ch.so.agi.service.message;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -12,7 +11,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChangeLayerVisibility extends Message {
 
-    public static final String MESSAGE = "changeLayerVisibility";
+    public static final String MESSAGE_TYPE = "changeLayerVisibility";
 
     private String layerIdentifier;
     private boolean visible;
@@ -40,5 +39,7 @@ public class ChangeLayerVisibility extends Message {
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected();
+        s.getGisConnection().sendMessage(getRawMessage());
+        log.info("Session {}: Changed visibility of layer {} to {}", s.getSessionNr(), getLayerIdentifier(), isVisible());
     }
 }

@@ -28,6 +28,7 @@ public class Session {
      * connection.
      */
     private UUID sessionUid;
+
     /**
      * Unique and easily human readable number. To be displayed
      * in gui's and logs
@@ -55,6 +56,16 @@ public class Session {
 
     public SockConnection getGisConnection() {
         return gisConnection;
+    }
+
+    public SockConnection getPeerConnection(WebSocketSession con) {
+        if(appConnection == null || gisConnection == null)
+            return null;
+
+        if(con.equals(getAppWebSocket()))
+            return gisConnection;
+        else
+            return appConnection;
     }
 
     /**
@@ -87,6 +98,10 @@ public class Session {
 
     public UUID getSessionUid() {
         return sessionUid;
+    }
+
+    public int getSessionNr() {
+        return sessionNr;
     }
 
     /**

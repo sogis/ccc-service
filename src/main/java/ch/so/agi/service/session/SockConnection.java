@@ -1,7 +1,11 @@
 package ch.so.agi.service.session;
 
 import ch.so.agi.service.message.exception.MessageParseException;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
 
 /**
  * WebSocket connection between server
@@ -10,6 +14,11 @@ import org.springframework.web.socket.WebSocketSession;
 public class SockConnection {
     public static final String PROTOCOL_V1 = "1.0";
     public static final String PROTOCOL_V2 = "2.0";
+
+    public String getClientName() {
+        return clientName;
+    }
+
     /**
      * Name of the client, as declared
      * by the client in the handshake
@@ -60,5 +69,14 @@ public class SockConnection {
             return false;
 
         return  webSocketConnection.isOpen();
+    }
+
+    public synchronized void sendMessage(String message){
+        TextMessage msg = new TextMessage(message);
+        try {
+            webSocketConnection.sendMessage(msg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

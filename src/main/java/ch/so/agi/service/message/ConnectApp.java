@@ -1,5 +1,6 @@
 package ch.so.agi.service.message;
 
+import ch.so.agi.service.session.Session;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.web.socket.WebSocketSession;
@@ -9,7 +10,7 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConnectApp extends Message {
 
-    public static final String MESSAGE = "connectApp";
+    public static final String MESSAGE_TYPE = "connectApp";
 
     private UUID sessionUid;
     @JsonProperty("clientName")
@@ -36,6 +37,7 @@ public class ConnectApp extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        addClient(getSessionUid(), true, clientName, apiVersion, sourceConnection);
+        Session s = addClient(getSessionUid(), true, clientName, apiVersion, sourceConnection);
+        log.info("Session {}: Connected app client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
     }
 }

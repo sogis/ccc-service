@@ -28,6 +28,10 @@ public final class MockWebSocketSession implements WebSocketSession {
         this.key = cryptoKey.getKeyString();
     }
 
+    public static MockWebSocketSession create(){
+        return new MockWebSocketSession();
+    }
+
     @Override
     public String getId() {
         return key;
@@ -100,11 +104,11 @@ public final class MockWebSocketSession implements WebSocketSession {
         }
     }
 
-    List<String> getSentTextMessages() {
+    public List<String> getSentTextMessages() {
         return Collections.unmodifiableList(sentTextMessages);
     }
 
-    String getLastSentTextMessage() {
+    public String getLastSentTextMessage() {
         if (sentTextMessages.isEmpty()) {
             return null;
         }

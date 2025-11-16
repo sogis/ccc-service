@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class MessageHandler {
     public static void handleMessage(WebSocketSession sender, String message){
         Message m = Message.forJsonString(message);
+        m.setRawMessage(message);
         m.process(sender);
     }
 }

@@ -1,6 +1,7 @@
 package ch.so.agi.service;
 
 import ch.so.agi.service.session.Session;
+import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +26,11 @@ class TestUtilTest {
     void initSession() {
         Session created = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V2);
 
-        assertNotNull(created);
+        assertNotNull(created, "Returned session is null");
         assertEquals(SockConnection.PROTOCOL_V1, created.getAppConnection().getApiVersion());
         assertEquals(SockConnection.PROTOCOL_V2, created.getGisConnection().getApiVersion());
+
+        assertNotNull(Sessions.findByConnection(created.getAppWebSocket()), "Session must be registered by its app connection in the Sessions collection");
+        assertNotNull(Sessions.findByConnection(created.getGisWebSocket()), "Session must be registered by its gis connection in the Sessions collection");
     }
 }
