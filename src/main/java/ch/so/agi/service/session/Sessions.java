@@ -53,7 +53,11 @@ public class Sessions {
             sessionsBySocket.remove(old.getGisWebSocket());
         }
 
-        sessionsBySocket.put(s.getAppWebSocket(), s);
-        sessionsBySocket.put(s.getGisWebSocket(), s);
+        if (s.getAppWebSocket() != null) {
+            sessionsBySocket.put(s.getAppWebSocket(), s);
+        }
+        if (s.getGisWebSocket() != null) {
+            sessionsBySocket.put(s.getGisWebSocket(), s);
+        }
     }
 }
