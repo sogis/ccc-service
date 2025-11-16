@@ -1,5 +1,7 @@
 package ch.so.agi.service.session;
 
+import ch.so.agi.service.exception.HandshakeIncomplete;
+import ch.so.agi.service.exception.ReceivingConnectionClosed;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Duration;
@@ -124,10 +126,10 @@ public class Session {
 
     public void assertConnected(){
         if(gisConnection == null || appConnection == null)
-            throw new RuntimeException(String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
+            throw new HandshakeIncomplete(String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
 
         if(!gisConnection.isOpen() || !appConnection.isOpen())
-            throw new RuntimeException(String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
+            throw new ReceivingConnectionClosed(String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
     }
 
     /**

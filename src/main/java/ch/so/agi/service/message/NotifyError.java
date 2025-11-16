@@ -1,7 +1,6 @@
 package ch.so.agi.service.message;
 
 import ch.so.agi.service.session.Session;
-import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,7 +49,7 @@ public class NotifyError extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        Session s = Sessions.findByConnection(sourceConnection);
+        Session s = requireSession(sourceConnection);
         s.assertConnected();
         SockConnection destination = s.getPeerConnection(sourceConnection);
         destination.sendMessage(getRawMessage());

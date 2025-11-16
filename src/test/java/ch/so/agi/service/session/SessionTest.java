@@ -1,13 +1,12 @@
 package ch.so.agi.service.session;
 
 import ch.so.agi.service.TestUtil;
-import org.awaitility.Awaitility;
+import ch.so.agi.service.exception.HandshakeIncomplete;
+import ch.so.agi.service.exception.ReceivingConnectionClosed;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +63,7 @@ class SessionTest {
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisWebSocket);
         Session session = new Session(sessionUid, gisConnection, false);
 
-        assertThrows(RuntimeException.class, session::assertConnected);
+        assertThrows(HandshakeIncomplete.class, session::assertConnected);
     }
 
     @Test
@@ -77,6 +76,6 @@ class SessionTest {
             throw new RuntimeException(e);
         }
 
-        assertThrows(RuntimeException.class, s::assertConnected);
+        assertThrows(ReceivingConnectionClosed.class, s::assertConnected);
     }
 }

@@ -1,6 +1,5 @@
 package ch.so.agi.service.session;
 
-import ch.so.agi.service.message.exception.MessageParseException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;

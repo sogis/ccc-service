@@ -1,6 +1,10 @@
 package ch.so.agi.service.message;
 
-import ch.so.agi.service.message.exception.MessageParseException;
+import ch.so.agi.service.exception.ConnectionRepeat;
+import ch.so.agi.service.exception.HandshakeIncomplete;
+import ch.so.agi.service.exception.HandshakeToLate;
+import ch.so.agi.service.exception.MessageMalformed;
+import ch.so.agi.service.exception.MessageUnknown;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -52,31 +56,35 @@ abstract public class Message {
 
     /**
      * Returns a new Message-Instance for the given json string.
-     * Throws a MessageParseException if the json string is not understood.
+     * Throws MessageMalformed if the json string is not understood or
+     * MessageUnknown if the method is not registered.
      */
     public static Message forJsonString(String json) {
         ObjectMapper mapper = new ObjectMapper();
 
+        JsonNode root;
         try {
-            // First parse the method field to decide which subclass to use
-            JsonNode root = mapper.readTree(json);
-            JsonNode methodNode = root.get("method");
-            if (methodNode == null || !methodNode.isTextual()) {
-                throw new MessageParseException(json);
-            }
-
-            String method = methodNode.asText();
-            Class<? extends Message> targetType = MESSAGE_TYPES.get(method);
-
-            if (targetType == null) {
-                throw new MessageParseException(json);
-            }
-
-            // Deserialize into the discovered subclass
-            return mapper.readValue(json, targetType);
-
+            root = mapper.readTree(json);
         } catch (Exception e) {
-            throw new MessageParseException(json, e);
+            throw new MessageMalformed(json, e);
+        }
+
+        JsonNode methodNode = root.get("method");
+        if (methodNode == null || !methodNode.isTextual()) {
+            throw new MessageMalformed(json);
+        }
+
+        String method = methodNode.asText();
+        Class<? extends Message> targetType = MESSAGE_TYPES.get(method);
+
+        if (targetType == null) {
+            throw new MessageUnknown(method);
+        }
+
+        try {
+            return mapper.readValue(json, targetType);
+        } catch (Exception e) {
+            throw new MessageMalformed(json, e);
         }
     }
 
@@ -112,14 +120,29 @@ abstract public class Message {
             s = new Session(sessionUid, con, isAppConnection);
             Sessions.addOrReplace(s);
         }
-        else if(s.getAppWebSocket() == null){
+        else {
+            boolean isAppAlreadyConnected = s.getAppWebSocket() != null;
+            boolean isGisAlreadyConnected = s.getGisWebSocket() != null;
+
+            if ((isAppConnection && isAppAlreadyConnected) || (!isAppConnection && isGisAlreadyConnected)) {
+                throw new ConnectionRepeat(sessionUid);
+            }
+
             boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
             if(!inTime)
-                throw new RuntimeException("Second connection not added as time window for handshake is closed");
-        }
-        else{ // Connection already exists
-            throw new RuntimeException("Second connection not added as it already exists in session");
+                throw new HandshakeToLate(sessionUid);
+
+            Sessions.addOrReplace(s);
         }
         return s;
+    }
+
+    protected Session requireSession(WebSocketSession sourceConnection) {
+        String connectionId = sourceConnection == null ? "<unknown>" : sourceConnection.getId();
+        Session session = sourceConnection == null ? null : Sessions.findByConnection(sourceConnection);
+        if (session == null) {
+            throw new HandshakeIncomplete("No session available for connection " + connectionId);
+        }
+        return session;
     }
 }
