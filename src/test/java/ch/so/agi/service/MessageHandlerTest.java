@@ -1,5 +1,7 @@
 package ch.so.agi.service;
 
+import ch.so.agi.service.exception.HandshakeIncompleteException;
+import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.session.MockWebSocketSession;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,16 +30,17 @@ class MessageHandlerTest {
         JsonNode notifyError = mapper.readTree(sender.getLastSentTextMessage());
         assertEquals("notifyError", notifyError.get("method").asText());
         assertEquals(400, notifyError.get("code").asInt());
+        assertEquals(MessageMalformedException.class.getName(), notifyError.get("nativeCode").asText());
     }
 
     @Test
     void handshakeIncomplete_sendsNotifyError() throws Exception {
         MockWebSocketSession sender = new MockWebSocketSession();
-
         MessageHandler.handleMessage(sender, CHANGE_LAYER_MESSAGE);
 
         JsonNode notifyError = mapper.readTree(sender.getLastSentTextMessage());
         assertEquals("notifyError", notifyError.get("method").asText());
         assertEquals(503, notifyError.get("code").asInt());
+        assertEquals(HandshakeIncompleteException.class.getName(), notifyError.get("nativeCode").asText());
     }
 }

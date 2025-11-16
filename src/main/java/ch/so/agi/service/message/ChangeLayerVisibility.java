@@ -37,7 +37,7 @@ public class ChangeLayerVisibility extends Message {
     @Override
     public void process(WebSocketSession sourceConnection) {
         Session s = requireSession(sourceConnection);
-        s.assertConnected();
+        s.assertConnected(this);
         s.getGisConnection().sendMessage(getRawMessage());
         log.info("Session {}: Changed visibility of layer {} to {}", s.getSessionNr(), getLayerIdentifier(), isVisible());
     }
