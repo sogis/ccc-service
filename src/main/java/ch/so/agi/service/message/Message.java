@@ -1,10 +1,10 @@
 package ch.so.agi.service.message;
 
-import ch.so.agi.service.exception.ConnectionRepeat;
-import ch.so.agi.service.exception.HandshakeIncomplete;
-import ch.so.agi.service.exception.HandshakeToLate;
-import ch.so.agi.service.exception.MessageMalformed;
-import ch.so.agi.service.exception.MessageUnknown;
+import ch.so.agi.service.exception.ConnectionRepeatException;
+import ch.so.agi.service.exception.HandshakeIncompleteException;
+import ch.so.agi.service.exception.HandshakeToLateException;
+import ch.so.agi.service.exception.MessageMalformedException;
+import ch.so.agi.service.exception.MessageUnknownException;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -66,25 +66,25 @@ abstract public class Message {
         try {
             root = mapper.readTree(json);
         } catch (Exception e) {
-            throw new MessageMalformed(json, e);
+            throw new MessageMalformedException(json, e);
         }
 
         JsonNode methodNode = root.get("method");
         if (methodNode == null || !methodNode.isTextual()) {
-            throw new MessageMalformed(json);
+            throw new MessageMalformedException(json);
         }
 
         String method = methodNode.asText();
         Class<? extends Message> targetType = MESSAGE_TYPES.get(method);
 
         if (targetType == null) {
-            throw new MessageUnknown(method);
+            throw new MessageUnknownException(method);
         }
 
         try {
             return mapper.readValue(json, targetType);
         } catch (Exception e) {
-            throw new MessageMalformed(json, e);
+            throw new MessageMalformedException(json, e);
         }
     }
 
@@ -125,12 +125,12 @@ abstract public class Message {
             boolean isGisAlreadyConnected = s.getGisWebSocket() != null;
 
             if ((isAppConnection && isAppAlreadyConnected) || (!isAppConnection && isGisAlreadyConnected)) {
-                throw new ConnectionRepeat(sessionUid);
+                throw new ConnectionRepeatException(sessionUid);
             }
 
             boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
             if(!inTime)
-                throw new HandshakeToLate(sessionUid);
+                throw new HandshakeToLateException(sessionUid);
 
             Sessions.addOrReplace(s);
         }
@@ -141,7 +141,7 @@ abstract public class Message {
         String connectionId = sourceConnection == null ? "<unknown>" : sourceConnection.getId();
         Session session = sourceConnection == null ? null : Sessions.findByConnection(sourceConnection);
         if (session == null) {
-            throw new HandshakeIncomplete("No session available for connection " + connectionId);
+            throw new HandshakeIncompleteException("No session available for connection " + connectionId);
         }
         return session;
     }
