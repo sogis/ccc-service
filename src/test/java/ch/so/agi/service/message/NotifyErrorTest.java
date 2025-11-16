@@ -1,9 +1,5 @@
 package ch.so.agi.service.message;
 
-import ch.so.agi.service.JsonStringAssertions;
-import ch.so.agi.service.MessageHandler;
-import ch.so.agi.service.TestUtil;
-import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

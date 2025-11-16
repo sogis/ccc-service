@@ -7,33 +7,17 @@ package ch.so.agi.service.exception;
  */
 public abstract class ClientException extends RuntimeException {
     private final int code;
-    private final String clientMessage;
-    private final String technicalDetails;
 
-    protected ClientException(int code, String clientMessage) {
-        this(code, clientMessage, null, null);
+    protected ClientException(int code, String exMessage) {
+        this(code, exMessage, null);
     }
 
-    protected ClientException(int code, String clientMessage, String technicalDetails) {
-        this(code, clientMessage, technicalDetails, null);
-    }
-
-    protected ClientException(int code, String clientMessage, String technicalDetails, Throwable cause) {
-        super(clientMessage, cause);
+    protected ClientException(int code, String exMessage, Throwable cause) {
+        super(exMessage, cause);
         this.code = code;
-        this.clientMessage = clientMessage;
-        this.technicalDetails = technicalDetails;
     }
 
     public int getCode() {
         return code;
-    }
-
-    public String getClientMessage() {
-        return clientMessage;
-    }
-
-    public String getTechnicalDetails() {
-        return technicalDetails;
     }
 }

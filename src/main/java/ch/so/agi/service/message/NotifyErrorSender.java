@@ -29,11 +29,8 @@ public final class NotifyErrorSender {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("method", NotifyError.MESSAGE_TYPE);
         payload.put("code", exception.getCode());
-        payload.put("message", exception.getClientMessage());
+        payload.put("message", exception.getMessage());
         payload.put("nativeCode", exception.getClass().getName());
-        if (exception.getTechnicalDetails() != null && !exception.getTechnicalDetails().isBlank()) {
-            payload.put("technicalDetails", exception.getTechnicalDetails());
-        }
 
         try {
             connection.sendMessage(new TextMessage(payload.toString()));

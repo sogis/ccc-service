@@ -25,12 +25,3 @@ public class MessageHandler {
         }
     }
 }
-
-/*
-Weiterfahren:
-- Session: Test erweitern mit handshakes via connectApp und connectGis
--- Innerhalb graceperiod
--- Ausserhalb graceperiod
-
-Innerhalb graceperiod ist gleichzeitig die vorbedingung für alle
-*/

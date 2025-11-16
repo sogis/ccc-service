@@ -1,29 +1,13 @@
 # Weiterfahren
 
-## Test für changeLayerVisivility implementieren
+## Test
 
-Test mit verifikation, dass die Nachricht auch richtung gis geschickt wurde.
-Wichtig: connectApp muss im Test vorgängig auf demselben socket erfolgen, damit es funktioniert. 
+MessageHandlerTest appClosed
+MessageHandlerTest handshake incomplete gis and app
 
 ## Logging
 
-Gutes logging andenken und implementieren:
-- Genau ein info-Log pro verarbeiteter Nachricht
-- Debug logging wo sinnvoll - beispielsweise an der Schnittstelle Spring - CCC
-
-## Error-Notifikationen
-
-Ueberblick verschaffen, wo heute Error-Notifikationen verschickt werden, und diese übernehmen.
-Zwecks Kompatibilität für die bestehenden Nachrichten: Keine dazunehmen, keine wegfallen lassen. 
-
-## Errors
-
-- MessageMalformed: The sent message json is malformed
-- MessageUnknown: The sent message type is not known
-- HandshakeIncomplete: Sent message can not be processed as handshake is not complete
-- ConnectionRepeat: Can not connect as connection already exists
-- HandshakeToLate: Can not pair the clients as the connectApp/connectGis message is too late.
-- ReceivingConnectionClosed: Can not forward message as the receiving connection is closed.
+Logging der Exceptions in gleicher manier wie log von erfolgreich ausgeführten Messages.
 
 ## Background worker migrieren und mit keyChange-Nachricht versehen
 

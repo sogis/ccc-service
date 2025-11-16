@@ -49,10 +49,13 @@ public class NotifyError extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
+        /*
         Session s = requireSession(sourceConnection);
         s.assertConnected(this);
         SockConnection destination = s.getPeerConnection(sourceConnection);
         destination.sendMessage(getRawMessage());
         log.info("Session {}: Sent error message '{}' to {}", s.getSessionNr(), errMessage, destination.getClientName());
+
+         */
     }
 }

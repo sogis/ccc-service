@@ -1,6 +1,7 @@
 package ch.so.agi.service.message;
 
 import ch.so.agi.service.session.Session;
+import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.springframework.web.socket.WebSocketSession;
@@ -36,7 +37,7 @@ public class ChangeLayerVisibility extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        Session s = requireSession(sourceConnection);
+        Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
         s.getGisConnection().sendMessage(getRawMessage());
         log.info("Session {}: Changed visibility of layer {} to {}", s.getSessionNr(), getLayerIdentifier(), isVisible());

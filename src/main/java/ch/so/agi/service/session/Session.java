@@ -133,14 +133,19 @@ public class Session {
     }
 
     public void assertConnected(Message message){
-        if(gisConnection == null || appConnection == null) {
-            log.warn("Session {}: {} requires both clients to be connected before proceeding.", sessionNr, Message.describe(message));
-            throw new HandshakeIncompleteException(message, String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
+
+        if(gisConnection == null){
+            throw new HandshakeIncompleteException("Handshake is incomplete as connection to gis is null.");
+        }
+        else if(appConnection == null){
+            throw new HandshakeIncompleteException("Handshake is incomplete as connection to app is null.");
         }
 
-        if(!gisConnection.isOpen() || !appConnection.isOpen()) {
-            log.warn("Session {}: {} can not be processed because at least one client connection is closed.", sessionNr, Message.describe(message));
-            throw new ReceivingConnectionClosedException(message, String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
+        if(!gisConnection.isOpen()){
+            throw new ReceivingConnectionClosedException("Can not forward message as gis connection is closed");
+        }
+        else if(!appConnection.isOpen()){
+            throw new ReceivingConnectionClosedException("Can not forward message as app connection is closed");
         }
     }
 
