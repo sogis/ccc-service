@@ -94,6 +94,27 @@ abstract public class Message {
     public abstract void process(WebSocketSession sourceConnection);
 
     /**
+     * Builds a short human readable description of the provided message
+     * containing at least its concrete type and raw payload.
+     */
+    public static String describe(Message message) {
+        if (message == null) {
+            return "<unknown message>";
+        }
+
+        String type = message.getClass().getSimpleName();
+        String payload = message.getRawMessage();
+        if (payload == null || payload.isBlank()) {
+            return type;
+        }
+        return String.format("%s payload=%s", type, payload);
+    }
+
+    protected final String describeMessage() {
+        return describe(this);
+    }
+
+    /**
      * Helper class dealing with the leading and trailing braces defined for uuid representations
      * in the ccc protocol.
      */
@@ -113,7 +134,7 @@ abstract public class Message {
     /**
      * Helper method to avoid code duplication between the ConnectApp and ConnectGis message.
      */
-    protected static Session addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
+    protected Session addClient(UUID sessionUid, boolean isAppConnection, String clientName, String apiVersion, WebSocketSession sourceConnection) {
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
         Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
@@ -125,12 +146,23 @@ abstract public class Message {
             boolean isGisAlreadyConnected = s.getGisWebSocket() != null;
 
             if ((isAppConnection && isAppAlreadyConnected) || (!isAppConnection && isGisAlreadyConnected)) {
-                throw new ConnectionRepeatException(sessionUid);
+                log.warn("Session {}: {} tried to connect {} client '{}' while it is already connected.",
+                        sessionUid == null ? "<unknown>" : sessionUid,
+                        describeMessage(),
+                        isAppConnection ? "app" : "gis",
+                        clientName);
+                throw new ConnectionRepeatException(this, sessionUid, isAppConnection);
             }
 
             boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
-            if(!inTime)
-                throw new HandshakeToLateException(sessionUid);
+            if(!inTime) {
+                log.warn("Session {}: {} tried to connect {} client '{}' after the handshake window closed.",
+                        sessionUid == null ? "<unknown>" : sessionUid,
+                        describeMessage(),
+                        isAppConnection ? "app" : "gis",
+                        clientName);
+                throw new HandshakeToLateException(this, sessionUid);
+            }
 
             Sessions.addOrReplace(s);
         }
@@ -141,7 +173,8 @@ abstract public class Message {
         String connectionId = sourceConnection == null ? "<unknown>" : sourceConnection.getId();
         Session session = sourceConnection == null ? null : Sessions.findByConnection(sourceConnection);
         if (session == null) {
-            throw new HandshakeIncompleteException("No session available for connection " + connectionId);
+            log.warn("{} can not be processed because connection {} is not associated with a session.", describeMessage(), connectionId);
+            throw new HandshakeIncompleteException(this, "No session available for connection " + connectionId);
         }
         return session;
     }

@@ -2,6 +2,9 @@ package ch.so.agi.service.session;
 
 import ch.so.agi.service.exception.HandshakeIncompleteException;
 import ch.so.agi.service.exception.ReceivingConnectionClosedException;
+import ch.so.agi.service.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Duration;
@@ -15,6 +18,7 @@ import java.util.UUID;
  * both running on the same machine for one user.
  */
 public class Session {
+    private static final Logger log = LoggerFactory.getLogger(Session.class);
     /**
      * Maximum delay accepted between start and finish of the handshake
      */
@@ -125,11 +129,19 @@ public class Session {
     }
 
     public void assertConnected(){
-        if(gisConnection == null || appConnection == null)
-            throw new HandshakeIncompleteException(String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
+        assertConnected(null);
+    }
 
-        if(!gisConnection.isOpen() || !appConnection.isOpen())
-            throw new ReceivingConnectionClosedException(String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
+    public void assertConnected(Message message){
+        if(gisConnection == null || appConnection == null) {
+            log.warn("Session {}: {} requires both clients to be connected before proceeding.", sessionNr, Message.describe(message));
+            throw new HandshakeIncompleteException(message, String.format("Session %s is not connected, the clients are not yet paired", sessionNr));
+        }
+
+        if(!gisConnection.isOpen() || !appConnection.isOpen()) {
+            log.warn("Session {}: {} can not be processed because at least one client connection is closed.", sessionNr, Message.describe(message));
+            throw new ReceivingConnectionClosedException(message, String.format("Session %s is not connected, one or both client connections are closed", sessionNr));
+        }
     }
 
     /**

@@ -30,6 +30,7 @@ public final class NotifyErrorSender {
         payload.put("method", NotifyError.MESSAGE_TYPE);
         payload.put("code", exception.getCode());
         payload.put("message", exception.getClientMessage());
+        payload.put("nativeCode", exception.getClass().getName());
         if (exception.getTechnicalDetails() != null && !exception.getTechnicalDetails().isBlank()) {
             payload.put("technicalDetails", exception.getTechnicalDetails());
         }
