@@ -14,11 +14,11 @@ import java.io.IOException;
  * Helper responsible for sending notifyError messages back to the client
  * whenever a {@link ClientException} occurs.
  */
-public final class NotifyErrorSender {
-    private static final Logger log = LoggerFactory.getLogger(NotifyErrorSender.class);
+public final class ErrorSender {
+    private static final Logger log = LoggerFactory.getLogger(ErrorSender.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private NotifyErrorSender() {
+    private ErrorSender() {
     }
 
     public static void send(WebSocketSession connection, ClientException exception) {
@@ -27,7 +27,7 @@ public final class NotifyErrorSender {
         }
 
         ObjectNode payload = mapper.createObjectNode();
-        payload.put("method", NotifyError.MESSAGE_TYPE);
+        payload.put("method", Error.MESSAGE_TYPE);
         payload.put("code", exception.getCode());
         payload.put("message", exception.getMessage());
         payload.put("nativeCode", exception.getClass().getName());

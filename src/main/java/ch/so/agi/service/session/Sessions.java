@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public class Sessions {
     private static final Map<WebSocketSession, Session> sessionsBySocket = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(Sessions.class);
+
 
     /**
      * Finds the session by the instance of the WebSocketSession of one of the SockConnections of the session.
@@ -82,8 +82,9 @@ public class Sessions {
      * A session is stale if:
      * - One or both client connections are closed
      * - The maximum delay for finishing the handshake is exceeded
+     * Returns a Stream containing the returned session numbers
      */
-    public static synchronized void removeStaleSessions() {
+    public static synchronized Stream<Integer> removeStaleSessions() {
         List<Session> staleSessions = Sessions.allSessions()
                 .filter(session -> (session.hasClosedConnections() || session.handShakeExceeded()))
                 .sorted().toList();
@@ -93,10 +94,13 @@ public class Sessions {
             removeSession(s);
         }
 
-        String cleanedSessions = staleSessions.stream()
-                .map(item -> String.valueOf(item.getSessionNr()))
-                .collect(Collectors.joining(", "));
+        return staleSessions.stream().map(Session::getSessionNr);
+    }
 
-        log.info("Closed and removed the stale sessions {}.", cleanedSessions);
+    /**
+     * For the unit tests
+     */
+    public static void removeAll() {
+        sessionsBySocket.clear();
     }
 }

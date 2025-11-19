@@ -7,26 +7,26 @@ import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 
-class CreateGeoObjectMessageTest {
+class ObjectUpdatedTest {
 
     private static final String MESSAGE = """
             {
-                "method": "createGeoObject",
-                "context": {"afu_geschaeft": "3671951"},
-                "zoomTo": {"gemeinde": 2542}
+                "method": "notifyObjectUpdated",
+                "properties": [
+                    {"name": "parzelle", "value": "SO123"}
+                ]
             }
             """;
 
     @Test
     void validJson_parses() {
-        CreateGeoObjectMessage msg = (CreateGeoObjectMessage) Message.forJsonString(MESSAGE);
+        ObjectUpdated msg = (ObjectUpdated) Message.forJsonString(MESSAGE);
 
-        JsonStringAssertions.jsonsStringEquals("""
-                {"afu_geschaeft": "3671951"}
-                """, msg.getContext().toString());
-        JsonStringAssertions.jsonsStringEquals("""
-                {"gemeinde": 2542}
-                """, msg.getZoomTo().toString());
+        String properties = """
+                [{"name": "parzelle", "value": "SO123"}]
+                """;
+
+        JsonStringAssertions.jsonStringEquals(properties, msg.getProperties().toString());
     }
 
     @Test

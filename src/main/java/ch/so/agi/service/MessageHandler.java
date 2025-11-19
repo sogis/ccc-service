@@ -2,7 +2,7 @@ package ch.so.agi.service;
 
 import ch.so.agi.service.exception.ClientException;
 import ch.so.agi.service.message.Message;
-import ch.so.agi.service.message.NotifyErrorSender;
+import ch.so.agi.service.message.ErrorSender;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class MessageHandler {
                 }
             }
 
-            NotifyErrorSender.send(sender, clientException);
+            ErrorSender.send(sender, clientException);
         }
     }
 }

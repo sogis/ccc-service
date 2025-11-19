@@ -22,29 +22,21 @@ class EditGeoObjectDoneTest {
         EditGeoObjectDone msg = (EditGeoObjectDone) Message.forJsonString(MESSAGE);
 
         String context = """
-                "context": { "afu_geschaeft": 3671951 }
+                { "afu_geschaeft": 3671951 }
                 """;
-        TestUtil.jsonStringEquals(context, msg.getContext().toString());
+        JsonStringAssertions.jsonStringEquals(context, msg.getContext().toString());
 
         String data = """
-                "data": { "type": "Point", "coordinates": [2609190,1226652] }
+                { "type": "Point", "coordinates": [2609190,1226652] }
                 """;
-        TestUtil.jsonStringEquals(data, msg.getData().toString());
+        JsonStringAssertions.jsonStringEquals(data, msg.getData().toString());
     }
 
     @Test
     void process_OK(){
-        String message = """
-        {
-            "method": "notifyEditGeoObjectDone",
-            "context": { "afu_geschaeft": 3671951 },
-            "data": { "type": "Point", "coordinates": [2609190,1226652] }
-        }
-        """;
-
         Session s = TestUtil.initSession();
-        MessageHandler.handleMessage(s.getGisWebSocket(), message);
+        MessageHandler.handleMessage(s.getGisWebSocket(), MESSAGE);
 
-        JsonStringAssertions.sentMessageEquals(message, s.getAppWebSocket());
+        JsonStringAssertions.sentMessageEquals(MESSAGE, s.getAppWebSocket());
     }
 }

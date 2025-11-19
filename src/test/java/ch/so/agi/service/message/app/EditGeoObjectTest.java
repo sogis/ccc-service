@@ -7,22 +7,29 @@ import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 
-class CancelEditGeoObjectMessageTest {
+class EditGeoObjectTest {
 
     private static final String MESSAGE = """
             {
-                "method": "cancelEditGeoObject",
-                "context": {"afu_geschaeft": "3671951"}
+                "method": "editGeoObject",
+                "context": {"afu_geschaeft": "3671951"},
+                "data": {"type": "Point", "coordinates": [2609190,1226652]}
             }
             """;
 
     @Test
     void validJson_parses() {
-        CancelEditGeoObjectMessage msg = (CancelEditGeoObjectMessage) Message.forJsonString(MESSAGE);
+        EditGeoObject msg = (EditGeoObject) Message.forJsonString(MESSAGE);
 
-        JsonStringAssertions.jsonsStringEquals("""
+        String context = """
                 {"afu_geschaeft": "3671951"}
-                """, msg.getContext().toString());
+                """;
+        JsonStringAssertions.jsonStringEquals(context, msg.getContext().toString());
+
+        String data = """
+                {"type": "Point", "coordinates": [2609190,1226652]}
+                """;
+        JsonStringAssertions.jsonStringEquals(data, msg.getData().toString());
     }
 
     @Test

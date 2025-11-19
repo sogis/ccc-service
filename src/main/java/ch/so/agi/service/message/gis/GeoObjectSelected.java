@@ -12,14 +12,14 @@ import org.springframework.web.socket.WebSocketSession;
  * Message sent from the GIS-application to notify that the user selected an object.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotifyGeoObjectSelectedMessage extends Message {
+public class GeoObjectSelected extends Message {
 
     public static final String MESSAGE_TYPE = "notifyGeoObjectSelected";
 
     @JsonProperty("context_list")
     private JsonNode contextList;
 
-    public NotifyGeoObjectSelectedMessage() {
+    public GeoObjectSelected() {
         super(MESSAGE_TYPE);
     }
 

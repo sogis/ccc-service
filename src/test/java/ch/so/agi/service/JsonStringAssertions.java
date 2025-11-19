@@ -11,7 +11,7 @@ public class JsonStringAssertions {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static void jsonsStringEquals(String expectedJson, String actualJson) {
+    public static void jsonStringEquals(String expectedJson, String actualJson) {
         try {
             JsonNode expectedTree = mapper.readTree(expectedJson);
             JsonNode actualTree = mapper.readTree(actualJson);
@@ -22,7 +22,7 @@ public class JsonStringAssertions {
     }
 
     public static void sentMessageEquals(String expectedJson, WebSocketSession conn){
-        jsonsStringEquals(
+        jsonStringEquals(
                 expectedJson,
                 ((MockWebSocketSession)conn).getLastSentTextMessage()
         );

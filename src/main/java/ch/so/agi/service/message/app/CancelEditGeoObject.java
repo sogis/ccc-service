@@ -9,19 +9,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Message sent from the domain-application to start recording a new object in the GIS-application.
+ * Message sent from the domain-application to cancel the editing in the GIS-application.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateGeoObjectMessage extends Message {
+public class CancelEditGeoObject extends Message {
 
-    public static final String MESSAGE_TYPE = "createGeoObject";
+    public static final String MESSAGE_TYPE = "cancelEditGeoObject";
 
     @JsonProperty("context")
     private JsonNode context;
-    @JsonProperty("zoomTo")
-    private JsonNode zoomTo;
 
-    public CreateGeoObjectMessage() {
+    public CancelEditGeoObject() {
         super(MESSAGE_TYPE);
     }
 
@@ -29,15 +27,11 @@ public class CreateGeoObjectMessage extends Message {
         return context;
     }
 
-    public JsonNode getZoomTo() {
-        return zoomTo;
-    }
-
     @Override
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
         s.getGisConnection().sendMessage(getRawMessage());
-        log.info("Session {}: Create geo object", s.getSessionNr());
+        log.info("Session {}: Cancel edit geo object", s.getSessionNr());
     }
 }

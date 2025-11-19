@@ -1,10 +1,8 @@
 # Weiterfahren
 
-## Test
+## SessionReady
 
-## Logging
-
-Logging der Exceptions in gleicher manier wie log von erfolgreich ausgeführten Messages.
+Implementieren, dass diese als folge der App- und GIS Connects verschickt wird (Vieleicht nicht eigenständige Message)
 
 ## Background worker migrieren und mit keyChange-Nachricht versehen
 

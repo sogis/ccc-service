@@ -10,14 +10,14 @@ import org.springframework.web.socket.WebSocketSession;
  * Message sent from the ccc-server to the domain-application and GIS to notify the successful pairing between them.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotifySessionReadyMessage extends Message {
+public class SessionReady extends Message {
 
     public static final String MESSAGE_TYPE = "notifySessionReady";
 
     @JsonProperty("apiVersion")
     private String apiVersion;
 
-    public NotifySessionReadyMessage() {
+    public SessionReady() {
         super(MESSAGE_TYPE);
     }
 

@@ -7,7 +7,7 @@ import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 
-class NotifyGeoObjectSelectedMessageTest {
+class GeoObjectSelectedTest {
 
     private static final String MESSAGE = """
             {
@@ -18,9 +18,9 @@ class NotifyGeoObjectSelectedMessageTest {
 
     @Test
     void validJson_parses() {
-        NotifyGeoObjectSelectedMessage msg = (NotifyGeoObjectSelectedMessage) Message.forJsonString(MESSAGE);
+        GeoObjectSelected msg = (GeoObjectSelected) Message.forJsonString(MESSAGE);
 
-        JsonStringAssertions.jsonsStringEquals("""
+        JsonStringAssertions.jsonStringEquals("""
                 [{"afu_geschaeft": "3671951"}]
                 """, msg.getContextList().toString());
     }

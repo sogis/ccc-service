@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NotifyErrorTest {
+class ErrorTest {
     private static final String MESSAGE = """
             {
                 "method": "notifyError",
@@ -21,7 +21,7 @@ class NotifyErrorTest {
 
     @Test
     void validJson_parses() {
-        NotifyError err = (NotifyError) Message.forJsonString(MESSAGE);
+        Error err = (Error) Message.forJsonString(MESSAGE);
 
         assertEquals(464, err.getCode());
         assertEquals("Coordinate must have seven digits before decimal point", err.getRawMessage());

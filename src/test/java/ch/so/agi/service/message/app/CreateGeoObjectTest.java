@@ -7,26 +7,29 @@ import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 
-class EditGeoObjectMessageTest {
+class CreateGeoObjectTest {
 
     private static final String MESSAGE = """
             {
-                "method": "editGeoObject",
+                "method": "createGeoObject",
                 "context": {"afu_geschaeft": "3671951"},
-                "data": {"type": "Point", "coordinates": [2609190,1226652]}
+                "zoomTo": {"gemeinde": 2542}
             }
             """;
 
     @Test
     void validJson_parses() {
-        EditGeoObjectMessage msg = (EditGeoObjectMessage) Message.forJsonString(MESSAGE);
+        CreateGeoObject msg = (CreateGeoObject) Message.forJsonString(MESSAGE);
 
-        JsonStringAssertions.jsonsStringEquals("""
+        String context = """
                 {"afu_geschaeft": "3671951"}
-                """, msg.getContext().toString());
-        JsonStringAssertions.jsonsStringEquals("""
-                {"type": "Point", "coordinates": [2609190,1226652]}
-                """, msg.getData().toString());
+                """;
+        JsonStringAssertions.jsonStringEquals(context, msg.getContext().toString());
+
+        String zoomTo = """
+                {"gemeinde": 2542}
+                """;
+        JsonStringAssertions.jsonStringEquals(zoomTo, msg.getZoomTo().toString());
     }
 
     @Test

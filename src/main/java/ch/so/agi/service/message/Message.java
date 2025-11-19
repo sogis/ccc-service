@@ -4,15 +4,15 @@ import ch.so.agi.service.exception.ConnectionRepeatException;
 import ch.so.agi.service.exception.HandshakeToLateException;
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;
-import ch.so.agi.service.message.app.CancelEditGeoObjectMessage;
+import ch.so.agi.service.message.app.CancelEditGeoObject;
 import ch.so.agi.service.message.app.ChangeLayerVisibility;
 import ch.so.agi.service.message.app.ConnectApp;
-import ch.so.agi.service.message.app.CreateGeoObjectMessage;
-import ch.so.agi.service.message.app.EditGeoObjectMessage;
-import ch.so.agi.service.message.app.NotifyObjectUpdatedMessage;
+import ch.so.agi.service.message.app.CreateGeoObject;
+import ch.so.agi.service.message.app.EditGeoObject;
+import ch.so.agi.service.message.app.ObjectUpdated;
 import ch.so.agi.service.message.gis.ConnectGis;
 import ch.so.agi.service.message.gis.EditGeoObjectDone;
-import ch.so.agi.service.message.gis.NotifyGeoObjectSelectedMessage;
+import ch.so.agi.service.message.gis.GeoObjectSelected;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -68,14 +68,14 @@ abstract public class Message {
         MESSAGE_TYPES.put(ChangeLayerVisibility.MESSAGE_TYPE, ChangeLayerVisibility.class);
         MESSAGE_TYPES.put(ConnectApp.MESSAGE_TYPE, ConnectApp.class);
         MESSAGE_TYPES.put(ConnectGis.MESSAGE_TYPE, ConnectGis.class);
-        MESSAGE_TYPES.put(NotifyError.MESSAGE_TYPE, NotifyError.class);
+        MESSAGE_TYPES.put(Error.MESSAGE_TYPE, Error.class);
         MESSAGE_TYPES.put(EditGeoObjectDone.MESSAGE_TYPE, EditGeoObjectDone.class);
-        MESSAGE_TYPES.put(CancelEditGeoObjectMessage.MESSAGE_TYPE, CancelEditGeoObjectMessage.class);
-        MESSAGE_TYPES.put(CreateGeoObjectMessage.MESSAGE_TYPE, CreateGeoObjectMessage.class);
-        MESSAGE_TYPES.put(EditGeoObjectMessage.MESSAGE_TYPE, EditGeoObjectMessage.class);
-        MESSAGE_TYPES.put(NotifyGeoObjectSelectedMessage.MESSAGE_TYPE, NotifyGeoObjectSelectedMessage.class);
-        MESSAGE_TYPES.put(NotifyObjectUpdatedMessage.MESSAGE_TYPE, NotifyObjectUpdatedMessage.class);
-        MESSAGE_TYPES.put(NotifySessionReadyMessage.MESSAGE_TYPE, NotifySessionReadyMessage.class);
+        MESSAGE_TYPES.put(CancelEditGeoObject.MESSAGE_TYPE, CancelEditGeoObject.class);
+        MESSAGE_TYPES.put(CreateGeoObject.MESSAGE_TYPE, CreateGeoObject.class);
+        MESSAGE_TYPES.put(EditGeoObject.MESSAGE_TYPE, EditGeoObject.class);
+        MESSAGE_TYPES.put(GeoObjectSelected.MESSAGE_TYPE, GeoObjectSelected.class);
+        MESSAGE_TYPES.put(ObjectUpdated.MESSAGE_TYPE, ObjectUpdated.class);
+        MESSAGE_TYPES.put(SessionReady.MESSAGE_TYPE, SessionReady.class);
     }
 
     /**

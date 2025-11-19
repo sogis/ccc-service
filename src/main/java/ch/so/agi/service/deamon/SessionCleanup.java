@@ -1,17 +1,32 @@
 package ch.so.agi.service.deamon;
 
 import ch.so.agi.service.session.Sessions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SessionCleanup {
 
     private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
+    private static final Logger log = LoggerFactory.getLogger(SessionCleanup.class);
 
     @Scheduled(fixedDelay = DELAY_MILLIS)
     public void removeStaleSessions(){
-        Sessions.removeStaleSessions();
+
+        List<Integer> sesNrStream = Sessions.removeStaleSessions().toList();
+
+        String cleanedSessions = sesNrStream.stream().map(String::valueOf).collect(Collectors.joining(", "));
+
+        log.info("Woke after sleeping {} sec. Closed and removed {} stale sessions. Session numbers: [{}].",
+                Duration.ofMillis(DELAY_MILLIS).toSeconds(),
+                sesNrStream.size(),
+                cleanedSessions);
     }
 }
 

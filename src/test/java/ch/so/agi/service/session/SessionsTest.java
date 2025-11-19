@@ -1,10 +1,12 @@
 package ch.so.agi.service.session;
 
+import ch.so.agi.service.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,11 +16,20 @@ class SessionsTest {
 
     @BeforeEach
     void resetSessions() throws Exception {
-        Field field = Sessions.class.getDeclaredField("sessionsBySocket");
-        field.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        Map<WebSocketSession, Session> map = (Map<WebSocketSession, Session>) field.get(null);
-        map.clear();
+        Sessions.removeAll();
+    }
+
+    private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+        return  createSession(UUID.randomUUID(), appSession, gisSession);
+    }
+
+    private Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
+        SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
+        Session session = new Session(sessionUid, appConnection, true);
+
+        SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisSession);
+        assertTrue(session.tryToAddSecondConnection(gisConnection, false));
+        return session;
     }
 
     @Test
@@ -56,18 +67,5 @@ class SessionsTest {
 
         assertNull(Sessions.findByConnection(unknownSession));
         assertNull(Sessions.findByConnection(null));
-    }
-
-    public Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
-        return  createSession(UUID.randomUUID(), appSession, gisSession);
-    }
-
-    public Session createSession(UUID sessionUid, MockWebSocketSession appSession, MockWebSocketSession gisSession) {
-        SockConnection appConnection = new SockConnection("app-client", "1.0", appSession);
-        Session session = new Session(sessionUid, appConnection, true);
-
-        SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisSession);
-        assertTrue(session.tryToAddSecondConnection(gisConnection, false));
-        return session;
     }
 }

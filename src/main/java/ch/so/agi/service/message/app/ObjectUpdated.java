@@ -12,14 +12,14 @@ import org.springframework.web.socket.WebSocketSession;
  * Message sent from the domain-application to notify a change of a domain object.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotifyObjectUpdatedMessage extends Message {
+public class ObjectUpdated extends Message {
 
     public static final String MESSAGE_TYPE = "notifyObjectUpdated";
 
     @JsonProperty("properties")
     private JsonNode properties;
 
-    public NotifyObjectUpdatedMessage() {
+    public ObjectUpdated() {
         super(MESSAGE_TYPE);
     }
 

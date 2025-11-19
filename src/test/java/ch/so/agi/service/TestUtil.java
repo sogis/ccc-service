@@ -68,20 +68,4 @@ public class TestUtil {
 
         return s;
     }
-
-    public static void jsonStringEquals(String firstJson, String secondJson){
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode tree1 = mapper.readTree(firstJson);
-            JsonNode tree2 = mapper.readTree(secondJson);
-
-            if (tree1.equals(tree2)) {
-                System.out.println("JSON strings are equal.");
-            } else {
-                System.out.println("JSON strings are NOT equal.");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JSON input or parsing error", e);
-        }
-    }
 }

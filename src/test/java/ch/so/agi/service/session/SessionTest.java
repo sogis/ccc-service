@@ -78,4 +78,30 @@ class SessionTest {
 
         assertThrows(ReceivingConnectionClosedException.class, s::assertConnected);
     }
+
+    @Test
+    void hasClosedConnections_false_when_both_open() {
+        Session session = TestUtil.initSession();
+
+        assertFalse(session.hasClosedConnections());
+    }
+
+    @Test
+    void hasClosedConnections_true_when_one_closed() throws IOException {
+        Session session = TestUtil.initSession();
+
+        session.getAppWebSocket().close();
+
+        assertTrue(session.hasClosedConnections());
+    }
+
+    @Test
+    void closeConnections_closes_both_sockets() {
+        Session session = TestUtil.initSession();
+
+        session.closeConnections();
+
+        assertFalse(session.getAppWebSocket().isOpen());
+        assertFalse(session.getGisWebSocket().isOpen());
+    }
 }
