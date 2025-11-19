@@ -1,9 +1,9 @@
-package ch.so.agi.service.message;
+package ch.so.agi.service.message.app;
 
 import ch.so.agi.service.JsonStringAssertions;
 import ch.so.agi.service.MessageHandler;
 import ch.so.agi.service.TestUtil;
-import ch.so.agi.service.message.app.ChangeLayerVisibility;
+import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
 

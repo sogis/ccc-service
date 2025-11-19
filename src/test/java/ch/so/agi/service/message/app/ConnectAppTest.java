@@ -1,6 +1,6 @@
-package ch.so.agi.service.message;
+package ch.so.agi.service.message.app;
 
-import ch.so.agi.service.message.app.ConnectApp;
+import ch.so.agi.service.message.Message;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

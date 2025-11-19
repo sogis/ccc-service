@@ -1,6 +1,6 @@
-package ch.so.agi.service.message;
+package ch.so.agi.service.message.gis;
 
-import ch.so.agi.service.message.gis.ConnectGis;
+import ch.so.agi.service.message.Message;
 import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
