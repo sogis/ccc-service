@@ -4,6 +4,7 @@ import ch.so.agi.service.exception.ConnectionRepeatException;
 import ch.so.agi.service.exception.HandshakeToLateException;
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;
+import ch.so.agi.service.message.app.ChangeLayerVisibility;
 import ch.so.agi.service.message.gis.EditGeoObjectDone;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;

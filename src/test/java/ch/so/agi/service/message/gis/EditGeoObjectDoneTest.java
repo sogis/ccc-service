@@ -1,15 +1,11 @@
 package ch.so.agi.service.message.gis;
 
-import ch.so.agi.cccservice.messages.NotifyEditGeoObjectDoneMessage;
 import ch.so.agi.service.JsonStringAssertions;
 import ch.so.agi.service.MessageHandler;
 import ch.so.agi.service.TestUtil;
-import ch.so.agi.service.message.ChangeLayerVisibility;
 import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EditGeoObjectDoneTest {
 

@@ -1,5 +1,6 @@
-package ch.so.agi.service.message;
+package ch.so.agi.service.message.app;
 
+import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
