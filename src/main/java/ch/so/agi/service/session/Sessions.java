@@ -1,13 +1,17 @@
 package ch.so.agi.service.session;
 
+import ch.so.agi.cccprobe.ProbeTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Sessions {
     private static final Map<WebSocketSession, Session> sessionsBySocket = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(Sessions.class);
 
     /**
      * Finds the session by the instance of the WebSocketSession of one of the SockConnections of the session.
@@ -59,5 +63,40 @@ public class Sessions {
         if (s.getGisWebSocket() != null) {
             sessionsBySocket.put(s.getGisWebSocket(), s);
         }
+    }
+
+    private static synchronized void removeSession(Session s){
+        sessionsBySocket.remove(s.getGisWebSocket());
+        sessionsBySocket.remove(s.getAppWebSocket());
+    }
+
+    /**
+     * Returns all Sessions currently present in the session collection
+     */
+    public static synchronized Stream<Session> allSessions(){
+        return sessionsBySocket.values().stream().distinct();
+    }
+
+    /**
+     * Closes and removes stale sessions from the session collection.
+     * A session is stale if:
+     * - One or both client connections are closed
+     * - The maximum delay for finishing the handshake is exceeded
+     */
+    public static synchronized void removeStaleSessions() {
+        List<Session> staleSessions = Sessions.allSessions()
+                .filter(session -> (session.hasClosedConnections() || session.handShakeExceeded()))
+                .sorted().toList();
+
+        for(Session s : staleSessions){
+            s.closeConnections();
+            removeSession(s);
+        }
+
+        String cleanedSessions = staleSessions.stream()
+                .map(item -> String.valueOf(item.getSessionNr()))
+                .collect(Collectors.joining(", "));
+
+        log.info("Closed and removed the stale sessions {}.", cleanedSessions);
     }
 }

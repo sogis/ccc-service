@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
  * The session connects one app and one gis instance, typically
  * both running on the same machine for one user.
  */
-public class Session {
+public class Session implements Comparable{
     private static final Logger log = LoggerFactory.getLogger(Session.class);
     /**
      * Maximum delay accepted between start and finish of the handshake
@@ -159,5 +160,45 @@ public class Session {
     private synchronized int getNextSessionNr(){
         lastSessionNr++;
         return lastSessionNr;
+    }
+
+    public boolean hasClosedConnections() {
+        boolean gisClosed = false;
+        boolean appClosed = false;
+
+        if(gisConnection != null)
+            gisClosed = !getGisWebSocket().isOpen();
+
+        if(appConnection != null)
+            appClosed = !getAppConnection().isOpen();
+
+        return gisClosed || appClosed;
+    }
+
+    public boolean handShakeExceeded() {
+        return LocalDateTime.now().isAfter(handShakeInitialized.plus(handShakeMaxDuration));
+    }
+
+    public void closeConnections() {
+        if(gisConnection != null){
+            try {
+                getGisWebSocket().close();
+            } catch (IOException e) {
+                log.error("Session {}: Exception was thrown while closing gis connection. Exception: {}", getSessionNr(), e.toString());
+            }
+        }
+
+        if(appConnection != null){
+            try {
+                getAppWebSocket().close();
+            } catch (IOException e) {
+                log.error("Session {}: Exception was thrown while closing app connection. Exception: {}", getSessionNr(), e.toString());
+            }
+        }
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return Integer.compare(this.getSessionNr(), ((Session) o).getSessionNr());
     }
 }
