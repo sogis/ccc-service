@@ -36,9 +36,7 @@ public class TestUtil {
     }
 
     public static Session initSession(UUID sessionUid, String appProtocolVersion, String gisProtocolVersion){
-        MockWebSocketSession gisWebSocket = new MockWebSocketSession();
-        SockConnection gisConnection = new SockConnection("gis-client", gisProtocolVersion, gisWebSocket);
-        Session session = new Session(sessionUid, gisConnection, false);
+        Session session = openSession(sessionUid, false, gisProtocolVersion);
 
         MockWebSocketSession appWebSocket = new MockWebSocketSession();
         SockConnection appConnection = new SockConnection("app-client", appProtocolVersion, appWebSocket);
@@ -53,35 +51,37 @@ public class TestUtil {
         return session;
     }
 
+    public static Session openSession(boolean openFromApp){
+        return openSession(UUID.randomUUID(), openFromApp, SockConnection.PROTOCOL_V1);
+    }
+
+    public static Session openSession(UUID sessionUid, boolean openFromApp, String protocolVersion){
+        String clientName = "app-client";
+        if(!openFromApp)
+            clientName = "gis-client";
+
+        MockWebSocketSession socket = new MockWebSocketSession();
+        SockConnection conn = new SockConnection(clientName, protocolVersion, socket);
+
+        Session s = new Session(UUID.randomUUID(), conn, openFromApp);
+        Sessions.addOrReplace(s);
+
+        return s;
+    }
+
     public static void jsonStringEquals(String firstJson, String secondJson){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode tree1 = mapper.readTree(firstJson);
+            JsonNode tree2 = mapper.readTree(secondJson);
 
-    }
-
-    public class JsonComparator {
-
-        public static void jsonStringEquals(String firstJson, String secondJson) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                JsonNode tree1 = mapper.readTree(firstJson);
-                JsonNode tree2 = mapper.readTree(secondJson);
-
-                if (tree1.equals(tree2)) {
-                    System.out.println("JSON strings are equal.");
-                } else {
-                    System.out.println("JSON strings are NOT equal.");
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid JSON input or parsing error: " + e.getMessage());
+            if (tree1.equals(tree2)) {
+                System.out.println("JSON strings are equal.");
+            } else {
+                System.out.println("JSON strings are NOT equal.");
             }
-        }
-
-        // Example usage
-        public static void main(String[] args) {
-            String json1 = "{\"name\":\"Alice\",\"age\":30}";
-            String json2 = "{  \"age\" : 30 , \"name\" : \"Alice\" }";
-
-            jsonStringEquals(json1, json2); // Should print "JSON strings are equal."
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JSON input or parsing error", e);
         }
     }
-
 }

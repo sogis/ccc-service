@@ -17,9 +17,7 @@ public class ChangeLayerVisibility extends Message {
     private String layerIdentifier;
     private boolean visible;
 
-    public ChangeLayerVisibility() {
-        // Default constructor for Jackson
-    }
+    public ChangeLayerVisibility(){ super(MESSAGE_TYPE); }
 
     // Jackson sets the nested "data" object
     @JsonSetter("data")

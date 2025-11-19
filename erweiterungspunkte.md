@@ -2,9 +2,6 @@
 
 ## Test
 
-MessageHandlerTest appClosed
-MessageHandlerTest handshake incomplete gis and app
-
 ## Logging
 
 Logging der Exceptions in gleicher manier wie log von erfolgreich ausgeführten Messages.

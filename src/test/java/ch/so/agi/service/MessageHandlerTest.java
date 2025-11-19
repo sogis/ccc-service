@@ -1,6 +1,5 @@
 package ch.so.agi.service;
 
-import ch.so.agi.cccservice.messages.NotifyEditGeoObjectDoneMessage;
 import ch.so.agi.service.exception.HandshakeIncompleteException;
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;
@@ -15,15 +14,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MessageHandlerTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String VALID_MESSAGE = """
-            {
-                "method": "changeLayerVisibility",
-                "data": {
-                    "layer_identifier": "ch.so.afu.abbaustellen",
-                    "visible": false
-                }
+    private static final String APP_MESSAGE = """
+        {
+            "method": "changeLayerVisibility",
+            "data": {
+                "layer_identifier": "ch.so.afu.abbaustellen",
+                "visible": false
             }
-            """;
+        }
+        """;
+
+    private static final String GIS_MESSAGE = """
+        {
+            "method": "notifyEditGeoObjectDone",
+            "context": { "afu_geschaeft": 3671951 },
+            "data": { "type": "Point", "coordinates": [2609190,1226652] }
+        }
+        """;
 
     @Test
     void malformedJson_sendsNotifyError() throws Exception {
@@ -51,11 +58,24 @@ class MessageHandlerTest {
     }
 
     @Test
-    void handshakeIncomplete_sendsNotifyError() throws Exception {
-        MockWebSocketSession sender = new MockWebSocketSession();
-        MessageHandler.handleMessage(sender, VALID_MESSAGE);
+    void appDidNotCloseHandshake_sendsNotifyError() throws Exception {
+        Session s = TestUtil.openSession(false);
+        MessageHandler.handleMessage(s.getGisWebSocket(), GIS_MESSAGE);
 
-        JsonNode notifyError = MAPPER.readTree(sender.getLastSentTextMessage());
+        JsonNode notifyError = MAPPER.readTree(
+                ((MockWebSocketSession)s.getGisWebSocket()).getLastSentTextMessage()
+        );
+        assertEquals(HandshakeIncompleteException.class.getName(), notifyError.get("nativeCode").asText());
+    }
+
+    @Test
+    void gisDidNotCloseHandshake_sendsNotifyError() throws Exception {
+        Session s = TestUtil.openSession(true);
+        MessageHandler.handleMessage(s.getAppWebSocket(), APP_MESSAGE);
+
+        JsonNode notifyError = MAPPER.readTree(
+                ((MockWebSocketSession)s.getAppWebSocket()).getLastSentTextMessage()
+        );
         assertEquals(HandshakeIncompleteException.class.getName(), notifyError.get("nativeCode").asText());
     }
 
@@ -64,9 +84,20 @@ class MessageHandlerTest {
         Session s = TestUtil.initSession();
         MockWebSocketSession appSender = (MockWebSocketSession) s.getAppWebSocket();
         s.getGisWebSocket().close();
-        MessageHandler.handleMessage(s.getAppWebSocket(), VALID_MESSAGE);
+        MessageHandler.handleMessage(s.getAppWebSocket(), APP_MESSAGE);
 
         JsonNode notifyError = MAPPER.readTree(appSender.getLastSentTextMessage());
+        assertEquals(ReceivingConnectionClosedException.class.getName(), notifyError.get("nativeCode").asText());
+    }
+
+    @Test
+    void appConnectionClosed_sendsNotifyError() throws Exception {
+        Session s = TestUtil.initSession();
+        MockWebSocketSession gisSender = (MockWebSocketSession) s.getGisWebSocket();
+        s.getAppWebSocket().close();
+        MessageHandler.handleMessage(s.getGisWebSocket(), APP_MESSAGE);
+
+        JsonNode notifyError = MAPPER.readTree(gisSender.getLastSentTextMessage());
         assertEquals(ReceivingConnectionClosedException.class.getName(), notifyError.get("nativeCode").asText());
     }
 }

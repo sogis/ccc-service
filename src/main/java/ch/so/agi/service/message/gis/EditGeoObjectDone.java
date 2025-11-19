@@ -15,7 +15,9 @@ import org.springframework.web.socket.WebSocketSession;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EditGeoObjectDone extends Message {
 
-    public static final String METHOD_TYPE = "notifyEditGeoObjectDone";
+    public static final String MESSAGE_TYPE = "notifyEditGeoObjectDone";
+
+    public EditGeoObjectDone(){ super(MESSAGE_TYPE); }
 
     @JsonProperty("context")
     private JsonNode context;

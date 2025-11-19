@@ -1,5 +1,6 @@
-package ch.so.agi.service.message;
+package ch.so.agi.service.message.app;
 
+import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,16 +9,17 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConnectGis extends Message {
+public class ConnectApp extends Message {
 
-    public static final String MESSAGE_TYPE = "connectGis";
-
+    public static final String MESSAGE_TYPE = "connectApp";
 
     private UUID sessionUid;
     @JsonProperty("clientName")
     private String clientName;
     @JsonProperty("apiVersion")
     private String apiVersion;
+
+    public ConnectApp(){ super(MESSAGE_TYPE); }
 
     @JsonProperty("session")
     private void setSessionUidFromString(String session){
@@ -38,8 +40,7 @@ public class ConnectGis extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        Session s = addClient(getSessionUid(), false, clientName, apiVersion, sourceConnection);
-        log.info("Session {}: Connected gis client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
+        Session s = addClient(getSessionUid(), true, clientName, apiVersion, sourceConnection);
+        log.info("Session {}: Connected app client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
     }
 }
-

@@ -24,7 +24,7 @@ public class NotifyError extends Message {
     private String technicalDetails;
 
     // Required no-args constructor
-    public NotifyError() {}
+    public NotifyError() { super(MESSAGE_TYPE); }
 
     public String getTechnicalDetails() {
         return technicalDetails;
