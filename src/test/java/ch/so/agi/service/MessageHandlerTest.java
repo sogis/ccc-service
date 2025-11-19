@@ -1,5 +1,6 @@
 package ch.so.agi.service;
 
+import ch.so.agi.cccservice.messages.NotifyEditGeoObjectDoneMessage;
 import ch.so.agi.service.exception.HandshakeIncompleteException;
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;

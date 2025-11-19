@@ -4,6 +4,7 @@ import ch.so.agi.service.exception.ConnectionRepeatException;
 import ch.so.agi.service.exception.HandshakeToLateException;
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;
+import ch.so.agi.service.message.gis.EditGeoObjectDone;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -54,6 +55,7 @@ abstract public class Message {
         MESSAGE_TYPES.put(ConnectApp.MESSAGE_TYPE, ConnectApp.class);
         MESSAGE_TYPES.put(ConnectGis.MESSAGE_TYPE, ConnectGis.class);
         MESSAGE_TYPES.put(NotifyError.MESSAGE_TYPE, NotifyError.class);
+        MESSAGE_TYPES.put(EditGeoObjectDone.METHOD_TYPE, EditGeoObjectDone.class);
     }
 
     /**
