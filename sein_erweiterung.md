@@ -41,7 +41,7 @@ NotifyError-Antwort, falls der Layer nicht bekannt ist:
 ```json
 {
     "method": "notifyError",
-    "code": todo - numerischen code zuweisen,
+    "code": 404,
     "message": "Can not set the layer visibility. Layer [layerIdentifier] is unknown",
     "userData": null,
     "nativeCode": "Err-165",
