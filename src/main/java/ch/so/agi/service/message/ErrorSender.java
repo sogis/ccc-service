@@ -21,7 +21,7 @@ public final class ErrorSender {
     private ErrorSender() {
     }
 
-    public static void send(WebSocketSession connection, ClientException exception) {
+    public static synchronized void send(WebSocketSession connection, ClientException exception) {
         if (connection == null) {
             return;
         }

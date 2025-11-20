@@ -82,4 +82,12 @@ public class SockConnection {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Refreshes the key and returns the new key.
+     */
+    public Object refreshKey() {
+        key.refreshKey();
+        return getConnectionKey();
+    }
 }

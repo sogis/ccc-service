@@ -10,7 +10,9 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 
 /**
  * Represents one bidirectional route via the two websocket
@@ -177,6 +179,22 @@ public class Session implements Comparable{
 
     public boolean handShakeExceeded() {
         return LocalDateTime.now().isAfter(handShakeInitialized.plus(handShakeMaxDuration));
+    }
+
+    public boolean hasV2Connection(){
+        return !( v2Connections().isEmpty() );
+    }
+
+    public List<SockConnection> v2Connections(){
+        List<SockConnection> connections = new Vector<>();
+
+        if(gisConnection != null &&  SockConnection.PROTOCOL_V2.equals(gisConnection.getApiVersion()))
+            connections.add(gisConnection);
+
+        if(appConnection != null &&  SockConnection.PROTOCOL_V2.equals(appConnection.getApiVersion()))
+            connections.add(appConnection);
+
+        return connections;
     }
 
     public void closeConnections() {

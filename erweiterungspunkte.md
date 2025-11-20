@@ -1,10 +1,7 @@
 # Weiterfahren
 
-## SessionReady
-
-Implementieren, dass diese als folge der App- und GIS Connects verschickt wird (Vieleicht nicht eigenständige Message)
-
-## Background worker migrieren und mit keyChange-Nachricht versehen
+* ConcurrentHashMap anstelle synchronized
+* Analoge überlegung für SockConnection.sendMessage()
 
 Fr: 17:00 - 21:00
 Sa: 9:45 - 12:15
