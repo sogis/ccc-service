@@ -1,47 +1,10 @@
 package ch.so.agi.service.message.gis;
 
-import ch.so.agi.service.message.Message;
-import ch.so.agi.service.session.Session;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.web.socket.WebSocketSession;
+import ch.so.agi.service.message.Connect;
 
-import java.util.UUID;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ConnectGis extends Message {
-
+public class ConnectGis extends Connect {
     public static final String MESSAGE_TYPE = "connectGis";
-
-    public ConnectGis(){ super(MESSAGE_TYPE); }
-
-    private UUID sessionUid;
-    @JsonProperty("clientName")
-    private String clientName;
-    @JsonProperty("apiVersion")
-    private String apiVersion;
-
-    @JsonProperty("session")
-    private void setSessionUidFromString(String session){
-        this.sessionUid = uidFromString(session);
-    }
-
-    public UUID getSessionUid() {
-        return sessionUid;
-    }
-
-    public String getClientName() {
-        return clientName;
-    }
-
-    public String getApiVersion() {
-        return apiVersion;
-    }
-
-    @Override
-    public void process(WebSocketSession sourceConnection) {
-        Session s = addClient(getSessionUid(), false, clientName, apiVersion, sourceConnection);
-        log.info("Session {}: Connected gis client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
+    ConnectGis(){
+        super(MESSAGE_TYPE);
     }
 }
-

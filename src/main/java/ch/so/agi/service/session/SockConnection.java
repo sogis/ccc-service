@@ -70,6 +70,10 @@ public class SockConnection {
         return  webSocketConnection.isOpen();
     }
 
+    public String getConnectionKey(){
+        return key.getKeyString();
+    }
+
     public synchronized void sendMessage(String message){
         TextMessage msg = new TextMessage(message);
         try {

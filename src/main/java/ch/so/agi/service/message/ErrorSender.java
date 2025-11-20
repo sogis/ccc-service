@@ -35,7 +35,7 @@ public final class ErrorSender {
         try {
             connection.sendMessage(new TextMessage(payload.toString()));
         } catch (IOException e) {
-            log.warn("Could not send notifyError to client {}", connection.getId(), e);
+            log.error("Could not send notifyError to client {}", connection.getId(), e);
         }
     }
 }
