@@ -5,19 +5,15 @@ import ch.so.agi.service.session.MockWebSocketSession;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class KeyChangeSenderTest {
+class KeyChangerTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -30,7 +26,7 @@ class KeyChangeSenderTest {
     void sendKeyChangeHandlesEmptySessionCollection() {
         assertEquals(0, Sessions.allSessions().count());
 
-        (new KeyChangeSender()).sendKeyChange();
+        (new KeyChanger()).sendKeyChange();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -39,7 +35,7 @@ class KeyChangeSenderTest {
     void sendKeyChangeSkipsSessionsWithOnlyV1Connections() {
         Session session = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
 
-        (new KeyChangeSender()).sendKeyChange();
+        (new KeyChanger()).sendKeyChange();
 
         MockWebSocketSession appWebSocket = (MockWebSocketSession) session.getAppWebSocket();
         MockWebSocketSession gisWebSocket = (MockWebSocketSession) session.getGisWebSocket();
@@ -55,7 +51,7 @@ class KeyChangeSenderTest {
         Session mixedAppV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V1);
         Session mixedGisV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V2);
 
-        (new KeyChangeSender()).sendKeyChange();
+        (new KeyChanger()).sendKeyChange();
 
         assertNull(((MockWebSocketSession) v1Only.getAppWebSocket()).getLastSentTextMessage());
         assertNull(((MockWebSocketSession) v1Only.getGisWebSocket()).getLastSentTextMessage());

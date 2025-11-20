@@ -12,13 +12,12 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
-public class KeyChangeSender {
+public class KeyChanger {
 
     private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
-    private static final Logger log = LoggerFactory.getLogger(KeyChangeSender.class);
+    private static final Logger log = LoggerFactory.getLogger(KeyChanger.class);
 
     @Scheduled(fixedDelay = DELAY_MILLIS)
     public void sendKeyChange(){
