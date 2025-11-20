@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract public class Connect extends Message {
+    public static final String SES_READY_METHOD = "notifySessionReady";
 
     private static final String READY_MESSAGE_V1 = """
             {

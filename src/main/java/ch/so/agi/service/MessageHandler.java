@@ -25,14 +25,14 @@ public class MessageHandler {
         } catch (ClientException clientException) {
             Session s = Sessions.findByConnection(sender);
             if(s == null){
-                log.error("Could not find session for the received message - possibly as message is malformed or unknown. Message: '{}'. Exception: {}", message, clientException.toString());
+                log.warn("Could not find session for the received message - possibly as message is malformed or unknown. Message: '{}'. Exception: {}", message, clientException.toString());
             }
             else{
                 if(m == null){
-                    log.error("Session {}: Could not parse the message '{}'. Exception: '{}'", s.getSessionNr(), message, clientException.toString());
+                    log.warn("Session {}: Could not parse the message '{}'. Exception: '{}'", s.getSessionNr(), message, clientException.toString());
                 }
                 else{
-                    log.error("Session {}: Could not execute the message '{}'. Exception: '{}'", s.getSessionNr(), m.getMessageType(), clientException.toString());
+                    log.warn("Session {}: Could not execute the message '{}'. Exception: '{}'", s.getSessionNr(), m.getMessageType(), clientException.toString());
                 }
             }
 

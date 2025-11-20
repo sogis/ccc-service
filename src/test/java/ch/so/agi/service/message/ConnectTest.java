@@ -115,7 +115,7 @@ class ConnectTest {
         assertNotNull(readyMessage);
 
         JsonNode readyNode = mapper.readTree(readyMessage);
-        assertEquals(SessionReady.MESSAGE_TYPE, readyNode.get("method").asText());
+        assertEquals(Connect.SES_READY_METHOD, readyNode.get("method").asText());
         assertEquals(SockConnection.PROTOCOL_V2, readyNode.get("apiVersion").asText());
         assertEquals(session.getGisConnection().getConnectionKey(), readyNode.get("connection_key").asText());
         assertEquals(session.getSessionNr(), readyNode.get("session_nr").asInt());

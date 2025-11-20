@@ -2,15 +2,11 @@ package ch.so.agi.service.message;
 
 import ch.so.agi.service.exception.MessageMalformedException;
 import ch.so.agi.service.exception.MessageUnknownException;
-import ch.so.agi.service.message.app.CancelEditGeoObject;
-import ch.so.agi.service.message.app.ChangeLayerVisibility;
-import ch.so.agi.service.message.app.ConnectApp;
-import ch.so.agi.service.message.app.CreateGeoObject;
-import ch.so.agi.service.message.app.EditGeoObject;
-import ch.so.agi.service.message.app.ObjectUpdated;
+import ch.so.agi.service.message.app.*;
 import ch.so.agi.service.message.gis.ConnectGis;
 import ch.so.agi.service.message.gis.EditGeoObjectDone;
 import ch.so.agi.service.message.gis.GeoObjectSelected;
+import ch.so.agi.service.message.gis.ReconnectGis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +16,6 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Root of all classes that implement ccc-messages.
@@ -70,7 +65,8 @@ abstract public class Message {
         MESSAGE_TYPES.put(EditGeoObject.MESSAGE_TYPE, EditGeoObject.class);
         MESSAGE_TYPES.put(GeoObjectSelected.MESSAGE_TYPE, GeoObjectSelected.class);
         MESSAGE_TYPES.put(ObjectUpdated.MESSAGE_TYPE, ObjectUpdated.class);
-        MESSAGE_TYPES.put(SessionReady.MESSAGE_TYPE, SessionReady.class);
+        MESSAGE_TYPES.put(ReconnectGis.MESSAGE_TYPE, ReconnectGis.class);
+        MESSAGE_TYPES.put(ReconnectApp.MESSAGE_TYPE, ReconnectApp.class);
     }
 
     /**

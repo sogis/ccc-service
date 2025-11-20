@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 public class Sessions {
     private static final Map<WebSocketSession, Session> sessionsBySocket = new HashMap<>();
 
-
     /**
      * Finds the session by the instance of the WebSocketSession of one of the SockConnections of the session.
      * returns null if no session can be found for the connection.
@@ -95,6 +94,25 @@ public class Sessions {
         }
 
         return staleSessions.stream().map(Session::getSessionNr);
+    }
+
+    /**
+     * Returns the session containing the connection represented by the key.
+     * Returns null, if no matching connection is found.
+     */
+    public static Session findByConnectionKey(String key, boolean isApp){
+        Optional<Session> match = sessionsBySocket.values().stream()
+                .filter(ses -> {
+                    if(isApp && ses.getAppConnection() != null){
+                        return ses.getAppConnection().keyEquals(key);
+                    }
+                    else if(!isApp && ses.getGisConnection() != null){
+                        return ses.getGisConnection().keyEquals(key);
+                    }
+                    return false;
+                }).findFirst();
+
+        return match.orElse(null);
     }
 
     /**
