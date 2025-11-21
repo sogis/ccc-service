@@ -63,6 +63,7 @@ abstract public class Message {
         MESSAGE_TYPES.put(CancelEditGeoObject.MESSAGE_TYPE, CancelEditGeoObject.class);
         MESSAGE_TYPES.put(CreateGeoObject.MESSAGE_TYPE, CreateGeoObject.class);
         MESSAGE_TYPES.put(EditGeoObject.MESSAGE_TYPE, EditGeoObject.class);
+        MESSAGE_TYPES.put(ShowGeoObject.MESSAGE_TYPE, ShowGeoObject.class);
         MESSAGE_TYPES.put(GeoObjectSelected.MESSAGE_TYPE, GeoObjectSelected.class);
         MESSAGE_TYPES.put(ObjectUpdated.MESSAGE_TYPE, ObjectUpdated.class);
         MESSAGE_TYPES.put(ReconnectGis.MESSAGE_TYPE, ReconnectGis.class);
