@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Message sent from the domain-application to show an existing object in the GIS-application.
  */
@@ -17,8 +19,10 @@ public class ShowGeoObject extends Message {
     public static final String MESSAGE_TYPE = "showGeoObject";
 
     @JsonProperty("context")
+    @NotNull
     private JsonNode context;
     @JsonProperty("data")
+    @NotNull
     private JsonNode data;
 
     public ShowGeoObject() {

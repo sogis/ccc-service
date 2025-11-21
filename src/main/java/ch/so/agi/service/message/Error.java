@@ -5,14 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
+import jakarta.validation.constraints.NotNull;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Error extends Message {
 
     public static final String MESSAGE_TYPE = "notifyError";
 
     @JsonProperty("code")
+    @NotNull
     private int code;
     @JsonProperty("message")
+    @NotNull
     private String errMessage;
     @JsonProperty("userData")
     private JsonNode userData;

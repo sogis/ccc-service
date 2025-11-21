@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Message sent from the GIS-application to notify the domain-application about a finished recording/editing
  * of an object in the GIS-application.
@@ -20,8 +22,10 @@ public class EditGeoObjectDone extends Message {
     public EditGeoObjectDone(){ super(MESSAGE_TYPE); }
 
     @JsonProperty("context")
+    @NotNull
     private JsonNode context;
     @JsonProperty("data")
+    @NotNull
     private JsonNode data;
 
     public JsonNode getContext() {

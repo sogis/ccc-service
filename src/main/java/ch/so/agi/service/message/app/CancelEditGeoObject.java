@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Message sent from the domain-application to cancel the editing in the GIS-application.
  */
@@ -17,6 +19,7 @@ public class CancelEditGeoObject extends Message {
     public static final String MESSAGE_TYPE = "cancelEditGeoObject";
 
     @JsonProperty("context")
+    @NotNull
     private JsonNode context;
 
     public CancelEditGeoObject() {
