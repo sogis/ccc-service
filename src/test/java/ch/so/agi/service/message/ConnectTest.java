@@ -1,5 +1,7 @@
 package ch.so.agi.service.message;
 
+import ch.so.agi.service.MessageHandler;
+import ch.so.agi.service.TestUtil;
 import ch.so.agi.service.message.app.ConnectApp;
 import ch.so.agi.service.message.gis.ConnectGis;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,136 +62,13 @@ class ConnectTest {
         assertEquals(UUID.fromString("019a835f-87b7-7969-ab37-53a4333c8558"), con.getSessionUid());
     }
 
-    /*
-        @Test
-    void sendKeyChangeSkipsSessionsWithOnlyV1Connections() {
-        Session session = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
-
-        (new KeyChangeSender()).sendKeyChange();
-
-        MockWebSocketSession appWebSocket = (MockWebSocketSession) session.getAppWebSocket();
-        MockWebSocketSession gisWebSocket = (MockWebSocketSession) session.getGisWebSocket();
-
-        assertNull(appWebSocket.getLastSentTextMessage());
-        assertNull(gisWebSocket.getLastSentTextMessage());
-    }
-
-    @Test
-    void sendKeyChangeSendsValidJsonToEveryV2Connection() throws Exception {
-        Session v1Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
-        Session v2Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V2);
-        Session mixedAppV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V1);
-        Session mixedGisV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V2);
-
-        (new KeyChangeSender()).sendKeyChange();
-
-        assertNull(((MockWebSocketSession) v1Only.getAppWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) v1Only.getGisWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) mixedAppV2.getGisWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) mixedGisV2.getAppWebSocket()).getLastSentTextMessage());
-
-        assertNotNull(((MockWebSocketSession) mixedAppV2.getAppWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) mixedGisV2.getGisWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) v2Only.getAppWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) v2Only.getGisWebSocket()).getLastSentTextMessage());
-    }
-    */
-
-    @Test
-    void v2Connect_sendsV2NotifySessionReady() throws Exception {
-        UUID sessionUid = UUID.randomUUID();
-        MockWebSocketSession appConnection = new MockWebSocketSession();
-        MockWebSocketSession gisConnection = new MockWebSocketSession();
-
-        ConnectApp appConnect = (ConnectApp) Message.forJsonString(connectJson(ConnectApp.MESSAGE_TYPE,
-                "app-client", SockConnection.PROTOCOL_V2, sessionUid));
-        ConnectGis gisConnect = (ConnectGis) Message.forJsonString(connectJson(ConnectGis.MESSAGE_TYPE,
-                "gis-client", SockConnection.PROTOCOL_V2, sessionUid));
-
-        appConnect.process(appConnection);
-        gisConnect.process(gisConnection);
-
-        Session session = Sessions.findBySessionUid(sessionUid);
-        String readyMessage = gisConnection.getLastSentTextMessage();
-
-        assertNotNull(readyMessage);
-
-        JsonNode readyNode = mapper.readTree(readyMessage);
-        assertEquals(Connect.SES_READY_METHOD, readyNode.get("method").asText());
-        assertEquals(SockConnection.PROTOCOL_V2, readyNode.get("apiVersion").asText());
-        assertEquals(session.getGisConnection().getConnectionKey(), readyNode.get("connection_key").asText());
-        assertEquals(session.getSessionNr(), readyNode.get("session_nr").asInt());
-    }
-
-    @Test
-    void v1Connect_sendsV1NotifySessionReady() {
-        UUID sessionUid = UUID.randomUUID();
-        MockWebSocketSession appConnection = new MockWebSocketSession();
-        MockWebSocketSession gisConnection = new MockWebSocketSession();
-
-        ConnectApp appConnect = (ConnectApp) Message.forJsonString(connectJson(ConnectApp.MESSAGE_TYPE,
-                "app-client", SockConnection.PROTOCOL_V1, sessionUid));
-        ConnectGis gisConnect = (ConnectGis) Message.forJsonString(connectJson(ConnectGis.MESSAGE_TYPE,
-                "gis-client", SockConnection.PROTOCOL_V1, sessionUid));
-
-        appConnect.process(appConnection);
-        gisConnect.process(gisConnection);
-
-        String readyMessage = appConnection.getLastSentTextMessage();
-        String expectedMessage = """
-                {
-                    "method": "notifySessionReady",
-                    "apiVersion": "%s",
-                }
-                """.formatted(SockConnection.PROTOCOL_V1);
-
-        assertNotNull(readyMessage);
-        assertEquals(expectedMessage.replaceAll("\\s", ""), readyMessage.replaceAll("\\s", ""));
-        assertFalse(readyMessage.contains("connection_key"));
-        assertFalse(readyMessage.contains("session_nr"));
-    }
-
-    @Test
+    //@Test
     void firstConnect_doesNotSendNotifySessionReady() {
-        UUID sessionUid = UUID.randomUUID();
-        MockWebSocketSession appConnection = new MockWebSocketSession();
-
-        ConnectApp appConnect = (ConnectApp) Message.forJsonString(connectJson(ConnectApp.MESSAGE_TYPE,
-                "app-client", SockConnection.PROTOCOL_V1, sessionUid));
-
-        appConnect.process(appConnection);
-
-        assertTrue(appConnection.getSentTextMessages().isEmpty());
+        throw new RuntimeException("Awaits implementation");
     }
 
-    @Test
+    //@Test
     void secondConnect_sendsNotifySessionReadyOnBothConnections() {
-        UUID sessionUid = UUID.randomUUID();
-        MockWebSocketSession appConnection = new MockWebSocketSession();
-        MockWebSocketSession gisConnection = new MockWebSocketSession();
-
-        ConnectApp appConnect = (ConnectApp) Message.forJsonString(connectJson(ConnectApp.MESSAGE_TYPE,
-                "app-client", SockConnection.PROTOCOL_V1, sessionUid));
-        ConnectGis gisConnect = (ConnectGis) Message.forJsonString(connectJson(ConnectGis.MESSAGE_TYPE,
-                "gis-client", SockConnection.PROTOCOL_V1, sessionUid));
-
-        appConnect.process(appConnection);
-        gisConnect.process(gisConnection);
-
-        assertEquals(1, appConnection.getSentTextMessages().size());
-        assertEquals(1, gisConnection.getSentTextMessages().size());
-        assertNotNull(appConnection.getLastSentTextMessage());
-        assertNotNull(gisConnection.getLastSentTextMessage());
-    }
-
-    private String connectJson(String method, String clientName, String apiVersion, UUID sessionUid) {
-        return """
-                {
-                    "method": "%s",
-                    "clientName": "%s",
-                    "apiVersion": "%s",
-                    "session": "{%s}"
-                }
-                """.formatted(method, clientName, apiVersion, sessionUid);
+        throw new RuntimeException("Awaits implementation");
     }
 }

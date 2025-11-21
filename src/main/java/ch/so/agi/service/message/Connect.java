@@ -15,23 +15,6 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract public class Connect extends Message {
-    public static final String SES_READY_METHOD = "notifySessionReady";
-
-    private static final String READY_MESSAGE_V1 = """
-            {
-                "method": "notifySessionReady",
-                "apiVersion": "%s",
-            }
-            """;
-
-    private static final String READY_MESSAGE_V2 = """
-            {
-                "method": "notifySessionReady",
-                "apiVersion": "%s",
-                "connection_key": "%s",
-                "session_nr": %s
-            }
-            """;
 
     public Connect(String messageType){ super(messageType); }
 
@@ -64,8 +47,8 @@ abstract public class Connect extends Message {
         Session s = addClient(sourceConnection);
 
         if(s.getPeerConnection(sourceConnection) != null){
-            sendSessionReady(s.getGisConnection(), s.getSessionNr());
-            sendSessionReady(s.getAppConnection(), s.getSessionNr());
+            SessionReady.send(s.getAppWebSocket());
+            SessionReady.send(s.getGisWebSocket());
 
             log.info("Session {}: Handshake finalized by {} client '{}' using protocol version {}", s.getSessionNr(), clientType(), getClientName(), getApiVersion());
         }
@@ -100,19 +83,6 @@ abstract public class Connect extends Message {
                 throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
         }
         return s;
-    }
-
-    private void sendSessionReady(SockConnection con, int sessionNr){
-        String readyMessage = null;
-        if(SockConnection.PROTOCOL_V2.equals(con.getApiVersion())){
-            readyMessage = READY_MESSAGE_V2;
-            readyMessage = String.format(readyMessage, SockConnection.PROTOCOL_V2, con.getConnectionKey(), sessionNr);
-        }
-        else{ // V1
-            readyMessage = READY_MESSAGE_V1;
-            readyMessage = String.format(readyMessage, SockConnection.PROTOCOL_V1);
-        }
-        con.sendMessage(readyMessage);
     }
 
     /**
