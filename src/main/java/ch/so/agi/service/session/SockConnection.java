@@ -74,6 +74,9 @@ public class SockConnection {
         return key.getKeyString();
     }
 
+    /**
+     * Synchronized sending of the message
+     */
     public synchronized void sendMessage(String message){
         TextMessage msg = new TextMessage(message);
         try {

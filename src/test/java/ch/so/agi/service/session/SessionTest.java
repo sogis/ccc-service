@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SessionTest {
 
     @Test
-    void secondConnectionAddedWithinHandshakeWindow() {
+    void secondConnectionAcceptedWithinHandshakeWindow() {
         UUID sessionUid = UUID.randomUUID();
         MockWebSocketSession gisWebSocket = new MockWebSocketSession();
         SockConnection gisConnection = new SockConnection("gis-client", "1.0", gisWebSocket);

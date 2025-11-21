@@ -6,17 +6,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Sessions {
-    private static final Map<WebSocketSession, Session> sessionsBySocket = new HashMap<>();
+    private static final Map<WebSocketSession, Session> sessionsBySocket = new ConcurrentHashMap<>();
 
     /**
      * Finds the session by the instance of the WebSocketSession of one of the SockConnections of the session.
      * returns null if no session can be found for the connection.
      */
-    public static synchronized Session findByConnection(WebSocketSession webSocketSession) {
+    public static Session findByConnection(WebSocketSession webSocketSession) {
         if (webSocketSession == null) {
             return null;
         }
@@ -27,7 +29,7 @@ public class Sessions {
      * Finds the session using the given uid of the session.
      * Returns null if the session is not found.
      */
-    public static synchronized Session findBySessionUid(UUID sessionUid) {
+    public static Session findBySessionUid(UUID sessionUid) {
         if (sessionUid == null) {
             return null;
         }
@@ -45,7 +47,7 @@ public class Sessions {
      * Adds a session to the sessions collection and removes
      * any previous occurrences of the session in the collection.
      */
-    public static synchronized void addOrReplace(Session s){
+    public static void addOrReplace(Session s){
         if(s == null)
             return;
 
@@ -64,7 +66,7 @@ public class Sessions {
         }
     }
 
-    private static synchronized void removeSession(Session s){
+    private static void removeSession(Session s){
         sessionsBySocket.remove(s.getGisWebSocket());
         sessionsBySocket.remove(s.getAppWebSocket());
     }
@@ -72,7 +74,7 @@ public class Sessions {
     /**
      * Returns all Sessions currently present in the session collection
      */
-    public static synchronized Stream<Session> allSessions(){
+    public static Stream<Session> allSessions(){
         return sessionsBySocket.values().stream().distinct();
     }
 
@@ -83,7 +85,7 @@ public class Sessions {
      * - The maximum delay for finishing the handshake is exceeded
      * Returns a Stream containing the returned session numbers
      */
-    public static synchronized Stream<Integer> removeStaleSessions() {
+    public static Stream<Integer> removeStaleSessions() {
         List<Session> staleSessions = Sessions.allSessions()
                 .filter(session -> (session.hasClosedConnections() || session.handShakeExceeded()))
                 .sorted().toList();
