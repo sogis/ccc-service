@@ -22,7 +22,7 @@
 {
     "method": "changeLayerVisibility",
     "data": {
-        "layer_identifier": "ch.so.afu.abbaustellen",
+        "layerIdentifier": "ch.so.afu.abbaustellen",
         "visible": true
     }
 }
@@ -81,10 +81,10 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 
 ```json
 {
-    "session_key": "{d9e1e112-73f2-4797-9346-35fce16b6c40}",
-    "session_nr": 3,
-    "gis_key": "U2FsdGVkX1+Hd3MABxVKN7RGzwLHBOydEWeFwyaV7PE=",
-    "app_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
+    "sessionKey": "{d9e1e112-73f2-4797-9346-35fce16b6c40}",
+    "sessionNr": 3,
+    "gisKey": "U2FsdGVkX1+Hd3MABxVKN7RGzwLHBOydEWeFwyaV7PE=",
+    "appKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
@@ -100,7 +100,7 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 ```json
 {
     "method": "reconnect",
-    "old_connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
+    "oldConnectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
@@ -113,7 +113,7 @@ Falls das reconnect vom CCC-Server akzeptiert wird, sendet dieser in der Folge e
 ```json
 {
     "method": "keyChange",
-    "new_connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
+    "newConnectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
 }
 ```
 
@@ -129,8 +129,8 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 {
     "apiVersion": "2.0",
     "method": "notifySessionReady",
-    "connection_key": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
-    "session_nr": 3
+    "connectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
+    "sessionNr": 3
 }
 ```
 
