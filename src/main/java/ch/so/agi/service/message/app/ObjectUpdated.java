@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Message sent from the domain-application to notify a change of a domain object.
  */
@@ -17,6 +19,7 @@ public class ObjectUpdated extends Message {
     public static final String MESSAGE_TYPE = "notifyObjectUpdated";
 
     @JsonProperty("properties")
+    @NotNull
     private JsonNode properties;
 
     public ObjectUpdated() {
