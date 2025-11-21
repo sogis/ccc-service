@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Message sent from the GIS-application to notify that the user selected an object.
@@ -18,8 +18,6 @@ public class GeoObjectSelected extends Message {
 
     public static final String MESSAGE_TYPE = "notifyGeoObjectSelected";
 
-    @JsonProperty("context_list")
-    @NotNull
     private JsonNode contextList;
 
     public GeoObjectSelected() {
@@ -28,6 +26,14 @@ public class GeoObjectSelected extends Message {
 
     public JsonNode getContextList() {
         return contextList;
+    }
+
+    @JsonProperty("context_list")
+    public void setContextList(JsonNode list) {
+        if (list != null && !list.isArray()) {
+            throw new IllegalArgumentException("context_list must be an array");
+        }
+        this.contextList = list;
     }
 
     @Override

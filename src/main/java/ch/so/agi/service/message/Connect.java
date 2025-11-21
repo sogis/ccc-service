@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 import java.util.UUID;
 
@@ -35,13 +35,13 @@ abstract public class Connect extends Message {
 
     public Connect(String messageType){ super(messageType); }
 
-    @NotNull
+    @Nonnull
     private UUID sessionUid;
     @JsonProperty()
-    @NotNull
+    @Nonnull
     private String clientName;
     @JsonProperty()
-    @NotNull
+    @Nonnull
     private String apiVersion;
 
     @JsonProperty("session") // needed to call uidFromString(...)

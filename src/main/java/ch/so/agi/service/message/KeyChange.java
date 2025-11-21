@@ -7,7 +7,7 @@ public class KeyChange {
     private static final String KEY_CHANGE = """
             {
                 "method": "keyChange",
-                "new_connection_key": "%s",
+                "newConnectionKey": "%s",
             }
             """;
 

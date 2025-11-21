@@ -6,6 +6,7 @@ import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,9 +19,11 @@ public abstract class Reconnect extends Message {
     private static final Logger log = LoggerFactory.getLogger(Reconnect.class);
 
     @JsonProperty()
+    @Nonnull
     private String oldConnectionKey;
 
     @JsonProperty()
+    @Nonnull
     private int oldSessionNumber;
 
     public Reconnect(String methodType) {

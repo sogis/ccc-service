@@ -5,6 +5,7 @@ import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import jakarta.annotation.Nonnull;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
@@ -14,8 +15,10 @@ public class ChangeLayerVisibility extends Message {
 
     public static final String MESSAGE_TYPE = "changeLayerVisibility";
 
+    @Nonnull
     private String layerIdentifier;
-    private boolean visible;
+    @Nonnull
+    private Boolean visible;
 
     public ChangeLayerVisibility(){ super(MESSAGE_TYPE); }
 
@@ -30,7 +33,7 @@ public class ChangeLayerVisibility extends Message {
         return layerIdentifier;
     }
 
-    public boolean isVisible() {
+    public Boolean isVisible() {
         return visible;
     }
 

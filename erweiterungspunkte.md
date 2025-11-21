@@ -5,6 +5,9 @@
     * mandatory felder fehlen?
 * Integration test mit effektiver spring boot applikation laufend machen - Siehe SocketHandlerTest
 * Naming der neuen Methoden auf camelcase anpassen
+* notifySessionReady in Message auslagern, damit nonnull klar ist
+  * "apiVersion" ist mandatory
+  * 
 
 Fr: 17:00 - 21:00
 Sa: 9:45 - 12:15

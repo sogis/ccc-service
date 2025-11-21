@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Message sent from the domain-application to start recording a new object in the GIS-application.
@@ -19,10 +19,9 @@ public class CreateGeoObject extends Message {
     public static final String MESSAGE_TYPE = "createGeoObject";
 
     @JsonProperty("context")
-    @NotNull
+    @Nonnull
     private JsonNode context;
     @JsonProperty("zoomTo")
-    @NotNull
     private JsonNode zoomTo;
 
     public CreateGeoObject() {

@@ -10,6 +10,7 @@ import ch.so.agi.service.message.gis.ReconnectGis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
@@ -29,6 +30,7 @@ abstract public class Message {
     protected static final String GIS_CLIENT_TYPENAME = "gis";
     protected static final String APP_CLIENT_TYPENAME = "app";
 
+    @Nonnull
     private final String messageType;
 
     /**
