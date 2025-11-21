@@ -7,4 +7,9 @@ public class ConnectApp extends Connect {
     ConnectApp(){
         super(MESSAGE_TYPE);
     }
+
+    @Override
+    protected String clientType() {
+        return APP_CLIENT_TYPENAME;
+    }
 }

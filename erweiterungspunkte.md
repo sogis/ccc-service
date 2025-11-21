@@ -1,6 +1,10 @@
 # Weiterfahren
 
-
+* Edge cases der messages:
+    * nur mandatory felder übergeben
+    * mandatory felder fehlen?
+* Integration test mit effektiver spring boot applikation laufend machen - Siehe SocketHandlerTest
+* Naming der neuen Methoden auf camelcase anpassen
 
 Fr: 17:00 - 21:00
 Sa: 9:45 - 12:15
@@ -26,7 +30,7 @@ GIS - Server - App.
 
 ### RouteCollection
 
-Umfasst alle aktiven Routen und bietet Hilfsfunktionen, um 
+Umfasst alle aktiven Routen und bietet Hilfsfunktionen, um
 
 ### SocketHandler (Erweiterung der Spring-Klasse TextWebSocketHandler)
 
@@ -36,8 +40,8 @@ Erstellt für jede ankommende Nachricht eine Message und ruft deren process() Me
 
 * SocketHandler.handleMessage()
 * EditGeoObject.process()
-  * Finden der Route mittels der übergebenen Spring WebSocketSession der App-Connection
-  * Weiterleiten der Nachricht auf die WebSocketSession der GIS-Connection
+    * Finden der Route mittels der übergebenen Spring WebSocketSession der App-Connection
+    * Weiterleiten der Nachricht auf die WebSocketSession der GIS-Connection
 
 
 
@@ -46,7 +50,7 @@ Erstellt für jede ankommende Nachricht eine Message und ruft deren process() Me
 ## reconnect und keyChange
 
 * SessionId erweitern.
-    SessionId ist aktuell die Session. Erweitern auf Session mit den erforderlichen Properties
+  SessionId ist aktuell die Session. Erweitern auf Session mit den erforderlichen Properties
 * SessionPool: Versuchen zu verstehen, wieso die Connections, die SessionId und der SessionState nicht Teil der Session-Klasse sind. Dazu prüfen, wo und für was die verschiedenen Hashes verwendet werden.
 * BackgroundService: Verstehen, ob es OK ist, im BackgroudService den KeyChange zu implementieren. Risiko RaceCondition und Multithreading.
 

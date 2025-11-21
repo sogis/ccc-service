@@ -2,8 +2,6 @@ package ch.so.agi.service.message;
 
 import ch.so.agi.service.exception.ConnectionRepeatException;
 import ch.so.agi.service.exception.HandshakeToLateException;
-import ch.so.agi.service.message.Message;
-import ch.so.agi.service.message.gis.ConnectGis;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -64,29 +62,35 @@ abstract public class Connect extends Message {
             sendSessionReady(s.getGisConnection(), s.getSessionNr());
             sendSessionReady(s.getAppConnection(), s.getSessionNr());
 
-            log.info("Session {}: Handshake finalized by gis client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
+            log.info("Session {}: Handshake finalized by {} client '{}' using protocol version {}", s.getSessionNr(), clientType(), getClientName(), getApiVersion());
         }
         else{
-            log.info("Session {}: Handshake initialized by gis client '{}' using protocol version {}", s.getSessionNr(), getClientName(), getApiVersion());
+            log.info("Session {}: Handshake initialized by {} client '{}' using protocol version {}", s.getSessionNr(), clientType(), getClientName(), getApiVersion());
         }
     }
 
+    /**
+     * Type of the connecting client (app or gis). To be implemented in the subclasses
+     */
+    protected abstract String clientType();
+
+    protected boolean isAppClient(){
+        return APP_CLIENT_TYPENAME.equals(clientType());
+    }
+
     private Session addClient(WebSocketSession sourceConnection) {
-        boolean isAppConnection = true;
-        if(ConnectGis.MESSAGE_TYPE.equals(getMessageType()))
-            isAppConnection = false;
 
         SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
         Session s = Sessions.findBySessionUid(sessionUid);
         if(s == null){
-            s = new Session(sessionUid, con, isAppConnection);
+            s = new Session(sessionUid, con, isAppClient());
             Sessions.addOrReplace(s);
         }
         else if(Sessions.findByConnection(sourceConnection) != null) {
             throw new ConnectionRepeatException("Connect could not be executed as client is already connected");
         }
         else {
-            boolean inTime = s.tryToAddSecondConnection(con, isAppConnection);
+            boolean inTime = s.tryToAddSecondConnection(con, isAppClient());
             if(!inTime)
                 throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
         }

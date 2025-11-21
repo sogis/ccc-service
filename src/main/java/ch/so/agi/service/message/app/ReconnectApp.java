@@ -7,5 +7,10 @@ public class ReconnectApp extends Reconnect {
     public ReconnectApp(){
         super(MESSAGE_TYPE);
     }
+
+    @Override
+    protected String clientType() {
+        return APP_CLIENT_TYPENAME;
+    }
 }
 

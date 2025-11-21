@@ -7,4 +7,9 @@ public class ConnectGis extends Connect {
     ConnectGis(){
         super(MESSAGE_TYPE);
     }
+
+    @Override
+    protected String clientType() {
+        return GIS_CLIENT_TYPENAME;
+    }
 }

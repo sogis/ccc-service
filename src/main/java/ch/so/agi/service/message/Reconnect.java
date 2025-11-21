@@ -1,8 +1,6 @@
 package ch.so.agi.service.message;
 
-import ch.so.agi.service.exception.ClientException;
 import ch.so.agi.service.exception.ForbiddenReconnectException;
-import ch.so.agi.service.message.app.ReconnectApp;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import ch.so.agi.service.session.SockConnection;
@@ -16,7 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
  * Message sent from app or gis to reconnect after an unexpectedly closed connection
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Reconnect extends Message {
+public abstract class Reconnect extends Message {
     private static final Logger log = LoggerFactory.getLogger(Reconnect.class);
 
     @JsonProperty()
@@ -29,23 +27,27 @@ public class Reconnect extends Message {
         super(methodType);
     }
 
+    /**
+     * Type of the connecting client (app or gis). To be implemented in the subclasses
+     */
+    protected abstract String clientType();
+
+    protected boolean isAppClient(){
+        return APP_CLIENT_TYPENAME.equals(clientType());
+    }
+
     @Override
     public void process(WebSocketSession sourceConnection) {
-        boolean appReconnect = (this instanceof ReconnectApp);
-        String clientName = "App";
-        if(appReconnect)
-            clientName = "Gis";
-
-        Session s = Sessions.findByConnectionKey(oldConnectionKey, appReconnect);
+        Session s = Sessions.findByConnectionKey(oldConnectionKey, isAppClient());
         if(s == null){
-            sendErrorMessage(sourceConnection, clientName);
+            sendErrorMessage(sourceConnection, clientType());
             return;
         }
 
         s.assertConnected();
 
         SockConnection con = s.getAppConnection();
-        if(!appReconnect)
+        if(!isAppClient())
             con = s.getGisConnection();
 
         if(SockConnection.PROTOCOL_V1.equals(con.getApiVersion()))
@@ -53,7 +55,7 @@ public class Reconnect extends Message {
 
         con.switchToNewWebSocketCon(sourceConnection);
 
-        log.info("Session {}: {} reconnected.", s.getSessionNr(), clientName);
+        log.info("Session {}: {} reconnected.", s.getSessionNr(), clientType());
     }
 
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {

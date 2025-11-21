@@ -26,6 +26,9 @@ abstract public class Message {
         this.messageType = messageType;
     }
 
+    protected static final String GIS_CLIENT_TYPENAME = "gis";
+    protected static final String APP_CLIENT_TYPENAME = "app";
+
     private final String messageType;
 
     /**
