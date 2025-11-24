@@ -4,39 +4,68 @@ import ch.so.agi.service.JsonStringAssertions;
 import ch.so.agi.service.MessageHandler;
 import ch.so.agi.service.TestUtil;
 import ch.so.agi.service.message.Message;
+import ch.so.agi.service.message.gis.EditGeoObjectDone;
 import ch.so.agi.service.session.Session;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class CreateGeoObjectTest {
 
     private static final String MESSAGE = """
             {
                 "method": "createGeoObject",
-                "context": {"afu_geschaeft": "3671951"},
-                "zoomTo": {"gemeinde": 2542}
+                "context": %s,
+                "zoomTo": %s
             }
             """;
 
-    @Test
-    void validJson_parses() {
-        CreateGeoObject msg = (CreateGeoObject) Message.forJsonString(MESSAGE);
-
-        String context = """
+    private static final String CONTEXT = """
                 {"afu_geschaeft": "3671951"}
-                """;
-        JsonStringAssertions.jsonStringEquals(context, msg.getContext().toString());
+            """;
 
-        String zoomTo = """
+    private static final String ZOOM_TO = """
                 {"gemeinde": 2542}
-                """;
-        JsonStringAssertions.jsonStringEquals(zoomTo, msg.getZoomTo().toString());
+            """;
+
+    private static final String NULL = """
+                null
+            """;
+
+    @Test
+    void missingContext_Throws(){
+        String msg = String.format(MESSAGE, NULL, ZOOM_TO);
+
+        assertThrows(ConstraintViolationException.class, () -> Message.forJsonString(msg));
+    }
+
+    @Test
+    void onlyMandatoryFields_Parses(){
+        String msg = String.format(MESSAGE, CONTEXT, NULL);
+
+        CreateGeoObject create = (CreateGeoObject) Message.forJsonString(msg);
+
+        JsonStringAssertions.jsonStringEquals(CONTEXT, create.getContext().toString());
+        assertTrue(create.getZoomTo().isNull());
+    }
+
+    @Test
+    void mandatoryAndOptionalFields_Parses(){
+        String msg = String.format(MESSAGE, CONTEXT, ZOOM_TO);
+
+        CreateGeoObject create = (CreateGeoObject) Message.forJsonString(msg);
+
+        JsonStringAssertions.jsonStringEquals(CONTEXT, create.getContext().toString());
+        JsonStringAssertions.jsonStringEquals(ZOOM_TO, create.getZoomTo().toString());
     }
 
     @Test
     void process_OK() {
         Session s = TestUtil.initSession();
-        MessageHandler.handleMessage(s.getAppWebSocket(), MESSAGE);
+        String msg = String.format(MESSAGE, CONTEXT, NULL);
 
-        JsonStringAssertions.sentMessageEquals(MESSAGE, s.getGisWebSocket());
+        MessageHandler.handleMessage(s.getAppWebSocket(), msg);
+        JsonStringAssertions.sentMessageEquals(msg, s.getGisWebSocket());
     }
 }

@@ -5,38 +5,67 @@ import ch.so.agi.service.MessageHandler;
 import ch.so.agi.service.TestUtil;
 import ch.so.agi.service.message.Message;
 import ch.so.agi.service.session.Session;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class EditGeoObjectDoneTest {
 
     private static final String MESSAGE = """
         {
             "method": "notifyEditGeoObjectDone",
-            "context": { "afu_geschaeft": 3671951 },
-            "data": { "type": "Point", "coordinates": [2609190,1226652] }
+            "context": %s,
+            "data": %s
         }
         """;
 
+    private static final String CONTEXT = """
+        { "afu_geschaeft": 3671951 }
+        """;
+
+    private static final String DATA = """
+        { "type": "Point", "coordinates": [2609190,1226652] }
+        """;
+
+    private static final String NULL = """
+        null
+        """;
+
     @Test
-    void validJson_parses() {
-        EditGeoObjectDone msg = (EditGeoObjectDone) Message.forJsonString(MESSAGE);
+    void missingContext_throws(){
+        String msg = String.format(MESSAGE, NULL, DATA);
 
-        String context = """
-                { "afu_geschaeft": 3671951 }
-                """;
-        JsonStringAssertions.jsonStringEquals(context, msg.getContext().toString());
+        assertThrows(ConstraintViolationException.class, () -> Message.forJsonString(msg));
+    }
 
-        String data = """
-                { "type": "Point", "coordinates": [2609190,1226652] }
-                """;
-        JsonStringAssertions.jsonStringEquals(data, msg.getData().toString());
+    @Test
+    void onlyMandatoryFields_parses(){
+        String msg = String.format(MESSAGE, CONTEXT, NULL);
+
+        EditGeoObjectDone done = (EditGeoObjectDone) Message.forJsonString(msg);
+
+        JsonStringAssertions.jsonStringEquals(CONTEXT, done.getContext().toString());
+        assertTrue(done.getData().isNull());
+    }
+
+    @Test
+    void mandatoryAndOptionalFields_parses(){
+        String msg = String.format(MESSAGE, CONTEXT, DATA);
+
+        EditGeoObjectDone done = (EditGeoObjectDone) Message.forJsonString(msg);
+
+        JsonStringAssertions.jsonStringEquals(CONTEXT, done.getContext().toString());
+        JsonStringAssertions.jsonStringEquals(DATA, done.getData().toString());
     }
 
     @Test
     void process_OK(){
         Session s = TestUtil.initSession();
-        MessageHandler.handleMessage(s.getGisWebSocket(), MESSAGE);
+        String msg = String.format(MESSAGE, CONTEXT, NULL);
 
-        JsonStringAssertions.sentMessageEquals(MESSAGE, s.getAppWebSocket());
+        MessageHandler.handleMessage(s.getGisWebSocket(), msg);
+
+        JsonStringAssertions.sentMessageEquals(msg, s.getAppWebSocket());
     }
 }

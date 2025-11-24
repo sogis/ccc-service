@@ -5,7 +5,7 @@ import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
@@ -15,9 +15,9 @@ public class ChangeLayerVisibility extends Message {
 
     public static final String MESSAGE_TYPE = "changeLayerVisibility";
 
-    @Nonnull
+    @NotNull
     private String layerIdentifier;
-    @Nonnull
+    @NotNull
     private Boolean visible;
 
     public ChangeLayerVisibility(){ super(MESSAGE_TYPE); }

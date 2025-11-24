@@ -10,13 +10,15 @@ import ch.so.agi.service.message.gis.ReconnectGis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Root of all classes that implement ccc-messages.
@@ -30,7 +32,7 @@ abstract public class Message {
     protected static final String GIS_CLIENT_TYPENAME = "gis";
     protected static final String APP_CLIENT_TYPENAME = "app";
 
-    @Nonnull
+    @NotNull
     private final String messageType;
 
     /**
@@ -40,7 +42,15 @@ abstract public class Message {
      */
     private String rawMessage;
 
+    protected static final Validator validator;
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    static {
+        try(ValidatorFactory factory = Validation.buildDefaultValidatorFactory()){
+            validator = factory.getValidator();
+        }
+    }
 
     public String getRawMessage() {
         return rawMessage;
@@ -96,7 +106,13 @@ abstract public class Message {
             }
 
             // Deserialize into the discovered subclass
-            return mapper.readValue(json, targetType);
+            Message m = mapper.readValue(json, targetType);
+
+            Set<ConstraintViolation<Message>> violations = validator.validate(m);
+            if(!violations.isEmpty())
+                throw new ConstraintViolationException(violations);
+
+            return m;
         }
         catch(JsonProcessingException e){
             throw new MessageMalformedException("Sent json is malformed or does not comply to the ccc specification. Message was: " + json, e);

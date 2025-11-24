@@ -67,8 +67,11 @@ public class Sessions {
     }
 
     private static void removeSession(Session s){
-        sessionsBySocket.remove(s.getGisWebSocket());
-        sessionsBySocket.remove(s.getAppWebSocket());
+        if(s.getGisWebSocket() != null)
+            sessionsBySocket.remove(s.getGisWebSocket());
+
+        if(s.getAppWebSocket() != null)
+            sessionsBySocket.remove(s.getAppWebSocket());
     }
 
     /**

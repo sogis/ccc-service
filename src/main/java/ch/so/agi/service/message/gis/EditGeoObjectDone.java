@@ -1,6 +1,7 @@
 package ch.so.agi.service.message.gis;
 
 import ch.so.agi.service.message.Message;
+import ch.so.agi.service.message.validation.NotTheNullNode;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Message sent from the GIS-application to notify the domain-application about a finished recording/editing
@@ -22,7 +23,7 @@ public class EditGeoObjectDone extends Message {
     public EditGeoObjectDone(){ super(MESSAGE_TYPE); }
 
     @JsonProperty("context")
-    @Nonnull
+    @NotTheNullNode
     private JsonNode context;
     @JsonProperty("data")
     private JsonNode data;

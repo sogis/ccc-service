@@ -1,14 +1,13 @@
 package ch.so.agi.service.message.app;
 
 import ch.so.agi.service.message.Message;
+import ch.so.agi.service.message.validation.NotTheNullNode;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Message sent from the domain-application to cancel the editing in the GIS-application.
@@ -23,10 +22,9 @@ public class CancelEditGeoObject extends Message {
     }
 
     @JsonProperty("context")
-    @Nonnull
+    @NotTheNullNode
     private JsonNode context;
 
-    @Nonnull
     public JsonNode getContext() {
         return context;
     }

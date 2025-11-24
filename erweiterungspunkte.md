@@ -1,18 +1,5 @@
 # Weiterfahren
 
-* ConnectTest fertigstellen
-* Edge cases der messages:
-    * nur mandatory felder übergeben
-    * mandatory felder fehlen?
-    * Todos
-      * nonnull assertions aktivieren (beanvalidation - wahrscheinlich in der Methode Message.fromJson())
-      * Tests ergänzen: Weglassen der optionalen muss auch erfolgreich sein
-* Integration test mit effektiver spring boot applikation laufend machen - Siehe SocketHandlerTest
-
-* Fr: 17:00 - 21:00
-Sa: 9:45 - 12:15
-
-
 # Codeänderungen für die SEIN-Ereiterungen
 
 ## Verantwortung und Beziehung der grundlegenden Klassen

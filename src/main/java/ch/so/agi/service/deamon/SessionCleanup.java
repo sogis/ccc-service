@@ -16,6 +16,13 @@ public class SessionCleanup {
     private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
     private static final Logger log = LoggerFactory.getLogger(SessionCleanup.class);
 
+    public SessionCleanup(){
+        log.info(
+                "Session cleanup service started. Will cleanup stale sessions every {} seconds.",
+                Duration.ofMillis(DELAY_MILLIS).toSeconds()
+        );
+    }
+
     @Scheduled(fixedDelay = DELAY_MILLIS)
     public void removeStaleSessions(){
 
@@ -23,8 +30,7 @@ public class SessionCleanup {
 
         String cleanedSessions = sesNrStream.stream().map(String::valueOf).collect(Collectors.joining(", "));
 
-        log.info("Woke after sleeping {} sec. Closed and removed {} stale sessions. Session numbers: [{}].",
-                Duration.ofMillis(DELAY_MILLIS).toSeconds(),
+        log.info("Closed and removed {} stale sessions. Session numbers: [{}].",
                 sesNrStream.size(),
                 cleanedSessions);
     }

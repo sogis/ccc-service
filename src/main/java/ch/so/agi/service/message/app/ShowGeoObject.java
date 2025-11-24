@@ -1,6 +1,7 @@
 package ch.so.agi.service.message.app;
 
 import ch.so.agi.service.message.Message;
+import ch.so.agi.service.message.validation.NotTheNullNode;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Message sent from the domain-application to show an existing object in the GIS-application.
@@ -19,10 +20,10 @@ public class ShowGeoObject extends Message {
     public static final String MESSAGE_TYPE = "showGeoObject";
 
     @JsonProperty("context")
-    @Nonnull
+    @NotTheNullNode
     private JsonNode context;
     @JsonProperty("data")
-    @Nonnull
+    @NotTheNullNode
     private JsonNode data;
 
     public ShowGeoObject() {

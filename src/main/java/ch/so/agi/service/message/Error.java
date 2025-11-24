@@ -1,11 +1,13 @@
 package ch.so.agi.service.message;
 
+import ch.so.agi.service.session.Session;
+import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Error extends Message {
@@ -13,10 +15,10 @@ public class Error extends Message {
     public static final String MESSAGE_TYPE = "notifyError";
 
     @JsonProperty("code")
-    @Nonnull
+    @NotNull
     private int code;
     @JsonProperty("message")
-    @Nonnull
+    @NotNull
     private String errMessage;
     @JsonProperty("userData")
     private JsonNode userData;
@@ -40,24 +42,34 @@ public class Error extends Message {
         return userData;
     }
 
-    @Override
-    public String getRawMessage() {
-        return errMessage;
-    }
-
     public int getCode() {
         return code;
     }
 
+    public String getErrMessage() {
+        return errMessage;
+    }
+
     @Override
     public void process(WebSocketSession sourceConnection) {
-        /*
-        Session s = requireSession(sourceConnection);
+        Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
-        SockConnection destination = s.getPeerConnection(sourceConnection);
-        destination.sendMessage(getRawMessage());
-        log.info("Session {}: Sent error message '{}' to {}", s.getSessionNr(), errMessage, destination.getClientName());
+        s.getPeerConnection(sourceConnection).sendMessage(getRawMessage());
 
-         */
+        String source = "app";
+        String destination = "gis";
+        if(!sourceConnection.equals(s.getAppWebSocket())){
+            source = "gis";
+            destination = "app";
+        }
+
+        log.info(
+                "Session {}: Sent error from {} to {}. Errorcode: {}. Errormessage: {}",
+                s.getSessionNr(),
+                source,
+                destination,
+                getCode(),
+                getErrMessage()
+        );
     }
 }

@@ -19,6 +19,13 @@ public class KeyChanger {
     private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
     private static final Logger log = LoggerFactory.getLogger(KeyChanger.class);
 
+    public KeyChanger(){
+        log.info(
+                "Keychange service started. Will send keychanges to v2 clients every {} seconds.",
+                Duration.ofMillis(DELAY_MILLIS).toSeconds()
+        );
+    }
+
     @Scheduled(fixedDelay = DELAY_MILLIS)
     public void sendKeyChange(){
         List<Session> v2Sessions = Sessions.allSessions()
@@ -34,9 +41,10 @@ public class KeyChanger {
                 .map(ses -> Integer.toString(ses.getSessionNr()))
                 .collect(Collectors.joining(", "));;
 
-        log.info("Woke after sleeping {} sec. Sent keychange to the v2 connections of {} sessions. Session numbers: [{}].",
-                Duration.ofMillis(DELAY_MILLIS).toSeconds(),
+        log.info(
+                "Sent keychange to the v2 connections of {} sessions. Session numbers: [{}].",
                 v2Sessions.size(),
-                v2SessionsString);
+                v2SessionsString
+        );
     }
 }

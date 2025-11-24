@@ -21,6 +21,7 @@ import java.util.Vector;
  * both running on the same machine for one user.
  */
 public class Session implements Comparable{
+    private static final int HANDSHAKE_MAXDURATION_MILLIS = 60 * 1000;
     private static final Logger log = LoggerFactory.getLogger(Session.class);
     /**
      * Maximum delay accepted between start and finish of the handshake
@@ -88,7 +89,7 @@ public class Session implements Comparable{
             this.gisConnection = connection;
         this.sessionNr = getNextSessionNr();
         this.handShakeInitialized = LocalDateTime.now();
-        this.handShakeMaxDuration = Duration.ofSeconds(60);
+        this.handShakeMaxDuration = Duration.ofMillis(HANDSHAKE_MAXDURATION_MILLIS);
     }
 
     public WebSocketSession getAppWebSocket(){
@@ -155,7 +156,7 @@ public class Session implements Comparable{
     /**
      * Setter for the unit tests
      */
-    void setHandShakeMaxDuration(Duration d){
+    public void setHandShakeMaxDuration(Duration d){
         this.handShakeMaxDuration = d;
     }
 

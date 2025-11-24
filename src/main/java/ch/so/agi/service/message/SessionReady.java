@@ -6,6 +6,7 @@ import ch.so.agi.service.session.SockConnection;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
@@ -23,6 +24,7 @@ public class SessionReady {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final String method = METHOD_TYPE; // Constant
+    @NotNull
     private String apiVersion;
     private String connectionKey;
     private Integer sessionNr;

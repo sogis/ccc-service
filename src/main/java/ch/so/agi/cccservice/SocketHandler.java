@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /** Maps the incoming web socket messages to ccc-server functionality.
  */
-@Component
+//@Component
 public class SocketHandler extends TextWebSocketHandler {
 
     private static final String MDC_KEY_SESSIONID = "ccc.sessionid";
@@ -33,7 +33,7 @@ public class SocketHandler extends TextWebSocketHandler {
     private ScheduledExecutorService executorService=Executors.newScheduledThreadPool(1);
 
 
-    @Autowired
+    //@Autowired
     public SocketHandler(SessionPool sessionPool, Service service, SocketSender socketSender, JsonConverter jsonConverter) {
         this.sessionPool = sessionPool;
         this.service = service;

@@ -6,9 +6,10 @@ import ch.so.agi.service.session.Sessions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Message sent from the GIS-application to notify that the user selected an object.
@@ -30,9 +31,15 @@ public class GeoObjectSelected extends Message {
 
     @JsonProperty("context_list")
     public void setContextList(JsonNode list) {
-        if (list != null && !list.isArray()) {
-            throw new IllegalArgumentException("context_list must be an array");
+        if(list == null){
+            throw new IllegalArgumentException("JsonNode must not be java null");
         }
+
+        if(!list.isNull()){
+            if(!list.isArray())
+                throw new IllegalArgumentException("context_list must either be a json array or json null");
+        }
+
         this.contextList = list;
     }
 

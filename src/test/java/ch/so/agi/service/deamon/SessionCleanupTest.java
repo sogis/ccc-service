@@ -49,4 +49,31 @@ class SessionCleanupTest {
 
         assertEquals(1, Sessions.allSessions().count());
     }
+
+    @Test
+    void peerConnectionClosedAfterCleanup() throws IOException {
+        Session s = TestUtil.initSession();
+        s.getAppWebSocket().close();
+
+        (new SessionCleanup()).removeStaleSessions();
+
+        assertFalse(s.getGisWebSocket().isOpen());
+    }
+
+    @Test
+    void connectionClosedAfterHandshakeExpiryAndCleanup(){
+        Session s = TestUtil.openSession(true);
+        s.setHandShakeMaxDuration(Duration.ofMillis(10));
+
+        TestUtil.wait(20);
+
+        (new SessionCleanup()).removeStaleSessions();
+
+        assertFalse(s.getAppWebSocket().isOpen());
+    }
+
+    /*
+    -- peer closed after cleanup
+    -- connector closed after handshake timeout
+     */
 }
