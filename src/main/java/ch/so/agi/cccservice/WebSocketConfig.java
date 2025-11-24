@@ -1,6 +1,6 @@
 package ch.so.agi.cccservice;
 
-import ch.so.agi.service.CCCWebSocketHandler;
+import ch.so.agi.cccservice.deamon.KeyChanger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.client.standard.WebSocketContainerFactoryBean;

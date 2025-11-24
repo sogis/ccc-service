@@ -1,5 +1,21 @@
 # Weiterfahren
 
+* Ready probe migrieren und optimieren
+  * Alles inkl. controller in eigenes Package "probe" oder "http"
+  * Ggf kleine welcome-page auf root-pfad
+  * Falls möglich nicht bei jedem aufruf der probe eine neue session öffnen (wegen sessionnr "inflation")
+* Session kill implementieren (Jeweils um 3 uhr morgens)
+* Semantic versioning verstehen oder definieren
+  * Diese Aenderung wäre wohl eher 1.1 als 2.0, da Rückwärtskompatibel mit V1 clients 
+* docker image
+  * Auf java 25 basierendes base image verwenden
+  * Tag auf 2.x heben
+* Dokumentieren
+  * Grundsätzliche Zusammenarbeit der Packages und ihrer Hauptklassen 
+  * Semantic versioning
+  * Probe, falls noch nicht beschrieben
+* Package cccservice_old löschen
+
 # Codeänderungen für die SEIN-Ereiterungen
 
 ## Verantwortung und Beziehung der grundlegenden Klassen

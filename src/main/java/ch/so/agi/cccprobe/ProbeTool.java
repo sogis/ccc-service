@@ -1,9 +1,8 @@
 package ch.so.agi.cccprobe;
 
-import ch.so.agi.cccservice.Service;
-import ch.so.agi.cccservice.SessionId;
-import ch.so.agi.cccservice.messages.ConnectAppMessage;
-import ch.so.agi.cccservice.messages.ConnectGisMessage;
+import ch.so.agi.cccservice_old.SessionId;
+import ch.so.agi.cccservice_old.messages.ConnectAppMessage;
+import ch.so.agi.cccservice_old.messages.ConnectGisMessage;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

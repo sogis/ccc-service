@@ -1,13 +1,13 @@
 package ch.so.agi.cccprobe;
 
-import ch.so.agi.cccservice.JsonConverter;
-import ch.so.agi.cccservice.ServiceException;
-import ch.so.agi.cccservice.SessionId;
-import ch.so.agi.cccservice.SessionPool;
-import ch.so.agi.cccservice.SocketHandler;
-import ch.so.agi.cccservice.messages.AbstractMessage;
-import ch.so.agi.cccservice.messages.NotifyErrorMessage;
-import ch.so.agi.cccservice.messages.NotifySessionReadyMessage;
+import ch.so.agi.cccservice_old.JsonConverter;
+import ch.so.agi.cccservice_old.ServiceException;
+import ch.so.agi.cccservice_old.SessionId;
+import ch.so.agi.cccservice_old.SessionPool;
+import ch.so.agi.cccservice_old.SocketHandler;
+import ch.so.agi.cccservice_old.messages.AbstractMessage;
+import ch.so.agi.cccservice_old.messages.NotifyErrorMessage;
+import ch.so.agi.cccservice_old.messages.NotifySessionReadyMessage;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
