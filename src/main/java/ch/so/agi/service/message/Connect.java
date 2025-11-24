@@ -74,13 +74,12 @@ abstract public class Connect extends Message {
             s = new Session(sessionUid, con, isAppClient());
             Sessions.addOrReplace(s);
         }
-        else if(Sessions.findByConnection(sourceConnection) != null) {
-            throw new ConnectionRepeatException("Connect could not be executed as client is already connected");
-        }
         else {
             boolean inTime = s.tryToAddSecondConnection(con, isAppClient());
             if(!inTime)
                 throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
+
+            Sessions.addOrReplace(s);
         }
         return s;
     }

@@ -62,13 +62,22 @@ class ConnectTest {
         assertEquals(UUID.fromString("019a835f-87b7-7969-ab37-53a4333c8558"), con.getSessionUid());
     }
 
-    //@Test
+    @Test
     void firstConnect_doesNotSendNotifySessionReady() {
-        throw new RuntimeException("Awaits implementation");
+        Session s = TestUtil.openSession(true);
+
+        String sent = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
+        assertNull(sent);
     }
 
-    //@Test
+    @Test
     void secondConnect_sendsNotifySessionReadyOnBothConnections() {
-        throw new RuntimeException("Awaits implementation");
+        Session s = TestUtil.initSession();
+
+        String sentApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
+        assertTrue(sentApp.contains(SessionReady.METHOD_TYPE));
+
+        String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
+        assertTrue(sentGis.contains(SessionReady.METHOD_TYPE));
     }
 }

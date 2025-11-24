@@ -1,5 +1,8 @@
 package ch.so.agi.service;
 
+import ch.so.agi.service.message.Message;
+import ch.so.agi.service.message.app.ConnectApp;
+import ch.so.agi.service.message.gis.ConnectGis;
 import ch.so.agi.service.session.MockWebSocketSession;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
@@ -36,19 +39,38 @@ public class TestUtil {
     }
 
     public static Session initSession(UUID sessionUid, String appProtocolVersion, String gisProtocolVersion){
-        Session session = openSession(sessionUid, false, gisProtocolVersion);
 
-        MockWebSocketSession appWebSocket = new MockWebSocketSession();
-        SockConnection appConnection = new SockConnection("app-client", appProtocolVersion, appWebSocket);
-
-        boolean added = session.tryToAddSecondConnection(appConnection, true);
-
-        Sessions.addOrReplace(session);
-
-        if(!added)
-            throw new RuntimeException("Adding app-client failed");
+        Session session = openSession(sessionUid, true, appProtocolVersion);
+        connectClientToSession(sessionUid, false, gisProtocolVersion);
 
         return session;
+    }
+
+    private static Session connectClientToSession(UUID sessionUid, boolean fromAppClient, String protocolVersion){
+        String connectTemplate = """
+                {
+                    "method": "%s",
+                    "clientName": "%s",
+                    "apiVersion": "%s",
+                    "session": "{%s}"
+                }
+                """;
+
+        String method = ConnectApp.MESSAGE_TYPE;
+        if(!fromAppClient)
+            method = ConnectGis.MESSAGE_TYPE;
+
+        String message = String.format(
+                connectTemplate,
+                method,
+                method,
+                protocolVersion,
+                sessionUid);
+
+        MockWebSocketSession sender = new MockWebSocketSession();
+        MessageHandler.handleMessage(sender, message);
+
+        return Sessions.findByConnection(sender);
     }
 
     public static Session openSession(boolean openFromApp){
@@ -56,16 +78,6 @@ public class TestUtil {
     }
 
     public static Session openSession(UUID sessionUid, boolean openFromApp, String protocolVersion){
-        String clientName = "app-client";
-        if(!openFromApp)
-            clientName = "gis-client";
-
-        MockWebSocketSession socket = new MockWebSocketSession();
-        SockConnection conn = new SockConnection(clientName, protocolVersion, socket);
-
-        Session s = new Session(UUID.randomUUID(), conn, openFromApp);
-        Sessions.addOrReplace(s);
-
-        return s;
+        return connectClientToSession(sessionUid, openFromApp, protocolVersion);
     }
 }

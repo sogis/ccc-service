@@ -1,6 +1,7 @@
 package ch.so.agi.service.deamon;
 
 import ch.so.agi.service.TestUtil;
+import ch.so.agi.service.message.KeyChange;
 import ch.so.agi.service.session.MockWebSocketSession;
 import ch.so.agi.service.session.Session;
 import ch.so.agi.service.session.Sessions;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class KeyChangerTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String KEYCHANGE_METHOD = "keyChange";
 
     @BeforeEach
     void resetSessions() {
@@ -32,20 +34,7 @@ class KeyChangerTest {
     }
 
     @Test
-    void sendKeyChangeSkipsSessionsWithOnlyV1Connections() {
-        Session session = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
-
-        (new KeyChanger()).sendKeyChange();
-
-        MockWebSocketSession appWebSocket = (MockWebSocketSession) session.getAppWebSocket();
-        MockWebSocketSession gisWebSocket = (MockWebSocketSession) session.getGisWebSocket();
-
-        assertNull(appWebSocket.getLastSentTextMessage());
-        assertNull(gisWebSocket.getLastSentTextMessage());
-    }
-
-    @Test
-    void sendKeyChangeSendsValidJsonToEveryV2Connection() throws Exception {
+    void sendKeyChangeSendsOnlyToV2Connections() throws Exception {
         Session v1Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
         Session v2Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V2);
         Session mixedAppV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V1);
@@ -53,14 +42,34 @@ class KeyChangerTest {
 
         (new KeyChanger()).sendKeyChange();
 
-        assertNull(((MockWebSocketSession) v1Only.getAppWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) v1Only.getGisWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) mixedAppV2.getGisWebSocket()).getLastSentTextMessage());
-        assertNull(((MockWebSocketSession) mixedGisV2.getAppWebSocket()).getLastSentTextMessage());
+        String lastMessage = "";
 
-        assertNotNull(((MockWebSocketSession) mixedAppV2.getAppWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) mixedGisV2.getGisWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) v2Only.getAppWebSocket()).getLastSentTextMessage());
-        assertNotNull(((MockWebSocketSession) v2Only.getGisWebSocket()).getLastSentTextMessage());
+        // v1 only
+        lastMessage = ((MockWebSocketSession) v1Only.getAppWebSocket()).getLastSentTextMessage();
+        assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
+
+        lastMessage = ((MockWebSocketSession) v1Only.getGisWebSocket()).getLastSentTextMessage();
+        assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
+
+        // mixedAppV2
+        lastMessage = ((MockWebSocketSession) mixedAppV2.getAppWebSocket()).getLastSentTextMessage();
+        assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
+
+        lastMessage = ((MockWebSocketSession) mixedAppV2.getGisWebSocket()).getLastSentTextMessage();
+        assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
+
+        // mixedGisV2
+        lastMessage = ((MockWebSocketSession) mixedGisV2.getAppWebSocket()).getLastSentTextMessage();
+        assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
+
+        lastMessage = ((MockWebSocketSession) mixedGisV2.getGisWebSocket()).getLastSentTextMessage();
+        assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
+
+        // v2Only
+        lastMessage = ((MockWebSocketSession) v2Only.getAppWebSocket()).getLastSentTextMessage();
+        assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
+
+        lastMessage = ((MockWebSocketSession) v2Only.getGisWebSocket()).getLastSentTextMessage();
+        assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
     }
 }
