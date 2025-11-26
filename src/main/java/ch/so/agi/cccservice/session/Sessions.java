@@ -7,7 +7,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class Sessions {
-    private static final Map<WebSocketSession, Session> sessionsBySocket = new ConcurrentHashMap<>();
+    private static Map<WebSocketSession, Session> sessionsBySocket;
+
+    static {
+        createSessionsMap();
+    }
+
+    private static void createSessionsMap(){
+        sessionsBySocket = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Replaces the session collection with a new empty collection
+     * and closes all sessions in the old session collection.
+     */
+    public static int resetSessionCollection() {
+
+        Map<WebSocketSession, Session> oldSessionsMap = null;
+
+        synchronized (Sessions.class){
+            oldSessionsMap = sessionsBySocket;
+            createSessionsMap();
+        }
+
+        List<Session> ses = allSessions(oldSessionsMap).toList();
+
+        for(Session s : ses){
+            s.closeConnections();
+        }
+        return ses.size();
+    }
+
 
     /**
      * Finds the session by the instance of the WebSocketSession of one of the SockConnections of the session.
@@ -73,7 +103,14 @@ public class Sessions {
      * Returns all Sessions currently present in the session collection
      */
     public static Stream<Session> allSessions(){
-        return sessionsBySocket.values().stream().distinct();
+        return allSessions(sessionsBySocket);
+    }
+
+    /**
+     * Returns all Sessions currently present in the given session mam
+     */
+    private static Stream<Session> allSessions(Map<WebSocketSession, Session> sessions){
+        return sessions.values().stream().distinct();
     }
 
     /**
@@ -119,12 +156,5 @@ public class Sessions {
                 }).findFirst();
 
         return match.orElse(null);
-    }
-
-    /**
-     * For the unit tests
-     */
-    public static void removeAll() {
-        sessionsBySocket.clear();
     }
 }

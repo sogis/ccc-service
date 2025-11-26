@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PingSenderTest {
     @BeforeEach
     void resetSessions() throws Exception {
-        Sessions.removeAll();
+        Sessions.resetSessionCollection();
     }
 
     @Test

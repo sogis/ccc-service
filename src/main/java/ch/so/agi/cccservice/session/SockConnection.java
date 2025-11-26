@@ -114,12 +114,15 @@ public class SockConnection {
         if(webSocketConnection == null)
             throw new IllegalStateException("Expected old connection to be present, but was null");
 
+        /*
         try{
             webSocketConnection.close();
         }
         catch(IOException e){
             throw new RuntimeException("Exception when closing connection", e);
         }
+
+         */
 
         webSocketConnection = con;
     }

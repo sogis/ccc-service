@@ -16,12 +16,14 @@ import jakarta.annotation.Resource;
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    public static final String CCC_SOCKET_PATH = "/ccc-service";
+
     @Resource
     private CCCWebSocketHandler socketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(socketHandler, "/ccc-service").setAllowedOrigins("*");
+        registry.addHandler(socketHandler, CCC_SOCKET_PATH).setAllowedOrigins("*");
     }
 
     @Bean

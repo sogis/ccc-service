@@ -67,19 +67,23 @@ abstract public class Connect extends Message {
 
     private Session addClient(WebSocketSession sourceConnection) {
 
-        SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
-        Session s = Sessions.findBySessionUid(sessionUid);
-        if(s == null){
-            s = new Session(sessionUid, con, isAppClient());
-            Sessions.addOrReplace(s);
-        }
-        else {
-            boolean inTime = s.tryToAddSecondConnection(con, isAppClient());
-            if(!inTime)
-                throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
+        Session s = null;
 
-            Sessions.addOrReplace(s);
+        synchronized (Connect.class) { // avoid parallel app and gis connect. Parallel would lead to app and gis not joining the same session.
+            SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
+            s = Sessions.findBySessionUid(sessionUid);
+            if (s == null) {
+                s = new Session(sessionUid, con, isAppClient());
+                Sessions.addOrReplace(s);
+            } else {
+                boolean inTime = s.tryToAddSecondConnection(con, isAppClient());
+                if (!inTime)
+                    throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
+
+                Sessions.addOrReplace(s);
+            }
         }
+
         return s;
     }
 

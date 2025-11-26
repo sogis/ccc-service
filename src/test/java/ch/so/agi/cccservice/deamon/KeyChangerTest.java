@@ -20,7 +20,7 @@ class KeyChangerTest {
 
     @BeforeEach
     void resetSessions() {
-        Sessions.removeAll();
+        Sessions.resetSessionCollection();
     }
 
     @Test

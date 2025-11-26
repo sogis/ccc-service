@@ -11,7 +11,7 @@ class SessionsTest {
 
     @BeforeEach
     void resetSessions() throws Exception {
-        Sessions.removeAll();
+        Sessions.resetSessionCollection();
     }
 
     private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {

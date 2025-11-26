@@ -20,7 +20,7 @@ class ConnectTest {
 
     @BeforeEach
     void resetSessions() {
-        Sessions.removeAll();
+        Sessions.resetSessionCollection();
     }
 
     @Test
