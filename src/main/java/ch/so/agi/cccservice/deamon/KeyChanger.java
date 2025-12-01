@@ -33,7 +33,8 @@ public class KeyChanger {
 
         for(Session ses : v2Sessions){
             for(SockConnection con : ses.v2Connections()){
-                KeyChange.sendKeyChangeToConnection(con);
+                if(con.isOpen())
+                    KeyChange.sendKeyChangeToConnection(con);
             }
         }
 

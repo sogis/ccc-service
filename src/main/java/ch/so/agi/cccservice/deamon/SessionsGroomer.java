@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SessionCleanup {
+public class SessionsGroomer {
 
     private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
-    private static final Logger log = LoggerFactory.getLogger(SessionCleanup.class);
+    private static final Logger log = LoggerFactory.getLogger(SessionsGroomer.class);
 
-    public SessionCleanup(){
+    public SessionsGroomer(){
         log.info(
                 "Session cleanup service started. Will cleanup stale sessions every {} seconds.",
                 Duration.ofMillis(DELAY_MILLIS).toSeconds()

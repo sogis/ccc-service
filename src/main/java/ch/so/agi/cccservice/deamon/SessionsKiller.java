@@ -6,16 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 @Service
-public class KillSessions {
+public class SessionsKiller {
 
-    private static final Logger log = LoggerFactory.getLogger(KillSessions.class);
+    private static final Logger log = LoggerFactory.getLogger(SessionsKiller.class);
 
     private static final String CRON = "0 0 3 * * *";
 
-    public KillSessions(){
+    public SessionsKiller(){
         log.info("Session killer created. Runs every morning at three o clock. Cron conf: '{}'", CRON);
     }
 

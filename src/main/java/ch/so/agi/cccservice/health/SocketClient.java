@@ -88,7 +88,7 @@ public class SocketClient extends TextWebSocketHandler {
         switch (method) {
             case "keyChange" -> handleKeyChange(payload);
             case SessionReady.METHOD_TYPE -> handleSessionReady(payload);
-            default -> log.warn("Ignoring unsupported websocket message '{}'. Message details: {}", method, message);
+            default -> log.warn("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
         }
     }
 
@@ -148,9 +148,20 @@ public class SocketClient extends TextWebSocketHandler {
             throw new RuntimeException("Websocket connection is expected to be open but is closed");
     }
 
-    private boolean webSocketIsOpen(){
+    public boolean webSocketIsOpen(){
         boolean isNullOrClosed = (this.sockSession == null || !this.sockSession.isOpen());
         return !isNullOrClosed;
+    }
+
+    public void closeWebSocket(){
+        if(sockSession == null || !sockSession.isOpen())
+            return;
+
+        try {
+            sockSession.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void sendPayload(WebSocketSession webSocketSession, ObjectNode payload) {

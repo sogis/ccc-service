@@ -34,6 +34,8 @@ public class TestClient {
     }
 
     public void reconnectAndSend() {
+        assertConnected();
+
         gisClient.reconnectCCC();
         gisClient.sendMinimalCCCMessage();
 
@@ -41,6 +43,25 @@ public class TestClient {
         appClient.sendMinimalCCCMessage();
 
         log.info("Sent message from both app and gis client after reconnect");
+    }
+
+    private void assertConnected() {
+        boolean gisClosed = !gisClient.webSocketIsOpen();
+        boolean appClosed = !appClient.webSocketIsOpen();
+
+        if(gisClosed || appClosed)
+            connectClients();
+    }
+
+    public Integer getSessionNr(){
+        return appClient.getSessionNr();
+    }
+
+    public void closeConnection(boolean appConnection) {
+        if(appConnection)
+            appClient.closeWebSocket();
+        else
+            gisClient.closeWebSocket();
     }
 }
 

@@ -9,7 +9,7 @@
   * Grundsätzliche Zusammenarbeit der Packages und ihrer Hauptklassen 
   * Semantic versioning
   * Probe, falls noch nicht beschrieben
-* Package cccservice_old löschen
+  * http://localhost:8080/actuator/health
 
 # Codeänderungen für die SEIN-Ereiterungen
 

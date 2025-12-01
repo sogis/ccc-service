@@ -15,14 +15,6 @@ public class StatusPage {
 
     @GetMapping("/")
     public String statusInfo() {
-        /*
-        LivenessProbe p = new LivenessProbe();
-        p.health();
-
-         */
-        TestClient t = new TestClient();
-        t.reconnectAndSend();
-
         int sessionCount = (int)Sessions.allSessions().count() / 2;
         return String.format("%s\nAnzahl Sessions: %d", VERSION, sessionCount);
     }

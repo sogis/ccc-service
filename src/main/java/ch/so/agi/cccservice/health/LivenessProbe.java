@@ -10,47 +10,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-//@Component("liveness")
+@Component("liveness")
 public class LivenessProbe implements HealthIndicator {
 
     private static final Logger log = LoggerFactory.getLogger(LivenessProbe.class);
 
-    private SocketClient gisClient;
-    private SocketClient appClient;
+    private TestClient client;
 
-    public LivenessProbe(){
-        connectClients();
-    }
-
-    //@Override
+    @Override
     public Health health() {
         try {
-            reconnectAndSend();
+            if(client == null)
+                client = new TestClient();
+
+            log.info("Session {}: Verifying service health through reconnect followed by payload message.", client.getSessionNr());
+            client.reconnectAndSend();
             return Health.up().withDetail("liveness", "ccc-service is alive").build();
         } catch (Exception e) {
             log.error("Health check threw exception.", e);
             return Health.down().withDetail("liveness", "liveness check failed").build();
         }
-    }
-
-    private void connectClients(){
-        String adr = "ws://localhost:" + WebServerPort.getPort() + WebSocketConfig.CCC_SOCKET_PATH;
-
-        this.gisClient = new SocketClient(adr, SocketClient.ClientType.GIS);
-        this.appClient = new SocketClient(adr, SocketClient.ClientType.APP);
-
-        UUID sesUid = UUID.randomUUID();
-
-        gisClient.connectCCC(sesUid, "probe-gis", SockConnection.PROTOCOL_V2, SocketClient.ClientType.GIS);
-        appClient.connectCCC(sesUid, "probe-app", SockConnection.PROTOCOL_V2, SocketClient.ClientType.APP);
-    }
-
-    private void reconnectAndSend() {
-        gisClient.reconnectCCC();
-        gisClient.sendMinimalCCCMessage();
-
-        appClient.reconnectCCC();
-        appClient.sendMinimalCCCMessage();
     }
 }
 

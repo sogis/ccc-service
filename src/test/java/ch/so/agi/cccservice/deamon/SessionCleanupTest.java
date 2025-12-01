@@ -21,7 +21,7 @@ class SessionCleanupTest {
     void removeStaleSessionsHandlesEmptyCollection() {
         assertEquals(0, Sessions.allSessions().count());
 
-        (new SessionCleanup()).removeStaleSessions();
+        (new SessionsGroomer()).removeStaleSessions();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -33,7 +33,7 @@ class SessionCleanupTest {
 
         assertEquals(2, Sessions.allSessions().count());
 
-        (new SessionCleanup()).removeStaleSessions();
+        (new SessionsGroomer()).removeStaleSessions();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -45,7 +45,7 @@ class SessionCleanupTest {
 
         assertEquals(2, Sessions.allSessions().count());
 
-        (new SessionCleanup()).removeStaleSessions();
+        (new SessionsGroomer()).removeStaleSessions();
 
         assertEquals(1, Sessions.allSessions().count());
     }
@@ -55,7 +55,7 @@ class SessionCleanupTest {
         Session s = TestUtil.initSession();
         s.getAppWebSocket().close();
 
-        (new SessionCleanup()).removeStaleSessions();
+        (new SessionsGroomer()).removeStaleSessions();
 
         assertFalse(s.getGisWebSocket().isOpen());
     }
@@ -67,7 +67,7 @@ class SessionCleanupTest {
 
         TestUtil.wait(20);
 
-        (new SessionCleanup()).removeStaleSessions();
+        (new SessionsGroomer()).removeStaleSessions();
 
         assertFalse(s.getAppWebSocket().isOpen());
     }
