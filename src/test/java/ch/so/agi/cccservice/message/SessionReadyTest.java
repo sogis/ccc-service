@@ -23,19 +23,19 @@ class SessionReadyTest {
         assertTrue(sent.contains("notifySessionReady"));
         assertTrue(sent.contains(SockConnection.PROTOCOL_V1));
 
-        // forbidden v2 content
+        // forbidden v1.2 content
         assertFalse(sent.contains("connectionKey"));
         assertFalse(sent.contains("sessionNr"));
     }
 
     @Test
-    public void v2_Message_MustOnlyContain_v2_Content(){
+    public void v12_Message_MustOnlyContain_v12_Content(){
         Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
         SessionReady.send(s.getAppWebSocket());
 
         String sent = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
 
-        // v2 content
+        // v 1.2 content
         assertTrue(sent.contains("notifySessionReady"));
         assertTrue(sent.contains(SockConnection.PROTOCOL_V12));
         assertTrue(sent.contains("connectionKey"));

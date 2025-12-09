@@ -28,24 +28,24 @@ public class KeyChanger {
 
     @Scheduled(fixedDelay = DELAY_MILLIS, initialDelay = DELAY_MILLIS)
     public void sendKeyChange(){
-        List<Session> v2Sessions = Sessions.allSessions()
-                .filter(Session::hasV2Connection).toList();
+        List<Session> v12Sessions = Sessions.allSessions()
+                .filter(Session::hasV12Connection).toList();
 
-        for(Session ses : v2Sessions){
-            for(SockConnection con : ses.v2Connections()){
+        for(Session ses : v12Sessions){
+            for(SockConnection con : ses.v12Connections()){
                 if(con.isOpen())
                     KeyChange.sendKeyChangeToConnection(con);
             }
         }
 
-        String v2SessionsString = v2Sessions.stream()
+        String v12SessionsString = v12Sessions.stream()
                 .map(ses -> Integer.toString(ses.getSessionNr()))
                 .collect(Collectors.joining(", "));;
 
         log.info(
-                "Sent keychange to the v2 connections of {} sessions. Session numbers: [{}].",
-                v2Sessions.size(),
-                v2SessionsString
+                "Sent keychange to the v 1.2 connections of {} sessions. Session numbers: [{}].",
+                v12Sessions.size(),
+                v12SessionsString
         );
     }
 }

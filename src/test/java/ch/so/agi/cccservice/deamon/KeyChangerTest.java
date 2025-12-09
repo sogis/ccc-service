@@ -33,11 +33,11 @@ class KeyChangerTest {
     }
 
     @Test
-    void sendKeyChangeSendsOnlyToV2Connections() throws Exception {
+    void sendKeyChangeSendsOnlyToV12Connections() throws Exception {
         Session v1Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
-        Session v2Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
-        Session mixedAppV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
-        Session mixedGisV2 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
+        Session v12Only = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        Session mixedAppV12 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
+        Session mixedGisV12 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
 
         (new KeyChanger()).sendKeyChange();
 
@@ -50,25 +50,25 @@ class KeyChangerTest {
         lastMessage = ((MockWebSocketSession) v1Only.getGisWebSocket()).getLastSentTextMessage();
         assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
 
-        // mixedAppV2
-        lastMessage = ((MockWebSocketSession) mixedAppV2.getAppWebSocket()).getLastSentTextMessage();
+        // mixedAppV1.2
+        lastMessage = ((MockWebSocketSession) mixedAppV12.getAppWebSocket()).getLastSentTextMessage();
         assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
 
-        lastMessage = ((MockWebSocketSession) mixedAppV2.getGisWebSocket()).getLastSentTextMessage();
+        lastMessage = ((MockWebSocketSession) mixedAppV12.getGisWebSocket()).getLastSentTextMessage();
         assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
 
-        // mixedGisV2
-        lastMessage = ((MockWebSocketSession) mixedGisV2.getAppWebSocket()).getLastSentTextMessage();
+        // mixedGisV1.2
+        lastMessage = ((MockWebSocketSession) mixedGisV12.getAppWebSocket()).getLastSentTextMessage();
         assertFalse(lastMessage.contains(KEYCHANGE_METHOD));
 
-        lastMessage = ((MockWebSocketSession) mixedGisV2.getGisWebSocket()).getLastSentTextMessage();
+        lastMessage = ((MockWebSocketSession) mixedGisV12.getGisWebSocket()).getLastSentTextMessage();
         assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
 
-        // v2Only
-        lastMessage = ((MockWebSocketSession) v2Only.getAppWebSocket()).getLastSentTextMessage();
+        // v1.2 Only
+        lastMessage = ((MockWebSocketSession) v12Only.getAppWebSocket()).getLastSentTextMessage();
         assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
 
-        lastMessage = ((MockWebSocketSession) v2Only.getGisWebSocket()).getLastSentTextMessage();
+        lastMessage = ((MockWebSocketSession) v12Only.getGisWebSocket()).getLastSentTextMessage();
         assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
     }
 }

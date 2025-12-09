@@ -5,8 +5,8 @@
 |Name|Richtung|Typ|Beschreibung|
 |---|---|---|---|
 |changeLayerVisibility|F > K|RUN|Aufforderung an die Kartenapplikation, eine geladene Ebene auf sichtbar/unsichtbar zu schalten.|
-|reconnect|F,K > CCC|RUN|Anfrage eines V2-Clients, nach einem Verbindungsunterbruch wieder in die bestehende Session aufgenommen zu werden.|
-|keyChange|CCC > F,K|RUN|Aufforderung des Servers an einen V2-Client, die Keys auszutauschen.|
+|reconnect|F,K > CCC|RUN|Anfrage eines V1.2-Clients, nach einem Verbindungsunterbruch wieder in die bestehende Session aufgenommen zu werden.|
+|keyChange|CCC > F,K|RUN|Aufforderung des Servers an einen V1.2-Client, die Keys auszutauschen.|
 
 ## Erweiterte Nachrichten aufgrund der Reconnects
 
@@ -71,7 +71,7 @@ Alle auf Protokoll 1.2 arbeitenden Clients müssen neben den reconnect-Nachricht
 
 ### Betriebliche Transparenz
 
-Bei der Fehleranalyse geht es häufig um eine konkrete Session, zu deren Verhalten Fragen an den Betrieb gelangen. Um die Kommunikation zu vereinfachen und gleichzeitig die Connection-Keys geheim zu halten wird mit dem Protkoll V2 eine Session-Nummer eingeführt. Die Session wird in den Logs des CCC-Servers und der V2-Clients jeweils über die Session-Nr ausgegeben. Zusätzlich soll sie im Web GIS Client an geeigneter Stelle vom Benutzer eingesehen werden können.
+Bei der Fehleranalyse geht es häufig um eine konkrete Session, zu deren Verhalten Fragen an den Betrieb gelangen. Um die Kommunikation zu vereinfachen und gleichzeitig die Connection-Keys geheim zu halten wird mit dem Protkoll V1.2 eine Session-Nummer eingeführt. Die Session wird in den Logs des CCC-Servers und der V1.2-Clients jeweils über die Session-Nr ausgegeben. Zusätzlich soll sie im Web GIS Client an geeigneter Stelle vom Benutzer eingesehen werden können.
 
 Die Session-Nummern starten jeden Morgen bei 1, da der CCC-Service alle am frühen Morgen noch bestehenden Sessions "killt".
 
@@ -121,7 +121,7 @@ Die keyChange-Anforderung wird vom CCC-Server periodisch (Beispielsweise alle 10
 
 ## Erweiterung notifySessionReady
 
-Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Session-Nummer mitgeteilt.
+Via notifySessionReady V1.2 wird den Clients ihr erster Session-Key sowie die Session-Nummer mitgeteilt.
 
 ### Aufbau der Nachricht
 
@@ -134,9 +134,9 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 }
 ```
 
-## connectGis und connectApp für V2 Clients
+## connectGis und connectApp für V1.2 Clients
 
-Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V2-Fähigen Clients wird neu 1.2  als "apiVersion" übergeben.
+Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V1.2-Fähigen Clients wird neu 1.2  als "apiVersion" übergeben.
 
 ## Rückwärtskompatibilität
 

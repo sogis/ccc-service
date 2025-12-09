@@ -182,11 +182,11 @@ public class Session implements Comparable{
         return LocalDateTime.now().isAfter(handShakeInitialized.plus(handShakeMaxDuration));
     }
 
-    public boolean hasV2Connection(){
-        return !( v2Connections().isEmpty() );
+    public boolean hasV12Connection(){
+        return !( v12Connections().isEmpty() );
     }
 
-    public List<SockConnection> v2Connections(){
+    public List<SockConnection> v12Connections(){
         List<SockConnection> connections = new Vector<>();
 
         if(gisConnection != null &&  SockConnection.PROTOCOL_V12.equals(gisConnection.getApiVersion()))
