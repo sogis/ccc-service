@@ -47,7 +47,7 @@ class ConnectTest {
                 {
                     "method": "connectGis",
                     "clientName": "WGC",
-                    "apiVersion": "2.0",
+                    "apiVersion": "1.2",
                     "session": "{019a835f-87b7-7969-ab37-53a4333c8558}"
                 }
                 """;
@@ -55,7 +55,7 @@ class ConnectTest {
         ConnectGis con = (ConnectGis) Message.forJsonString(validJson);
 
         assertEquals("WGC", con.getClientName());
-        assertEquals("2.0", con.getApiVersion());
+        assertEquals("1.2", con.getApiVersion());
         assertEquals(UUID.fromString("019a835f-87b7-7969-ab37-53a4333c8558"), con.getSessionUid());
     }
 

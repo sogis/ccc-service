@@ -189,10 +189,10 @@ public class Session implements Comparable{
     public List<SockConnection> v2Connections(){
         List<SockConnection> connections = new Vector<>();
 
-        if(gisConnection != null &&  SockConnection.PROTOCOL_V2.equals(gisConnection.getApiVersion()))
+        if(gisConnection != null &&  SockConnection.PROTOCOL_V12.equals(gisConnection.getApiVersion()))
             connections.add(gisConnection);
 
-        if(appConnection != null &&  SockConnection.PROTOCOL_V2.equals(appConnection.getApiVersion()))
+        if(appConnection != null &&  SockConnection.PROTOCOL_V12.equals(appConnection.getApiVersion()))
             connections.add(appConnection);
 
         return connections;

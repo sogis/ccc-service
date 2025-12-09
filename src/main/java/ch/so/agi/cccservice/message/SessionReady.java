@@ -48,7 +48,7 @@ public class SessionReady {
         }
 
         this.apiVersion = con.getApiVersion();
-        if(con.getApiVersion().equals(SockConnection.PROTOCOL_V2)){
+        if(con.getApiVersion().equals(SockConnection.PROTOCOL_V12)){
             this.connectionKey = con.getConnectionKey();
             this.sessionNr = s.getSessionNr();
         }

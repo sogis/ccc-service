@@ -1,7 +1,7 @@
 # Weiterfahren
 
 * Semantic versioning verstehen oder definieren
-  * Diese Aenderung wäre wohl eher 1.1 als 2.0, da Rückwärtskompatibel mit V1 clients 
+  * Diese Aenderung wäre wohl eher 1.1 1.2 als 2.0, da Rückwärtskompatibel mit V1 clients 
 * docker image
   * Auf java 25 basierendes base image verwenden
   * Tag auf 2.x heben

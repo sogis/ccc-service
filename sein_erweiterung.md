@@ -67,7 +67,7 @@ Damit der Benutzer von den Unterbrüchen nichts merkt, wird das Protokoll um die
 
 ### Sicherheit
 
-Alle auf Protokoll 2.0 arbeitenden Clients müssen neben den reconnect-Nachrichten auch die keyChange-Aufforderung des CCC-Servers implementieren, damit ein aus irgendeinem Grund in die falschen Hände geratener Key nur für eine kurze Zeit den Zugang zu einer Session gewährt.
+Alle auf Protokoll 1.2 arbeitenden Clients müssen neben den reconnect-Nachrichten auch die keyChange-Aufforderung des CCC-Servers implementieren, damit ein aus irgendeinem Grund in die falschen Hände geratener Key nur für eine kurze Zeit den Zugang zu einer Session gewährt.
 
 ### Betriebliche Transparenz
 
@@ -127,7 +127,7 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 
 ```json
 {
-    "apiVersion": "2.0",
+    "apiVersion": "1.2",
     "method": "notifySessionReady",
     "connectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
     "sessionNr": 3
@@ -136,7 +136,7 @@ Via notifySessionReady V2 wird den Clients ihr erster Session-Key sowie die Sess
 
 ## connectGis und connectApp für V2 Clients
 
-Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V2-Fähigen Clients wird neu 2.0 als "apiVersion" übergeben.
+Die Struktur dieser Nachrichten bleibt identisch. Beim Aufruf eines V2-Fähigen Clients wird neu 1.2  als "apiVersion" übergeben.
 
 ## Rückwärtskompatibilität
 

@@ -27,8 +27,8 @@ public class TestClient {
 
         UUID sesUid = UUID.randomUUID();
 
-        gisClient.connectCCC(sesUid, "probe-gis", SockConnection.PROTOCOL_V2, SocketClient.ClientType.GIS);
-        appClient.connectCCC(sesUid, "probe-app", SockConnection.PROTOCOL_V2, SocketClient.ClientType.APP);
+        gisClient.connectCCC(sesUid, "probe-gis", SockConnection.PROTOCOL_V12, SocketClient.ClientType.GIS);
+        appClient.connectCCC(sesUid, "probe-app", SockConnection.PROTOCOL_V12, SocketClient.ClientType.APP);
 
         log.info("Connected to app and gis. Sessions: {},{}.", appClient.getSessionNr(), gisClient.getSessionNr());
     }

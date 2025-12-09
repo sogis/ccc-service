@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public class SockConnection {
     public static final String PROTOCOL_V1 = "1.0";
-    public static final String PROTOCOL_V2 = "2.0";
+    public static final String PROTOCOL_V12 = "1.2";
 
     public String getClientName() {
         return clientName;
@@ -57,10 +57,10 @@ public class SockConnection {
     }
 
     private static void assertValidApiVersion(String apiVersion){
-        boolean validProtocol = PROTOCOL_V1.equals(apiVersion) || PROTOCOL_V2.equals(apiVersion);
+        boolean validProtocol = PROTOCOL_V1.equals(apiVersion) || PROTOCOL_V12.equals(apiVersion);
 
         if(!validProtocol)
-            throw new RuntimeException(String.format("Protocol must be either %s or %s, but was %s", PROTOCOL_V1, PROTOCOL_V2, apiVersion));
+            throw new RuntimeException(String.format("Protocol must be either %s or %s, but was %s", PROTOCOL_V1, PROTOCOL_V12, apiVersion));
     }
 
     public boolean isOpen(){

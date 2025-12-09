@@ -24,11 +24,11 @@ class TestUtilTest {
 
     @Test
     void initSession() {
-        Session created = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V2);
+        Session created = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
 
         assertNotNull(created, "Returned session is null");
         assertEquals(SockConnection.PROTOCOL_V1, created.getAppConnection().getApiVersion());
-        assertEquals(SockConnection.PROTOCOL_V2, created.getGisConnection().getApiVersion());
+        assertEquals(SockConnection.PROTOCOL_V12, created.getGisConnection().getApiVersion());
 
         assertNotNull(Sessions.findByConnection(created.getAppWebSocket()), "Session must be registered by its app connection in the Sessions collection");
         assertNotNull(Sessions.findByConnection(created.getGisWebSocket()), "Session must be registered by its gis connection in the Sessions collection");

@@ -30,14 +30,14 @@ class SessionReadyTest {
 
     @Test
     public void v2_Message_MustOnlyContain_v2_Content(){
-        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V2, SockConnection.PROTOCOL_V2);
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
         SessionReady.send(s.getAppWebSocket());
 
         String sent = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
 
         // v2 content
         assertTrue(sent.contains("notifySessionReady"));
-        assertTrue(sent.contains(SockConnection.PROTOCOL_V2));
+        assertTrue(sent.contains(SockConnection.PROTOCOL_V12));
         assertTrue(sent.contains("connectionKey"));
         assertTrue(sent.contains("sessionNr"));
     }
