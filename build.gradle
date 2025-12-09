@@ -99,7 +99,7 @@ task pushImage(type:Exec, dependsOn: pushLatestImage) {
 }
 
 def String buildIdent() {
-    String prefix = '1.1.'
+    String prefix = '1.2.'
     String suffix = System.getenv('GITHUB_RUN_NUMBER')
 
     if(suffix == null)
