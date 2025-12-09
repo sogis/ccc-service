@@ -51,4 +51,4 @@ und anschliessend die Ergänzungen vornehmen.
 
 [docs/user](docs/user/index.md) How to run the ccc-service and/or the probe-tool
 
-[docs/dev](docs/dev/index.md) Developer specific documentation about the ccc-service, such as class structure, how to build, etc. 
+[docs/dev](docs/dev/readme.md) Developer specific documentation about the ccc-service, such as class structure etc. 

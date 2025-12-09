@@ -7,6 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class Sessions {
+    /**
+     * The central session collection of the ccc service.
+     * Each session is contained twice in the collection, with
+     * the gis and app connection as keys for the two entries.
+     */
     private static Map<WebSocketSession, Session> sessionsBySocket;
 
     static {

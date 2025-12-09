@@ -21,7 +21,7 @@ public class KeyChanger {
 
     public KeyChanger(){
         log.info(
-                "Keychange service started. Will send keychanges to v2 clients every {} seconds.",
+                "Keychange service started. Will send keychanges to v 1.2 clients every {} seconds.",
                 Duration.ofMillis(DELAY_MILLIS).toSeconds()
         );
     }

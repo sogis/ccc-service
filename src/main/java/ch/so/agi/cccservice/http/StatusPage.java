@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE)
 public class StatusPage {
-    private static final String VERSION = "CCC-Service Version 1.1";
+    private static final String VERSION = "CCC-Service Version 1.2";
 
     @GetMapping("/")
     public String statusInfo() {
