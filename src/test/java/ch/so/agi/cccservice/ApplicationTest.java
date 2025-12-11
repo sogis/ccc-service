@@ -1,5 +1,8 @@
 package ch.so.agi.cccservice.health;
 
+import ch.so.agi.cccservice.CCCWebSocketHandler;
+import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.WebSocketConfig;
 import ch.so.agi.cccservice.deamon.KeyChanger;
 import ch.so.agi.cccservice.deamon.SessionsKiller;
 import ch.so.agi.cccservice.deamon.PingSender;
@@ -9,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +55,7 @@ class ApplicationTest {
      * testclient implementation.
      */
     @Test
-    void testClient_can_send_after_session_kill(){
+    void testClient_canSendAfter_sessionKill(){
         assertDoesNotThrow(
                 () -> {
                     TestClient c = new TestClient();
@@ -69,7 +73,7 @@ class ApplicationTest {
      * the run of all deamon services except the killer service.
      */
     @Test
-    void connections_stay_valid_after_deamons(){
+    void connections_stayValid_after_deamons(){
 
         int numClients = 5;
 
@@ -89,6 +93,17 @@ class ApplicationTest {
 
         int numOpenClients = numClients - 2;
         assertEquals(numOpenClients, Sessions.openSessions().size());
+    }
+
+    @Test
+    void missingConnectMsg_closesConnection(){
+        String adr = "ws://localhost:" + WebServerPort.getPort() + WebSocketConfig.CCC_SOCKET_PATH;
+        SocketClient c = new SocketClient(adr, SocketClient.ClientType.APP);
+        c.connectWebSocket();
+
+        TestUtil.wait(CCCWebSocketHandler.CONNECT_MSG_MAX_DELAY_SECONDS * 1000 + 100);
+
+        assertFalse(c.webSocketIsOpen());
     }
 
     private static List<TestClient> createClients(int numClients){

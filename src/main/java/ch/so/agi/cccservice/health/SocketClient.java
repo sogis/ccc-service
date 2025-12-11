@@ -62,19 +62,6 @@ public class SocketClient extends TextWebSocketHandler {
         log.warn("Transport error on websocket client", exception);
     }
 
-
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
-        /*
-        this.sockSession = null;
-
-
-        connectOrReconnectWebSocket();
-        reconnectCCC();
-
-         */
-    }
-
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         JsonNode payload = OBJECT_MAPPER.readTree(message.getPayload());
@@ -137,7 +124,7 @@ public class SocketClient extends TextWebSocketHandler {
         sendPayload(sockSession, json);
     }
 
-    private void connectWebSocket(){
+    public void connectWebSocket(){
         CompletableFuture<WebSocketSession> future = webSocketClient.execute(this, baseAddress);
         //Await open connection
         this.sockSession = future.join();

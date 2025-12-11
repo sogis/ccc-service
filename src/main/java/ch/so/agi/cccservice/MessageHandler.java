@@ -1,6 +1,7 @@
 package ch.so.agi.cccservice;
 
 import ch.so.agi.cccservice.exception.ClientException;
+import ch.so.agi.cccservice.exception.SecurityException;
 import ch.so.agi.cccservice.message.Message;
 import ch.so.agi.cccservice.message.ErrorSender;
 import ch.so.agi.cccservice.session.Session;
@@ -22,7 +23,11 @@ public class MessageHandler {
             m = Message.forJsonString(message);
             m.setRawMessage(message);
             m.process(sender);
-        } catch (ClientException clientException) {
+        }
+        catch (SecurityException se){
+            log.error(se.getMessage());
+        }
+        catch (ClientException clientException) {
             Session s = Sessions.findByConnection(sender);
             if(s == null){
                 log.warn("Could not find session for the received message - possibly as message is malformed or unknown. Message: '{}'. Exception: {}", message, clientException.toString());

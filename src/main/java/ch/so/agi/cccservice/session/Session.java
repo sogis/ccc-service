@@ -28,11 +28,6 @@ public class Session implements Comparable{
      */
     private Duration handShakeMaxDuration;
     /**
-     * Counter to make sure each session gets a unique
-     * number. Counts up from 0 as long as the server runs.
-     */
-    private static int lastSessionNr = 0;
-    /**
      * The session uuid used in the http request App -> GIS
      * to link the corresponding app - server and GIS - server
      * connection.
@@ -87,7 +82,7 @@ public class Session implements Comparable{
             this.appConnection = connection;
         else
             this.gisConnection = connection;
-        this.sessionNr = getNextSessionNr();
+        this.sessionNr = Sessions.getNextSessionNr();
         this.handShakeInitialized = LocalDateTime.now();
         this.handShakeMaxDuration = Duration.ofMillis(HANDSHAKE_MAXDURATION_MILLIS);
     }
@@ -160,10 +155,7 @@ public class Session implements Comparable{
         this.handShakeMaxDuration = d;
     }
 
-    private synchronized int getNextSessionNr(){
-        lastSessionNr++;
-        return lastSessionNr;
-    }
+
 
     public boolean hasClosedConnections() {
         boolean gisClosed = false;

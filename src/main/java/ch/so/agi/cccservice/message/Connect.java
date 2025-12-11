@@ -1,5 +1,7 @@
 package ch.so.agi.cccservice.message;
 
+import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
+import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromSameConnectionException;
 import ch.so.agi.cccservice.exception.HandshakeToLateException;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
@@ -76,6 +78,8 @@ abstract public class Connect extends Message {
                 s = new Session(sessionUid, con, isAppClient());
                 Sessions.addOrReplace(s);
             } else {
+                assertNoDuplicateConnectAttempts(s, sourceConnection);
+
                 boolean inTime = s.tryToAddSecondConnection(con, isAppClient());
                 if (!inTime)
                     throw new HandshakeToLateException("Connect could not be executed as time window for handshake is closed");
@@ -85,6 +89,21 @@ abstract public class Connect extends Message {
         }
 
         return s;
+    }
+
+    private void assertNoDuplicateConnectAttempts(Session s, WebSocketSession sourceCon) {
+        if(isAppClient() && s.getAppWebSocket() != null){
+            if(sourceCon.equals(s.getAppWebSocket())) // duplicate connect msg from same connection -> error in client implemenation -> not so bad
+                throw new DuplicateConnectMessageFromSameConnectionException("Ignoring connectApp message as app is already connected");
+            else // Session uuid known to other client -> VERY BAD
+                throw new DuplicateConnectMessageFromOtherConnectionException(s.getSessionNr(), s.getSessionUid(), clientName, s.getAppConnection().getClientName());
+        }
+        else if(!isAppClient() && s.getGisWebSocket() != null){
+            if(sourceCon.equals(s.getGisWebSocket())) // duplicate connect msg from same connection -> error in client implemenation -> not so bad
+                throw new DuplicateConnectMessageFromSameConnectionException("Ignoring connectGis message as gis is already connected");
+            else // Session uuid known to other client -> VERY BAD
+                throw new DuplicateConnectMessageFromOtherConnectionException(s.getSessionNr(), s.getSessionUid(), clientName, s.getGisConnection().getClientName());
+        }
     }
 
     /**

@@ -1,6 +1,8 @@
 package ch.so.agi.cccservice.message;
 
+import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.message.app.ConnectApp;
 import ch.so.agi.cccservice.message.gis.ConnectGis;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,12 +13,22 @@ import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
 import java.util.UUID;
+import java.util.logging.SocketHandler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConnectTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
+
+    private static String MESSAGE_TEMPLATE = """
+            {
+                "method": "%s",
+                "clientName": "Axioma Mandant AfU",
+                "apiVersion": "1.0",
+                "session": "{%s}"
+            }
+            """;
 
     @BeforeEach
     void resetSessions() {
@@ -76,5 +88,55 @@ class ConnectTest {
 
         String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
         assertTrue(sentGis.contains(SessionReady.METHOD_TYPE));
+    }
+
+    @Test
+    void duplicateAppConnect_FromSameSocket_SendsErrorResponse(){
+        UUID sesUid = UUID.randomUUID();
+        Session s = TestUtil.initSession(sesUid);
+
+        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        MessageHandler.handleMessage(s.getAppWebSocket(), conApp);
+
+        String sentApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
+        assertTrue(sentApp.contains(Error.MESSAGE_TYPE));
+    }
+
+    @Test
+    void duplicateGisConnect_FromSameSocket_SendsErrorResponse(){
+        UUID sesUid = UUID.randomUUID();
+        Session s = TestUtil.initSession(sesUid);
+
+        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        MessageHandler.handleMessage(s.getGisWebSocket(), conGis);
+
+        String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
+        assertTrue(sentGis.contains(Error.MESSAGE_TYPE));
+    }
+
+    @Test
+    void duplicateAppConnect_FromOtherSocket_Throws(){
+        UUID sesUid = UUID.randomUUID();
+        Session s = TestUtil.initSession(sesUid);
+
+        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        MockWebSocketSession con = new MockWebSocketSession();
+
+        Message msg = Message.forJsonString(conApp);
+
+        assertThrows(DuplicateConnectMessageFromOtherConnectionException.class, () -> msg.process(con));
+    }
+
+    @Test
+    void duplicateGisConnect_FromOtherSocket_Throws(){
+        UUID sesUid = UUID.randomUUID();
+        Session s = TestUtil.initSession(sesUid);
+
+        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        MockWebSocketSession con = new MockWebSocketSession();
+
+        Message msg = Message.forJsonString(conGis);
+
+        assertThrows(DuplicateConnectMessageFromOtherConnectionException.class, () -> msg.process(con));
     }
 }

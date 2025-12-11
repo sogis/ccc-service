@@ -14,12 +14,20 @@ public class Sessions {
      */
     private static Map<WebSocketSession, Session> sessionsBySocket;
 
+    private static int lastSessionNr = -99;
+
     static {
         createSessionsMap();
     }
 
     private static void createSessionsMap(){
         sessionsBySocket = new ConcurrentHashMap<>();
+        lastSessionNr = 0;
+    }
+
+    static synchronized int getNextSessionNr(){
+        lastSessionNr++;
+        return lastSessionNr;
     }
 
     /**
