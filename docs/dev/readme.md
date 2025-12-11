@@ -40,3 +40,16 @@ Zwecks betrieblichem Monitoring sind die folgenden Klassen implementiert:
 * LivenessProbe (Package ch.so.agi.cccservice.health): 
   * Prüft die Gesundheit des Service durch Verschicken von Testnachrichten von einem Test-Client.
   * Default-Pfad: http://localhost:8080/actuator/health
+
+## Konzept für die automatischen Tests
+
+Damit in den meisten Fällen leichtgewichtige und damit sehr schnelle automatische Tests ausgeführt
+werden können, ist der grösste Teil der Logik des CCC-Service nur abhängig vom Interface "WebSocketSession".
+
+Das Interface repräsentiert eine WebSocket-Verbindung. Für alle leichtgewichtigen Tests implementiert
+die Mockup-Klasse "MockWebSocketSession" das Interface. Die Tests mit "MockWebSocketSession" laufen damit
+komplett von Spring isoliert.
+
+Wenige Tests gehen über den Scope von MockWebSocketSession hinaus. Für diese wird vor der Testausführung
+ein Spring-Kontext hochgefahren.
+
