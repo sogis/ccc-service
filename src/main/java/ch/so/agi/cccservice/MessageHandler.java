@@ -1,14 +1,15 @@
 package ch.so.agi.cccservice;
 
-import ch.so.agi.cccservice.exception.ClientException;
-import ch.so.agi.cccservice.exception.SecurityException;
-import ch.so.agi.cccservice.message.Message;
-import ch.so.agi.cccservice.message.ErrorSender;
-import ch.so.agi.cccservice.session.Session;
-import ch.so.agi.cccservice.session.Sessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
+
+import ch.so.agi.cccservice.exception.ClientException;
+import ch.so.agi.cccservice.exception.SecurityException;
+import ch.so.agi.cccservice.message.ErrorSender;
+import ch.so.agi.cccservice.message.Message;
+import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.Sessions;
 
 /**
  * Helper class containing the ccc specific functionality to
