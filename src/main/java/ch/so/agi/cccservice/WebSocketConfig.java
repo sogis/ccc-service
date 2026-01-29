@@ -1,6 +1,6 @@
 package ch.so.agi.cccservice;
 
-import ch.so.agi.cccservice.deamon.KeyChanger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.client.standard.WebSocketContainerFactoryBean;
@@ -18,6 +18,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     public static final String CCC_SOCKET_PATH = "/ccc-service";
 
+    @Value("${ccc.websocket.max-text-message-buffer-size:102400}")
+    private int maxTextMessageBufferSize;
+
+    @Value("${ccc.websocket.max-binary-message-buffer-size:8192}")
+    private int maxBinaryMessageBufferSize;
+
     @Resource
     private CCCWebSocketHandler socketHandler;
 
@@ -29,8 +35,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Bean
     public WebSocketContainerFactoryBean createWebSocketContainer() {
         WebSocketContainerFactoryBean container = new WebSocketContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(102400);
-        container.setMaxBinaryMessageBufferSize(8192);
+        container.setMaxTextMessageBufferSize(maxTextMessageBufferSize);
+        container.setMaxBinaryMessageBufferSize(maxBinaryMessageBufferSize);
         return container;
     }
 }

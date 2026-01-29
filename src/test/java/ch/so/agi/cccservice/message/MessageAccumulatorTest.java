@@ -160,36 +160,38 @@ class MessageAccumulatorTest {
 
     @Test
     void oversizedMessageIsDiscarded() {
-        // Erstelle einen Akkumulator und fülle ihn bis knapp unter das Limit
+        // Akkumulator mit kleinerem Limit für schnelleren Test
+        MessageAccumulator smallLimitAccumulator = new MessageAccumulator(30, 1000);
         AtomicReference<String> result = new AtomicReference<>();
 
-        // Simuliere grosse Nachricht durch viele Fragmente
-        String largeChunk = "x".repeat(100_000); // 100 KB
+        // Fragment knapp unter dem Limit
+        String chunk = "x".repeat(800);
+        smallLimitAccumulator.accumulate(session, chunk, false, result::set);
+        assertEquals(1, smallLimitAccumulator.getActiveBufferCount());
 
-        accumulator.accumulate(session, largeChunk, false, result::set);
-        assertEquals(1, accumulator.getActiveBufferCount());
-
-        // Nächstes Fragment würde 1 MB überschreiten
-        String overflowChunk = "y".repeat(950_000); // 950 KB mehr = > 1 MB total
-        accumulator.accumulate(session, overflowChunk, false, result::set);
+        // Nächstes Fragment würde Limit überschreiten
+        String overflowChunk = "y".repeat(300); // 800 + 300 = 1100 > 1000
+        smallLimitAccumulator.accumulate(session, overflowChunk, false, result::set);
 
         // Buffer sollte verworfen worden sein
-        assertEquals(0, accumulator.getActiveBufferCount());
+        assertEquals(0, smallLimitAccumulator.getActiveBufferCount());
         assertNull(result.get());
     }
 
     @Test
     void newMessageAfterOversizeStartsFresh() {
+        MessageAccumulator smallLimitAccumulator = new MessageAccumulator(30, 1000);
         AtomicReference<String> result = new AtomicReference<>();
 
         // Überschreite das Limit
-        String largeChunk = "x".repeat(100_000);
-        accumulator.accumulate(session, largeChunk, false, result::set);
-        accumulator.accumulate(session, "y".repeat(950_000), false, result::set);
-        assertEquals(0, accumulator.getActiveBufferCount());
+        String chunk = "x".repeat(800);
+        String overflowChunk = "y".repeat(300);
+        smallLimitAccumulator.accumulate(session, chunk, false, result::set);
+        smallLimitAccumulator.accumulate(session, overflowChunk, false, result::set);
+        assertEquals(0, smallLimitAccumulator.getActiveBufferCount());
 
         // Neue Nachricht sollte normal funktionieren
-        accumulator.accumulate(session, "fresh", true, result::set);
+        smallLimitAccumulator.accumulate(session, "fresh", true, result::set);
         assertEquals("fresh", result.get());
     }
 }

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -23,17 +24,25 @@ public class MessageAccumulator {
 
     private static final Logger log = LoggerFactory.getLogger(MessageAccumulator.class);
     private static final int DEFAULT_TIMEOUT_SECONDS = 30;
-    private static final int MAX_ACCUMULATED_SIZE = 1024 * 1024; // 1 MB
+    private static final int DEFAULT_MAX_SIZE = 1024 * 1024; // 1 MB
 
     private final Map<WebSocketSession, AccumulatorState> buffers = new ConcurrentHashMap<>();
     private final int timeoutSeconds;
+    private final int maxAccumulatedSize;
 
     public MessageAccumulator() {
-        this(DEFAULT_TIMEOUT_SECONDS);
+        this(DEFAULT_TIMEOUT_SECONDS, DEFAULT_MAX_SIZE);
     }
 
     public MessageAccumulator(int timeoutSeconds) {
+        this(timeoutSeconds, DEFAULT_MAX_SIZE);
+    }
+
+    public MessageAccumulator(
+            @Value("${ccc.accumulator.timeout-seconds:30}") int timeoutSeconds,
+            @Value("${ccc.accumulator.max-size:1048576}") int maxAccumulatedSize) {
         this.timeoutSeconds = timeoutSeconds;
+        this.maxAccumulatedSize = maxAccumulatedSize;
     }
 
     /**
@@ -56,9 +65,9 @@ public class MessageAccumulator {
                         session.getId(), state.size());
                 buffers.remove(session);
                 state = null;
-            } else if (state.size() + payload.length() > MAX_ACCUMULATED_SIZE) {
+            } else if (state.size() + payload.length() > maxAccumulatedSize) {
                 log.error("Session {}: Accumulated message exceeds max size of {} bytes, discarding",
-                        session.getId(), MAX_ACCUMULATED_SIZE);
+                        session.getId(), maxAccumulatedSize);
                 buffers.remove(session);
                 return;
             }

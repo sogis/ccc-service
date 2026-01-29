@@ -5,3 +5,5 @@
 
 # Ignore Gradle build output directory
 build
+
+docker/ccc/ccc-service.jar
