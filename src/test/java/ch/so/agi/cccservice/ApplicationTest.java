@@ -8,6 +8,7 @@ import ch.so.agi.cccservice.deamon.SessionsKiller;
 import ch.so.agi.cccservice.deamon.PingSender;
 import ch.so.agi.cccservice.deamon.SessionsGroomer;
 import ch.so.agi.cccservice.session.Sessions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ApplicationTest {
