@@ -17,6 +17,8 @@ jobs:
       with:
         java-version: 25
         distribution: temurin
+    - name: Code quality checks
+      run: ./gradlew spotbugsMain spotbugsTest
     - name: Run tests
       run: ./gradlew test
     - name: Run integration tests

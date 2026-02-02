@@ -6,6 +6,7 @@ import ch.so.agi.cccservice.session.SockConnection;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,9 +16,9 @@ class TestUtilTest {
 
     @Test
     void testWait() {
-        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime start = LocalDateTime.now(ZoneId.systemDefault());
         TestUtil.wait(100);
-        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now(ZoneId.systemDefault());
         int effectiveWait = (int) Duration.between(start, end).toMillis();
         assertTrue(effectiveWait >= 100);
     }

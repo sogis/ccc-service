@@ -1,12 +1,5 @@
 package ch.so.agi.cccservice.session;
 
-import ch.so.agi.cccservice.exception.HandshakeIncompleteException;
-import ch.so.agi.cccservice.exception.ReceivingConnectionClosedException;
-import ch.so.agi.cccservice.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.WebSocketSession;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -14,13 +7,21 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.socket.WebSocketSession;
+
+import ch.so.agi.cccservice.exception.HandshakeIncompleteException;
+import ch.so.agi.cccservice.exception.ReceivingConnectionClosedException;
+import ch.so.agi.cccservice.message.Message;
+
 /**
  * Represents one bidirectional route via the two websocket
  * connections app - server and gis - server.
  * The session connects one app and one gis instance, typically
  * both running on the same machine for one user.
  */
-public class Session implements Comparable{
+public class Session implements Comparable<Session>{
     private static final int HANDSHAKE_MAXDURATION_MILLIS = 60 * 1000;
     private static final Logger log = LoggerFactory.getLogger(Session.class);
     /**
@@ -209,7 +210,19 @@ public class Session implements Comparable{
     }
 
     @Override
-    public int compareTo(Object o) {
-        return Integer.compare(this.getSessionNr(), ((Session) o).getSessionNr());
+    public int compareTo(Session o) {
+        return Integer.compare(this.getSessionNr(), o.getSessionNr());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Session s)) return false;
+        return sessionNr == s.sessionNr;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(sessionNr);
     }
 }

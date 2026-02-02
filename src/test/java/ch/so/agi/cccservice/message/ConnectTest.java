@@ -1,27 +1,26 @@
 package ch.so.agi.cccservice.message;
 
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.message.app.ConnectApp;
 import ch.so.agi.cccservice.message.gis.ConnectGis;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
-import java.util.UUID;
-import java.util.logging.SocketHandler;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class ConnectTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    private static String MESSAGE_TEMPLATE = """
+    private static final String MESSAGE_TEMPLATE = """
             {
                 "method": "%s",
                 "clientName": "Axioma Mandant AfU",
@@ -31,6 +30,7 @@ class ConnectTest {
             """;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void resetSessions() {
         Sessions.resetSessionCollection();
     }
@@ -117,7 +117,7 @@ class ConnectTest {
     @Test
     void duplicateAppConnect_FromOtherSocket_Throws(){
         UUID sesUid = UUID.randomUUID();
-        Session s = TestUtil.initSession(sesUid);
+        TestUtil.initSession(sesUid);
 
         String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
         MockWebSocketSession con = new MockWebSocketSession();
@@ -130,7 +130,7 @@ class ConnectTest {
     @Test
     void duplicateGisConnect_FromOtherSocket_Throws(){
         UUID sesUid = UUID.randomUUID();
-        Session s = TestUtil.initSession(sesUid);
+        TestUtil.initSession(sesUid);
 
         String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
         MockWebSocketSession con = new MockWebSocketSession();
