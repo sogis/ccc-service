@@ -1,27 +1,15 @@
 plugins {
     id 'org.springframework.boot' version '3.5.7'
-    //id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
 }
 
 apply plugin: 'io.spring.dependency-management'
 
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
 
 dependencies {
-    /*
-    // Use JUnit Jupiter for testing.
-    testImplementation libs.junit.jupiter
-
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // This dependency is used by the application.
-    implementation libs.guava
-*/
-
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-validation')
     implementation('org.springframework.boot:spring-boot-starter-websocket')
@@ -31,7 +19,6 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -52,30 +39,31 @@ tasks.register('integrationTest', Test) {
     }
 }
 
-/* $td upgradle to current gradle version
-task jardist(type: Copy, dependsOn: build){
-    from file("$buildDir/libs/ccc-service.jar")
+tasks.register('jardist', Copy) {
+    from tasks.named('bootJar')
     into file('docker/ccc')
 }
 
-task buildImage(type:Exec, dependsOn: jardist) {
+tasks.register('buildImage', Exec) {
+    dependsOn jardist
     def githash = getCheckedOutGitCommitHash()
     def buildident = buildIdent()
     def build_timestamp = getTimestamp()
 
     commandLine 'docker', 'build',
-            '--no-cache', '--force-rm',
+            '--no-cache',
             '-t', "sogis/ccc-service:latest",
             '-t', "sogis/ccc-service:$buildident",
             '--label', "ccc-service.created=$build_timestamp",
             '--label', "ccc-service.git_commit=$githash",
             '--label', "ccc-service.build_nr=$buildident",
-            '-f', 'Dockerfile',  '.'
+            '-f', 'Dockerfile', '.'
 
-    workingDir "docker"
+    workingDir 'docker'
 }
 
-task runImage(type:Exec, dependsOn: buildImage) {
+tasks.register('runImage', Exec) {
+    dependsOn buildImage
     commandLine 'docker', 'run', '-d',
             '-p', '8080:8080',
             '-e', 'CCC_DEBUG=1',
@@ -83,47 +71,45 @@ task runImage(type:Exec, dependsOn: buildImage) {
             'sogis/ccc-service'
 }
 
-task waitUntilUp(type:Exec, dependsOn: runImage) {
+tasks.register('waitUntilUp', Exec) {
+    dependsOn runImage
     commandLine './await_url.sh', 'http://localhost:8080/actuator/health'
-    workingDir "docker"
+    workingDir 'docker'
 
     doLast {
-        Thread.sleep(2000) // wait extra 2 seconds
+        Thread.sleep(2000)
     }
 }
 
-task testImage(type: JavaExec, dependsOn: waitUntilUp){ //tests the image with the probe tool
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'ch.so.agi.cccprobe.ProbeTool'
-}
-
-task pushLatestImage(type:Exec) {
+tasks.register('pushLatestImage', Exec) {
     commandLine 'docker', 'push', 'sogis/ccc-service:latest'
 }
 
-task pushImage(type:Exec, dependsOn: pushLatestImage) {
+tasks.register('pushImage', Exec) {
+    dependsOn pushLatestImage
     def buildident = buildIdent()
-
     commandLine 'docker', 'push', "sogis/ccc-service:$buildident"
 }
 
 def String buildIdent() {
+    String tag = System.getenv('RELEASE_TAG')
+    if (tag != null)
+        return tag
+
     String prefix = '1.2.'
     String suffix = System.getenv('GITHUB_RUN_NUMBER')
-
-    if(suffix == null)
+    if (suffix == null)
         suffix = 'localbuild'
-
     return prefix + suffix
 }
 
 def getCheckedOutGitCommitHash() {
-    String val = 'git log -1 --pretty=%H'.execute().text.trim()
-    return val
+    return providers.exec {
+        commandLine 'git', 'log', '-1', '--pretty=%H'
+    }.standardOutput.asText.get().trim()
 }
 
 def getTimestamp() {
     def date = new Date()
     return date.format('yyyy-MM-dd HH:mm:ss')
 }
-*/
