@@ -1,15 +1,18 @@
 package ch.so.agi.cccservice.message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.so.agi.cccservice.exception.ForbiddenReconnectException;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import ch.so.agi.cccservice.session.SockConnection;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.WebSocketSession;
 
 /**
  * Message sent from app or gis to reconnect after an unexpectedly closed connection
@@ -64,16 +67,19 @@ public abstract class Reconnect extends Message {
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {
         log.warn("Session {}: {} tried to reconnect, but given key '{}' is invalid.", oldSessionNumber, clientName, oldConnectionKey);
 
-        String errStringTemplate = """
+        String errMessage = """
                 {
                     "method": "notifyError",
                     "code": 400,
-                    "message": "Given key '%s' for the reconnect is invalid",
+                    "message": "Given key '%s' for the reconnect is invalid"
                 }
-                """;
+                """.formatted(oldConnectionKey);
 
-        Message err = Message.forJsonString(String.format(errStringTemplate, oldConnectionKey));
-        err.process(sourceConnection);
+        try {
+            sourceConnection.sendMessage(new TextMessage(errMessage));
+        } catch (Exception e) {
+            log.error("Failed to send reconnect error to {}: {}", clientName, e.toString());
+        }
     }
 }
 

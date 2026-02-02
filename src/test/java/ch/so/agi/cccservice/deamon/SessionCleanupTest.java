@@ -1,6 +1,7 @@
 package ch.so.agi.cccservice.deamon;
 
 import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.message.MessageAccumulator;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,16 +13,20 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SessionCleanupTest {
+
+    private SessionsGroomer groomer;
+
     @BeforeEach
     void resetSessions() throws Exception {
         Sessions.resetSessionCollection();
+        groomer = new SessionsGroomer(new MessageAccumulator());
     }
 
     @Test
     void removeStaleSessionsHandlesEmptyCollection() {
         assertEquals(0, Sessions.allSessions().count());
 
-        (new SessionsGroomer()).removeStaleSessions();
+        groomer.removeStaleSessions();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -33,7 +38,7 @@ class SessionCleanupTest {
 
         assertEquals(2, Sessions.allSessions().count());
 
-        (new SessionsGroomer()).removeStaleSessions();
+        groomer.removeStaleSessions();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -45,7 +50,7 @@ class SessionCleanupTest {
 
         assertEquals(2, Sessions.allSessions().count());
 
-        (new SessionsGroomer()).removeStaleSessions();
+        groomer.removeStaleSessions();
 
         assertEquals(1, Sessions.allSessions().count());
     }
@@ -55,7 +60,7 @@ class SessionCleanupTest {
         Session s = TestUtil.initSession();
         s.getAppWebSocket().close();
 
-        (new SessionsGroomer()).removeStaleSessions();
+        groomer.removeStaleSessions();
 
         assertFalse(s.getGisWebSocket().isOpen());
     }
@@ -67,7 +72,7 @@ class SessionCleanupTest {
 
         TestUtil.wait(20);
 
-        (new SessionsGroomer()).removeStaleSessions();
+        groomer.removeStaleSessions();
 
         assertFalse(s.getAppWebSocket().isOpen());
     }

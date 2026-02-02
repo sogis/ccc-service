@@ -104,4 +104,60 @@ class SessionTest {
         assertFalse(session.getAppWebSocket().isOpen());
         assertFalse(session.getGisWebSocket().isOpen());
     }
+
+    // --- getPeerConnection ---
+
+    @Test
+    void getPeerConnection_returnsOtherSide() {
+        Session s = TestUtil.initSession();
+
+        assertSame(s.getGisConnection(), s.getPeerConnection(s.getAppWebSocket()));
+        assertSame(s.getAppConnection(), s.getPeerConnection(s.getGisWebSocket()));
+    }
+
+    @Test
+    void getPeerConnection_returnsNullWhenIncomplete() {
+        Session s = TestUtil.openSession(true);
+
+        assertNull(s.getPeerConnection(s.getAppWebSocket()));
+    }
+
+    // --- v12Connections / hasV12Connection ---
+
+    @Test
+    void hasV12Connection_trueWhenV12Present() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        assertTrue(s.hasV12Connection());
+        assertEquals(2, s.v12Connections().size());
+    }
+
+    @Test
+    void hasV12Connection_falseWhenAllV1() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+
+        assertFalse(s.hasV12Connection());
+        assertEquals(0, s.v12Connections().size());
+    }
+
+    @Test
+    void hasV12Connection_mixedProtocols() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
+
+        assertTrue(s.hasV12Connection());
+        assertEquals(1, s.v12Connections().size());
+    }
+
+    // --- compareTo ---
+
+    @Test
+    void compareTo_orderedBySessionNumber() {
+        Sessions.resetSessionCollection();
+        Session s1 = TestUtil.initSession();
+        Session s2 = TestUtil.initSession();
+
+        assertTrue(s1.compareTo(s2) < 0);
+        assertTrue(s2.compareTo(s1) > 0);
+        assertEquals(0, s1.compareTo(s1));
+    }
 }

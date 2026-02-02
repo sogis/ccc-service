@@ -22,8 +22,8 @@ public class TestUtil {
             throw new IllegalArgumentException("Millis must be in the range (including) 1 to 5000");
 
         Awaitility.await()
-                .timeout(millis, TimeUnit.MILLISECONDS)
-                .pollDelay(millis - 1, TimeUnit.MILLISECONDS)
+                .timeout(millis + 500, TimeUnit.MILLISECONDS)
+                .pollDelay(millis, TimeUnit.MILLISECONDS)
                 .untilAsserted(() -> assertTrue(true));
     }
 

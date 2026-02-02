@@ -1,18 +1,20 @@
 package ch.so.agi.cccservice;
 
-import ch.so.agi.cccservice.session.Sessions;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
+import ch.so.agi.cccservice.message.MessageAccumulator;
+import ch.so.agi.cccservice.session.Sessions;
 
 @Component
 public class CCCWebSocketHandler extends TextWebSocketHandler {
@@ -21,9 +23,25 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CCCWebSocketHandler.class);
 
+    private final MessageAccumulator accumulator;
+
+    public CCCWebSocketHandler(MessageAccumulator accumulator) {
+        this.accumulator = accumulator;
+    }
+
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        MessageHandler.handleMessage(session, message.getPayload());
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        accumulator.accumulate(
+                session,
+                message.getPayload(),
+                message.isLast(),
+                fullMessage -> MessageHandler.handleMessage(session, fullMessage)
+        );
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        accumulator.cleanup(session);
     }
 
     @Override
@@ -33,8 +51,8 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
         CompletableFuture.runAsync(() -> assertClientSentConnectMessage(session), delayedExecutor);
     }
 
-    private static void assertClientSentConnectMessage(WebSocketSession con){
-        if(Sessions.findByConnection(con) == null) { // No connect / reconnect message was sent
+    private static void assertClientSentConnectMessage(WebSocketSession con) {
+        if (Sessions.findByConnection(con) == null) { // No connect / reconnect message was sent
             try {
                 con.close();
             } catch (IOException e) {

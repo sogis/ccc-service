@@ -3,6 +3,9 @@ package ch.so.agi.cccservice.session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,5 +65,103 @@ class SessionsTest {
 
         assertNull(Sessions.findByConnection(unknownSession));
         assertNull(Sessions.findByConnection(null));
+    }
+
+    // --- findBySessionUid ---
+
+    @Test
+    void findBySessionUid_returnsMatchingSession() {
+        UUID uid = UUID.randomUUID();
+        Session session = createSession(uid, new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(session);
+
+        assertSame(session, Sessions.findBySessionUid(uid));
+    }
+
+    @Test
+    void findBySessionUid_returnsNullForUnknownUid() {
+        Session session = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(session);
+
+        assertNull(Sessions.findBySessionUid(UUID.randomUUID()));
+        assertNull(Sessions.findBySessionUid(null));
+    }
+
+    // --- removeStaleSessions ---
+
+    @Test
+    void removeStaleSessions_removesClosedConnection() throws IOException {
+        Session healthy = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(healthy);
+
+        MockWebSocketSession staleApp = new MockWebSocketSession();
+        Session stale = createSession(staleApp, new MockWebSocketSession());
+        Sessions.addOrReplace(stale);
+
+        staleApp.close();
+
+        List<Integer> removed = Sessions.removeStaleSessions().toList();
+
+        assertEquals(1, removed.size());
+        assertEquals(stale.getSessionNr(), removed.get(0));
+        assertEquals(1, Sessions.allSessions().count());
+    }
+
+    @Test
+    void removeStaleSessions_removesHandshakeExceeded() {
+        Session healthy = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(healthy);
+
+        Session expired = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        expired.setHandShakeMaxDuration(Duration.ZERO);
+        Sessions.addOrReplace(expired);
+
+        List<Integer> removed = Sessions.removeStaleSessions().toList();
+
+        assertEquals(1, removed.size());
+        assertEquals(expired.getSessionNr(), removed.get(0));
+        assertEquals(1, Sessions.allSessions().count());
+    }
+
+    @Test
+    void removeStaleSessions_keepsHealthySessions() {
+        Session s1 = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Session s2 = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(s1);
+        Sessions.addOrReplace(s2);
+
+        List<Integer> removed = Sessions.removeStaleSessions().toList();
+
+        assertEquals(0, removed.size());
+        assertEquals(2, Sessions.allSessions().count());
+    }
+
+    // --- findByConnectionKey ---
+
+    @Test
+    void findByConnectionKey_findsAppConnection() {
+        Session session = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(session);
+
+        String appKey = session.getAppConnection().getConnectionKey();
+        assertSame(session, Sessions.findByConnectionKey(appKey, true));
+    }
+
+    @Test
+    void findByConnectionKey_findsGisConnection() {
+        Session session = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(session);
+
+        String gisKey = session.getGisConnection().getConnectionKey();
+        assertSame(session, Sessions.findByConnectionKey(gisKey, false));
+    }
+
+    @Test
+    void findByConnectionKey_returnsNullForUnknownKey() {
+        Session session = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(session);
+
+        assertNull(Sessions.findByConnectionKey("unknown", true));
+        assertNull(Sessions.findByConnectionKey("unknown", false));
     }
 }
