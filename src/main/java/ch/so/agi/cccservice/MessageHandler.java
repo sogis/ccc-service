@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
+import ch.so.agi.cccservice.exception.CccSecurityException;
 import ch.so.agi.cccservice.exception.ClientException;
-import ch.so.agi.cccservice.exception.SecurityException;
 import ch.so.agi.cccservice.message.ErrorSender;
 import ch.so.agi.cccservice.message.Message;
 import ch.so.agi.cccservice.session.Session;
@@ -25,7 +25,7 @@ public class MessageHandler {
             m.setRawMessage(message);
             m.process(sender);
         }
-        catch (SecurityException se){
+        catch (CccSecurityException se){
             log.error(se.getMessage());
         }
         catch (ClientException clientException) {

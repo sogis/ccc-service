@@ -21,12 +21,11 @@ import jakarta.validation.constraints.NotNull;
 public abstract class Reconnect extends Message {
     private static final Logger log = LoggerFactory.getLogger(Reconnect.class);
 
-    @JsonProperty()
+    @JsonProperty
     @NotNull
     private String oldConnectionKey;
 
-    @JsonProperty()
-    @NotNull
+    @JsonProperty
     private int oldSessionNumber;
 
     public Reconnect(String methodType) {

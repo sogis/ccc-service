@@ -1,14 +1,16 @@
 package ch.so.agi.cccservice.message;
 
-import ch.so.agi.cccservice.exception.ClientException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import ch.so.agi.cccservice.exception.ClientException;
 
 /**
  * Helper responsible for sending notifyError messages back to the client
@@ -27,7 +29,7 @@ public final class ErrorSender {
         }
 
         ObjectNode payload = mapper.createObjectNode();
-        payload.put("method", Error.MESSAGE_TYPE);
+        payload.put("method", ErrorMessage.MESSAGE_TYPE);
         payload.put("code", exception.getCode());
         payload.put("message", exception.getMessage());
         payload.put("nativeCode", exception.getClass().getName());

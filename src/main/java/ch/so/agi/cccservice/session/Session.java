@@ -3,9 +3,10 @@ package ch.so.agi.cccservice.session;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class Session implements Comparable<Session>{
         else
             this.gisConnection = connection;
         this.sessionNr = Sessions.getNextSessionNr();
-        this.handShakeInitialized = LocalDateTime.now();
+        this.handShakeInitialized = LocalDateTime.now(ZoneId.systemDefault());
         this.handShakeMaxDuration = Duration.ofMillis(HANDSHAKE_MAXDURATION_MILLIS);
     }
 
@@ -116,7 +117,7 @@ public class Session implements Comparable<Session>{
      * Returns true if added, false if adding failed due to closed handshake window.
      */
     public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
-        if(handShakeInitialized.plus(handShakeMaxDuration).isBefore(LocalDateTime.now()))
+        if(handShakeInitialized.plus(handShakeMaxDuration).isBefore(LocalDateTime.now(ZoneId.systemDefault())))
             return false;
 
         if(isAppConnection){
@@ -172,15 +173,15 @@ public class Session implements Comparable<Session>{
     }
 
     public boolean handShakeExceeded() {
-        return LocalDateTime.now().isAfter(handShakeInitialized.plus(handShakeMaxDuration));
+        return LocalDateTime.now(ZoneId.systemDefault()).isAfter(handShakeInitialized.plus(handShakeMaxDuration));
     }
 
     public boolean hasV12Connection(){
-        return !( v12Connections().isEmpty() );
+        return !v12Connections().isEmpty();
     }
 
     public List<SockConnection> v12Connections(){
-        List<SockConnection> connections = new Vector<>();
+        List<SockConnection> connections = new ArrayList<>();
 
         if(gisConnection != null &&  SockConnection.PROTOCOL_V12.equals(gisConnection.getApiVersion()))
             connections.add(gisConnection);

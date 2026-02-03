@@ -45,6 +45,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
+    @SuppressWarnings("FutureReturnValueIgnored")
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         Executor delayedExecutor = CompletableFuture.delayedExecutor(CONNECT_MSG_MAX_DELAY_SECONDS, TimeUnit.SECONDS);
 

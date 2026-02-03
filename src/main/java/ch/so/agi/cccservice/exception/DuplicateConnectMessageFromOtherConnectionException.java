@@ -6,7 +6,7 @@ import java.util.UUID;
  * Raised when a client attempts to connect to a session that already has
  * an active connection for that role (app or gis).
  */
-public class DuplicateConnectMessageFromOtherConnectionException extends SecurityException {
+public class DuplicateConnectMessageFromOtherConnectionException extends CccSecurityException {
 
     public DuplicateConnectMessageFromOtherConnectionException(int sesNr, UUID sesUid, String duplicateClientName, String firstClientName) {
         super(String.format(

@@ -99,7 +99,7 @@ class ConnectTest {
         MessageHandler.handleMessage(s.getAppWebSocket(), conApp);
 
         String sentApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
-        assertTrue(sentApp.contains(Error.MESSAGE_TYPE));
+        assertTrue(sentApp.contains(ErrorMessage.MESSAGE_TYPE));
     }
 
     @Test
@@ -111,7 +111,7 @@ class ConnectTest {
         MessageHandler.handleMessage(s.getGisWebSocket(), conGis);
 
         String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
-        assertTrue(sentGis.contains(Error.MESSAGE_TYPE));
+        assertTrue(sentGis.contains(ErrorMessage.MESSAGE_TYPE));
     }
 
     @Test

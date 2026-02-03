@@ -1,21 +1,21 @@
 package ch.so.agi.cccservice.message;
 
-import ch.so.agi.cccservice.session.Session;
-import ch.so.agi.cccservice.session.Sessions;
+import org.springframework.web.socket.WebSocketSession;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.web.socket.WebSocketSession;
 
+import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.Sessions;
 import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Error extends Message {
+public class ErrorMessage extends Message {
 
     public static final String MESSAGE_TYPE = "notifyError";
 
     @JsonProperty("code")
-    @NotNull
     private int code;
     @JsonProperty("message")
     @NotNull
@@ -28,7 +28,7 @@ public class Error extends Message {
     private String technicalDetails;
 
     // Required no-args constructor
-    public Error() { super(MESSAGE_TYPE); }
+    public ErrorMessage() { super(MESSAGE_TYPE); }
 
     public String getTechnicalDetails() {
         return technicalDetails;

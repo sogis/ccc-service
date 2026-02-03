@@ -21,10 +21,10 @@ abstract public class Connect extends Message {
 
     @NotNull
     private UUID sessionUid;
-    @JsonProperty()
+    @JsonProperty
     @NotNull
     private String clientName;
-    @JsonProperty()
+    @JsonProperty
     @NotNull
     private String apiVersion;
 

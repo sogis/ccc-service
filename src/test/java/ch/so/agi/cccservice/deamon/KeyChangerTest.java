@@ -5,7 +5,6 @@ import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import ch.so.agi.cccservice.session.SockConnection;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class KeyChangerTest {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String KEYCHANGE_METHOD = "keyChange";
 
     @BeforeEach
@@ -27,7 +25,7 @@ class KeyChangerTest {
     void sendKeyChangeHandlesEmptySessionCollection() {
         assertEquals(0, Sessions.allSessions().count());
 
-        (new KeyChanger()).sendKeyChange();
+        new KeyChanger().sendKeyChange();
 
         assertEquals(0, Sessions.allSessions().count());
     }
@@ -39,9 +37,9 @@ class KeyChangerTest {
         Session mixedAppV12 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
         Session mixedGisV12 = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
 
-        (new KeyChanger()).sendKeyChange();
+        new KeyChanger().sendKeyChange();
 
-        String lastMessage = "";
+        String lastMessage;
 
         // v1 only
         lastMessage = ((MockWebSocketSession) v1Only.getAppWebSocket()).getLastSentTextMessage();

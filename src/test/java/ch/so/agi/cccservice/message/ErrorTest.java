@@ -46,7 +46,7 @@ class ErrorTest {
     @Test
     void onlyMandatoryFields_parses() {
         String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", NULL).replace("$NATIVE_CODE", NULL).replace("$TECH_DETAILS", NULL);
-        Error err = (Error) Message.forJsonString(msg);
+        ErrorMessage err = (ErrorMessage) Message.forJsonString(msg);
 
         assertEquals(CODE, err.getCode());
         assertTrue(ERR_MESSAGE.contains(err.getErrMessage()));
@@ -58,7 +58,7 @@ class ErrorTest {
     @Test
     void mandatoryAndOptionalFields_parses() {
         String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", USER_DATA).replace("$NATIVE_CODE", NATIVE_CODE).replace("$TECH_DETAILS", TECH_DETAILS);
-        Error err = (Error) Message.forJsonString(msg);
+        ErrorMessage err = (ErrorMessage) Message.forJsonString(msg);
 
         assertEquals(CODE, err.getCode());
         assertTrue(ERR_MESSAGE.contains(err.getErrMessage()));

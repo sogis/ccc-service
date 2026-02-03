@@ -1,24 +1,37 @@
 package ch.so.agi.cccservice.message;
 
-import ch.so.agi.cccservice.exception.MessageMalformedException;
-import ch.so.agi.cccservice.exception.MessageUnknownException;
-import ch.so.agi.cccservice.message.app.*;
-import ch.so.agi.cccservice.message.gis.ConnectGis;
-import ch.so.agi.cccservice.message.gis.EditGeoObjectDone;
-import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
-import ch.so.agi.cccservice.message.gis.ReconnectGis;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.so.agi.cccservice.exception.MessageMalformedException;
+import ch.so.agi.cccservice.exception.MessageUnknownException;
+import ch.so.agi.cccservice.message.app.CancelEditGeoObject;
+import ch.so.agi.cccservice.message.app.ChangeLayerVisibility;
+import ch.so.agi.cccservice.message.app.ConnectApp;
+import ch.so.agi.cccservice.message.app.CreateGeoObject;
+import ch.so.agi.cccservice.message.app.EditGeoObject;
+import ch.so.agi.cccservice.message.app.ObjectUpdated;
+import ch.so.agi.cccservice.message.app.ReconnectApp;
+import ch.so.agi.cccservice.message.app.ShowGeoObject;
+import ch.so.agi.cccservice.message.gis.ConnectGis;
+import ch.so.agi.cccservice.message.gis.EditGeoObjectDone;
+import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
+import ch.so.agi.cccservice.message.gis.ReconnectGis;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Root of all classes that implement ccc-messages.
@@ -73,7 +86,7 @@ abstract public class Message {
         MESSAGE_TYPES.put(ChangeLayerVisibility.MESSAGE_TYPE, ChangeLayerVisibility.class);
         MESSAGE_TYPES.put(ConnectApp.MESSAGE_TYPE, ConnectApp.class);
         MESSAGE_TYPES.put(ConnectGis.MESSAGE_TYPE, ConnectGis.class);
-        MESSAGE_TYPES.put(Error.MESSAGE_TYPE, Error.class);
+        MESSAGE_TYPES.put(ErrorMessage.MESSAGE_TYPE, ErrorMessage.class);
         MESSAGE_TYPES.put(EditGeoObjectDone.MESSAGE_TYPE, EditGeoObjectDone.class);
         MESSAGE_TYPES.put(CancelEditGeoObject.MESSAGE_TYPE, CancelEditGeoObject.class);
         MESSAGE_TYPES.put(CreateGeoObject.MESSAGE_TYPE, CreateGeoObject.class);

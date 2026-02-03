@@ -5,9 +5,9 @@ package ch.so.agi.cccservice.exception;
  * Security exception should never be raised in operations and are
  * logged as error.
  */
-public abstract class SecurityException extends RuntimeException {
+public abstract class CccSecurityException extends RuntimeException {
 
-    protected SecurityException(String exMessage) {
+    protected CccSecurityException(String exMessage) {
         super(exMessage);
     }
 }
