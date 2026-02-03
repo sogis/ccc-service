@@ -93,6 +93,11 @@ tasks.register('waitUntilUp', Exec) {
     }
 }
 
+tasks.register('testImage', Exec) {
+    dependsOn waitUntilUp
+    commandLine 'curl', '-f', 'http://localhost:8080/actuator/health'
+}
+
 tasks.register('pushLatestImage', Exec) {
     commandLine 'docker', 'push', 'sogis/ccc-service:latest'
 }
