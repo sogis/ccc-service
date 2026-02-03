@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Component("liveness")
+@Component("cccLiveness")
 public class LivenessProbe implements HealthIndicator {
 
     private static final Logger log = LoggerFactory.getLogger(LivenessProbe.class);
