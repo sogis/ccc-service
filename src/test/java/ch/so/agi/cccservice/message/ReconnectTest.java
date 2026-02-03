@@ -75,10 +75,13 @@ class ReconnectTest {
     private String reconnectMessage(String method, String oldConnectionKey, int oldSessionNumber) {
         return """
                 {
-                    "method": "%s",
-                    "oldConnectionKey": "%s",
-                    "oldSessionNumber": %d
+                    "method": "$METHOD",
+                    "oldConnectionKey": "$KEY",
+                    "oldSessionNumber": $NUMBER
                 }
-                """.formatted(method, oldConnectionKey, oldSessionNumber);
+                """
+                .replace("$METHOD", method)
+                .replace("$KEY", oldConnectionKey)
+                .replace("$NUMBER", String.valueOf(oldSessionNumber));
     }
 }

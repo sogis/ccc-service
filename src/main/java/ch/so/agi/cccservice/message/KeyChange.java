@@ -4,15 +4,11 @@ import ch.so.agi.cccservice.session.SockConnection;
 
 public class KeyChange {
 
-    private static final String KEY_CHANGE = """
-            {
-                "method": "keyChange",
-                "newConnectionKey": "%s"
-            }
-            """;
-
     public static void sendKeyChangeToConnection(SockConnection receiver) {
-        String msg = String.format(KEY_CHANGE, receiver.refreshKey());
+        String msg = "{\n"
+                + "    \"method\": \"keyChange\",\n"
+                + "    \"newConnectionKey\": \"" + receiver.refreshKey() + "\"\n"
+                + "}";
         receiver.sendMessage(msg);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Base64;
  * accepting equality to all past keys issued inside the last x
  * seconds defined in gracePeriodInSeconds.
  */
-public class CryptoKey {
+public final class CryptoKey {
 
     private final int gracePeriodInSeconds;
     private final ArrayDeque<IssuedKey> issuedKeys = new ArrayDeque<>();

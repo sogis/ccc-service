@@ -15,8 +15,8 @@ class CreateGeoObjectTest {
     private static final String MESSAGE = """
             {
                 "method": "createGeoObject",
-                "context": %s,
-                "zoomTo": %s
+                "context": $CONTEXT,
+                "zoomTo": $ZOOM_TO
             }
             """;
 
@@ -34,14 +34,14 @@ class CreateGeoObjectTest {
 
     @Test
     void missingContext_Throws(){
-        String msg = String.format(MESSAGE, NULL, ZOOM_TO);
+        String msg = MESSAGE.replace("$CONTEXT", NULL).replace("$ZOOM_TO", ZOOM_TO);
 
         assertThrows(ConstraintViolationException.class, () -> Message.forJsonString(msg));
     }
 
     @Test
     void onlyMandatoryFields_Parses(){
-        String msg = String.format(MESSAGE, CONTEXT, NULL);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$ZOOM_TO", NULL);
 
         CreateGeoObject create = (CreateGeoObject) Message.forJsonString(msg);
 
@@ -51,7 +51,7 @@ class CreateGeoObjectTest {
 
     @Test
     void mandatoryAndOptionalFields_Parses(){
-        String msg = String.format(MESSAGE, CONTEXT, ZOOM_TO);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$ZOOM_TO", ZOOM_TO);
 
         CreateGeoObject create = (CreateGeoObject) Message.forJsonString(msg);
 
@@ -62,7 +62,7 @@ class CreateGeoObjectTest {
     @Test
     void process_OK() {
         Session s = TestUtil.initSession();
-        String msg = String.format(MESSAGE, CONTEXT, NULL);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$ZOOM_TO", NULL);
 
         MessageHandler.handleMessage(s.getAppWebSocket(), msg);
         JsonStringAssertions.sentMessageEquals(msg, s.getGisWebSocket());

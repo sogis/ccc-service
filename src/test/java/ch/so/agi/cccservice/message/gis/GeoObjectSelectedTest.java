@@ -14,7 +14,7 @@ class GeoObjectSelectedTest {
     private static final String MESSAGE = """
             {
                 "method": "notifyGeoObjectSelected",
-                "context_list": %s
+                "context_list": $CONTEXT_LIST
             }
             """;
 
@@ -28,7 +28,7 @@ class GeoObjectSelectedTest {
 
     @Test
     void mandatoryFieldsOnly_parses() {
-        String m = String.format(MESSAGE, NULL);
+        String m = MESSAGE.replace("$CONTEXT_LIST", NULL);
         GeoObjectSelected msg = (GeoObjectSelected) Message.forJsonString(m);
 
         assertTrue(msg.getContextList().isNull());
@@ -36,7 +36,7 @@ class GeoObjectSelectedTest {
 
     @Test
     void mandatoryAndOptionalFields_parses(){
-        String m = String.format(MESSAGE, CONTEXT_LIST);
+        String m = MESSAGE.replace("$CONTEXT_LIST", CONTEXT_LIST);
         GeoObjectSelected msg = (GeoObjectSelected) Message.forJsonString(m);
 
         JsonStringAssertions.jsonStringEquals(CONTEXT_LIST, msg.getContextList().toString());
@@ -45,7 +45,7 @@ class GeoObjectSelectedTest {
     @Test
     void process_OK() {
         Session s = TestUtil.initSession();
-        String m = String.format(MESSAGE, NULL);
+        String m = MESSAGE.replace("$CONTEXT_LIST", NULL);
         MessageHandler.handleMessage(s.getGisWebSocket(), m);
 
         JsonStringAssertions.sentMessageEquals(m, s.getAppWebSocket());

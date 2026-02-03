@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- WebSocketSession is a Spring interface and cannot be defensively copied -->
+    <Match>
+        <Class name="ch.so.agi.cccservice.session.SockConnection"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- SessionReady.method is read by Jackson via reflection -->
+    <Match>
+        <Class name="ch.so.agi.cccservice.message.SessionReady"/>
+        <Field name="method"/>
+        <Bug pattern="SS_SHOULD_BE_STATIC"/>
+    </Match>
+</FindBugsFilter>

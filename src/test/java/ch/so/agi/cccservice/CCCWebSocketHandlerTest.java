@@ -47,9 +47,9 @@ class CCCWebSocketHandlerTest {
                     "method": "connectApp",
                     "clientName": "TestApp",
                     "apiVersion": "1.0",
-                    "session": "{%s}"
+                    "session": "{$SESSION}"
                 }
-                """.formatted(sessionUid);
+                """.replace("$SESSION", sessionUid.toString());
         MessageHandler.handleMessage(socket, connectMsg);
 
         TestUtil.wait(3000);

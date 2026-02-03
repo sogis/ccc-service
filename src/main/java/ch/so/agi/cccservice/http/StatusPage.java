@@ -16,6 +16,6 @@ public class StatusPage {
     @GetMapping("/")
     public String statusInfo() {
         int sessionCount = (int)Sessions.allSessions().count() / 2;
-        return String.format("%s\nAnzahl Sessions: %d", VERSION, sessionCount);
+        return String.format("%s%nAnzahl Sessions: %d", VERSION, sessionCount);
     }
 }

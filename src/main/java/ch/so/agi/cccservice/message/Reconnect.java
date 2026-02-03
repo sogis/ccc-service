@@ -67,13 +67,11 @@ public abstract class Reconnect extends Message {
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {
         log.warn("Session {}: {} tried to reconnect, but given key '{}' is invalid.", oldSessionNumber, clientName, oldConnectionKey);
 
-        String errMessage = """
-                {
-                    "method": "notifyError",
-                    "code": 400,
-                    "message": "Given key '%s' for the reconnect is invalid"
-                }
-                """.formatted(oldConnectionKey);
+        String errMessage = "{\n"
+                + "    \"method\": \"notifyError\",\n"
+                + "    \"code\": 400,\n"
+                + "    \"message\": \"Given key '" + oldConnectionKey + "' for the reconnect is invalid\"\n"
+                + "}";
 
         try {
             sourceConnection.sendMessage(new TextMessage(errMessage));

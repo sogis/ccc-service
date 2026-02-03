@@ -29,6 +29,10 @@ java {
     }
 }
 
+spotbugs {
+    excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['--should-stop=ifError=FLOW']
 }

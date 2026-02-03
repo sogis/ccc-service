@@ -22,10 +22,10 @@ class ConnectTest {
 
     private static final String MESSAGE_TEMPLATE = """
             {
-                "method": "%s",
+                "method": "$METHOD",
                 "clientName": "Axioma Mandant AfU",
                 "apiVersion": "1.0",
-                "session": "{%s}"
+                "session": "{$SESSION}"
             }
             """;
 
@@ -95,7 +95,7 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         Session s = TestUtil.initSession(sesUid);
 
-        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        String conApp = MESSAGE_TEMPLATE.replace("$METHOD", ConnectApp.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MessageHandler.handleMessage(s.getAppWebSocket(), conApp);
 
         String sentApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
@@ -107,7 +107,7 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         Session s = TestUtil.initSession(sesUid);
 
-        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        String conGis = MESSAGE_TEMPLATE.replace("$METHOD", ConnectGis.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MessageHandler.handleMessage(s.getGisWebSocket(), conGis);
 
         String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
@@ -119,7 +119,7 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         TestUtil.initSession(sesUid);
 
-        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        String conApp = MESSAGE_TEMPLATE.replace("$METHOD", ConnectApp.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MockWebSocketSession con = new MockWebSocketSession();
 
         Message msg = Message.forJsonString(conApp);
@@ -132,7 +132,7 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         TestUtil.initSession(sesUid);
 
-        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        String conGis = MESSAGE_TEMPLATE.replace("$METHOD", ConnectGis.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MockWebSocketSession con = new MockWebSocketSession();
 
         Message msg = Message.forJsonString(conGis);
