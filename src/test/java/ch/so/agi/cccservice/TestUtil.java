@@ -46,10 +46,10 @@ public class TestUtil {
     private static Session connectClientToSession(UUID sessionUid, boolean fromAppClient, String protocolVersion){
         String connectTemplate = """
                 {
-                    "method": "%s",
-                    "clientName": "%s",
-                    "apiVersion": "%s",
-                    "session": "{%s}"
+                    "method": "$METHOD",
+                    "clientName": "$CLIENT",
+                    "apiVersion": "$VERSION",
+                    "session": "{$SESSION}"
                 }
                 """;
 
@@ -57,12 +57,11 @@ public class TestUtil {
         if(!fromAppClient)
             method = ConnectGis.MESSAGE_TYPE;
 
-        String message = String.format(
-                connectTemplate,
-                method,
-                method,
-                protocolVersion,
-                sessionUid);
+        String message = connectTemplate
+                .replace("$METHOD", method)
+                .replace("$CLIENT", method)
+                .replace("$VERSION", protocolVersion)
+                .replace("$SESSION", sessionUid.toString());
 
         MockWebSocketSession sender = new MockWebSocketSession();
         MessageHandler.handleMessage(sender, message);

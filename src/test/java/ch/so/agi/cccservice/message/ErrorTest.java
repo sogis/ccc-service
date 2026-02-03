@@ -12,11 +12,11 @@ class ErrorTest {
     private static final String MESSAGE = """
             {
                 "method": "notifyError",
-                "code": %s,
-                "message": %s,
-                "userData": %s,
-                "nativeCode": %s,
-                "technicalDetails": %s
+                "code": $CODE,
+                "message": $MESSAGE,
+                "userData": $USER_DATA,
+                "nativeCode": $NATIVE_CODE,
+                "technicalDetails": $TECH_DETAILS
             }
             """;
 
@@ -45,8 +45,8 @@ class ErrorTest {
 
     @Test
     void onlyMandatoryFields_parses() {
-        String msg = String.format(MESSAGE, CODE, ERR_MESSAGE, NULL, NULL, NULL);
-        Error err = (Error) Message.forJsonString(msg);
+        String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", NULL).replace("$NATIVE_CODE", NULL).replace("$TECH_DETAILS", NULL);
+        ErrorMessage err = (ErrorMessage) Message.forJsonString(msg);
 
         assertEquals(CODE, err.getCode());
         assertTrue(ERR_MESSAGE.contains(err.getErrMessage()));
@@ -57,8 +57,8 @@ class ErrorTest {
 
     @Test
     void mandatoryAndOptionalFields_parses() {
-        String msg = String.format(MESSAGE, CODE, ERR_MESSAGE, USER_DATA, NATIVE_CODE, TECH_DETAILS);
-        Error err = (Error) Message.forJsonString(msg);
+        String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", USER_DATA).replace("$NATIVE_CODE", NATIVE_CODE).replace("$TECH_DETAILS", TECH_DETAILS);
+        ErrorMessage err = (ErrorMessage) Message.forJsonString(msg);
 
         assertEquals(CODE, err.getCode());
         assertTrue(ERR_MESSAGE.contains(err.getErrMessage()));
@@ -69,7 +69,7 @@ class ErrorTest {
 
     @Test
     void process_OK(){
-        String msg = String.format(MESSAGE, CODE, ERR_MESSAGE, NULL, NULL, NULL);
+        String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", NULL).replace("$NATIVE_CODE", NULL).replace("$TECH_DETAILS", NULL);
 
         Session s = TestUtil.initSession();
         MessageHandler.handleMessage(s.getAppWebSocket(), msg);

@@ -49,7 +49,7 @@ public final class MockWebSocketSession implements WebSocketSession {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return Collections.unmodifiableMap(attributes);
     }
 
     @Override

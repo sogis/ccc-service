@@ -1,18 +1,20 @@
 package ch.so.agi.cccservice.session;
 
-import ch.so.agi.cccservice.exception.HandshakeIncompleteException;
-import ch.so.agi.cccservice.exception.ReceivingConnectionClosedException;
-import ch.so.agi.cccservice.message.Message;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import ch.so.agi.cccservice.exception.HandshakeIncompleteException;
+import ch.so.agi.cccservice.exception.ReceivingConnectionClosedException;
+import ch.so.agi.cccservice.message.Message;
 
 /**
  * Represents one bidirectional route via the two websocket
@@ -20,7 +22,7 @@ import java.util.Vector;
  * The session connects one app and one gis instance, typically
  * both running on the same machine for one user.
  */
-public class Session implements Comparable{
+public class Session implements Comparable<Session>{
     private static final int HANDSHAKE_MAXDURATION_MILLIS = 60 * 1000;
     private static final Logger log = LoggerFactory.getLogger(Session.class);
     /**
@@ -83,7 +85,7 @@ public class Session implements Comparable{
         else
             this.gisConnection = connection;
         this.sessionNr = Sessions.getNextSessionNr();
-        this.handShakeInitialized = LocalDateTime.now();
+        this.handShakeInitialized = LocalDateTime.now(ZoneId.systemDefault());
         this.handShakeMaxDuration = Duration.ofMillis(HANDSHAKE_MAXDURATION_MILLIS);
     }
 
@@ -115,7 +117,7 @@ public class Session implements Comparable{
      * Returns true if added, false if adding failed due to closed handshake window.
      */
     public boolean tryToAddSecondConnection(SockConnection con, boolean isAppConnection){
-        if(handShakeInitialized.plus(handShakeMaxDuration).isBefore(LocalDateTime.now()))
+        if(handShakeInitialized.plus(handShakeMaxDuration).isBefore(LocalDateTime.now(ZoneId.systemDefault())))
             return false;
 
         if(isAppConnection){
@@ -171,15 +173,15 @@ public class Session implements Comparable{
     }
 
     public boolean handShakeExceeded() {
-        return LocalDateTime.now().isAfter(handShakeInitialized.plus(handShakeMaxDuration));
+        return LocalDateTime.now(ZoneId.systemDefault()).isAfter(handShakeInitialized.plus(handShakeMaxDuration));
     }
 
     public boolean hasV12Connection(){
-        return !( v12Connections().isEmpty() );
+        return !v12Connections().isEmpty();
     }
 
     public List<SockConnection> v12Connections(){
-        List<SockConnection> connections = new Vector<>();
+        List<SockConnection> connections = new ArrayList<>();
 
         if(gisConnection != null &&  SockConnection.PROTOCOL_V12.equals(gisConnection.getApiVersion()))
             connections.add(gisConnection);
@@ -209,7 +211,19 @@ public class Session implements Comparable{
     }
 
     @Override
-    public int compareTo(Object o) {
-        return Integer.compare(this.getSessionNr(), ((Session) o).getSessionNr());
+    public int compareTo(Session o) {
+        return Integer.compare(this.getSessionNr(), o.getSessionNr());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Session s)) return false;
+        return sessionNr == s.sessionNr;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(sessionNr);
     }
 }

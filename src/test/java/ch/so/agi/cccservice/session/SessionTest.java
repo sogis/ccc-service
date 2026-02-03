@@ -151,6 +151,7 @@ class SessionTest {
     // --- compareTo ---
 
     @Test
+    @SuppressWarnings("SelfComparison")
     void compareTo_orderedBySessionNumber() {
         Sessions.resetSessionCollection();
         Session s1 = TestUtil.initSession();
@@ -159,5 +160,35 @@ class SessionTest {
         assertTrue(s1.compareTo(s2) < 0);
         assertTrue(s2.compareTo(s1) > 0);
         assertEquals(0, s1.compareTo(s1));
+    }
+
+    // --- equals / hashCode ---
+
+    @Test
+    void equals_reflexive() {
+        Session s = TestUtil.initSession();
+        assertEquals(s, s);
+    }
+
+    @Test
+    void equals_sameSessionNr() {
+        Sessions.resetSessionCollection();
+        Session s1 = TestUtil.initSession();
+        Session s2 = TestUtil.initSession();
+
+        assertNotEquals(s1, s2);
+    }
+
+    @Test
+    void equals_null_and_otherType() {
+        Session s = TestUtil.initSession();
+        assertNotEquals(null, s);
+        assertNotEquals("not a session", s);
+    }
+
+    @Test
+    void hashCode_consistentWithEquals() {
+        Session s = TestUtil.initSession();
+        assertEquals(s.hashCode(), s.hashCode());
     }
 }

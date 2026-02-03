@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@SuppressWarnings("UnusedVariable") // Fields are read by Jackson via reflection
 public class SessionReady {
 
     public static final String METHOD_TYPE = "notifySessionReady";

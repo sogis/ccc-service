@@ -15,8 +15,8 @@ class EditGeoObjectDoneTest {
     private static final String MESSAGE = """
         {
             "method": "notifyEditGeoObjectDone",
-            "context": %s,
-            "data": %s
+            "context": $CONTEXT,
+            "data": $DATA
         }
         """;
 
@@ -34,14 +34,14 @@ class EditGeoObjectDoneTest {
 
     @Test
     void missingContext_throws(){
-        String msg = String.format(MESSAGE, NULL, DATA);
+        String msg = MESSAGE.replace("$CONTEXT", NULL).replace("$DATA", DATA);
 
         assertThrows(ConstraintViolationException.class, () -> Message.forJsonString(msg));
     }
 
     @Test
     void onlyMandatoryFields_parses(){
-        String msg = String.format(MESSAGE, CONTEXT, NULL);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
 
         EditGeoObjectDone done = (EditGeoObjectDone) Message.forJsonString(msg);
 
@@ -51,7 +51,7 @@ class EditGeoObjectDoneTest {
 
     @Test
     void mandatoryAndOptionalFields_parses(){
-        String msg = String.format(MESSAGE, CONTEXT, DATA);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$DATA", DATA);
 
         EditGeoObjectDone done = (EditGeoObjectDone) Message.forJsonString(msg);
 
@@ -62,7 +62,7 @@ class EditGeoObjectDoneTest {
     @Test
     void process_OK(){
         Session s = TestUtil.initSession();
-        String msg = String.format(MESSAGE, CONTEXT, NULL);
+        String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
 
         MessageHandler.handleMessage(s.getGisWebSocket(), msg);
 

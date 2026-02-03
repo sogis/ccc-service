@@ -1,6 +1,8 @@
 plugins {
     id 'org.springframework.boot' version '3.5.7'
     id 'java'
+    id 'com.github.spotbugs' version '6.4.8'
+    id 'net.ltgt.errorprone' version '3.1.0'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -17,12 +19,22 @@ dependencies {
     implementation('org.awaitility:awaitility:4.2.2')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
+
+    errorprone('com.google.errorprone:error_prone_core:2.46.0')
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+spotbugs {
+    excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['--should-stop=ifError=FLOW']
 }
 
 tasks.named('test') {

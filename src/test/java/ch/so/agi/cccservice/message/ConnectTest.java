@@ -1,36 +1,36 @@
 package ch.so.agi.cccservice.message;
 
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.message.app.ConnectApp;
 import ch.so.agi.cccservice.message.gis.ConnectGis;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
-import java.util.UUID;
-import java.util.logging.SocketHandler;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class ConnectTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    private static String MESSAGE_TEMPLATE = """
+    private static final String MESSAGE_TEMPLATE = """
             {
-                "method": "%s",
+                "method": "$METHOD",
                 "clientName": "Axioma Mandant AfU",
                 "apiVersion": "1.0",
-                "session": "{%s}"
+                "session": "{$SESSION}"
             }
             """;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void resetSessions() {
         Sessions.resetSessionCollection();
     }
@@ -95,11 +95,11 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         Session s = TestUtil.initSession(sesUid);
 
-        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        String conApp = MESSAGE_TEMPLATE.replace("$METHOD", ConnectApp.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MessageHandler.handleMessage(s.getAppWebSocket(), conApp);
 
         String sentApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
-        assertTrue(sentApp.contains(Error.MESSAGE_TYPE));
+        assertTrue(sentApp.contains(ErrorMessage.MESSAGE_TYPE));
     }
 
     @Test
@@ -107,19 +107,19 @@ class ConnectTest {
         UUID sesUid = UUID.randomUUID();
         Session s = TestUtil.initSession(sesUid);
 
-        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        String conGis = MESSAGE_TEMPLATE.replace("$METHOD", ConnectGis.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MessageHandler.handleMessage(s.getGisWebSocket(), conGis);
 
         String sentGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
-        assertTrue(sentGis.contains(Error.MESSAGE_TYPE));
+        assertTrue(sentGis.contains(ErrorMessage.MESSAGE_TYPE));
     }
 
     @Test
     void duplicateAppConnect_FromOtherSocket_Throws(){
         UUID sesUid = UUID.randomUUID();
-        Session s = TestUtil.initSession(sesUid);
+        TestUtil.initSession(sesUid);
 
-        String conApp = String.format(MESSAGE_TEMPLATE, ConnectApp.MESSAGE_TYPE, sesUid);
+        String conApp = MESSAGE_TEMPLATE.replace("$METHOD", ConnectApp.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MockWebSocketSession con = new MockWebSocketSession();
 
         Message msg = Message.forJsonString(conApp);
@@ -130,9 +130,9 @@ class ConnectTest {
     @Test
     void duplicateGisConnect_FromOtherSocket_Throws(){
         UUID sesUid = UUID.randomUUID();
-        Session s = TestUtil.initSession(sesUid);
+        TestUtil.initSession(sesUid);
 
-        String conGis = String.format(MESSAGE_TEMPLATE, ConnectGis.MESSAGE_TYPE, sesUid);
+        String conGis = MESSAGE_TEMPLATE.replace("$METHOD", ConnectGis.MESSAGE_TYPE).replace("$SESSION", sesUid.toString());
         MockWebSocketSession con = new MockWebSocketSession();
 
         Message msg = Message.forJsonString(conGis);

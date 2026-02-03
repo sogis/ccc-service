@@ -10,23 +10,21 @@ import org.springframework.stereotype.Component;
 public class WebServerPort implements ApplicationListener<WebServerInitializedEvent> {
 
     private static final Logger log = LoggerFactory.getLogger(WebServerPort.class);
-    private static WebServerPort instance;
+    private static volatile int port = -1;
 
-    private int port;
+    private static void setPort(int port) {
+        WebServerPort.port = port;
+    }
 
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
-        this.port = event.getWebServer().getPort();
-        instance = this;
+        setPort(event.getWebServer().getPort());
 
-        log.info("Web server initialized to port {}", this.port);
+        log.info("Web server initialized to port {}", port);
     }
 
     public static int getPort() {
-        if(instance == null)
-            return -1;
-
-        return instance.port;
+        return port;
     }
 }
 

@@ -21,12 +21,11 @@ import jakarta.validation.constraints.NotNull;
 public abstract class Reconnect extends Message {
     private static final Logger log = LoggerFactory.getLogger(Reconnect.class);
 
-    @JsonProperty()
+    @JsonProperty
     @NotNull
     private String oldConnectionKey;
 
-    @JsonProperty()
-    @NotNull
+    @JsonProperty
     private int oldSessionNumber;
 
     public Reconnect(String methodType) {
@@ -67,13 +66,11 @@ public abstract class Reconnect extends Message {
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {
         log.warn("Session {}: {} tried to reconnect, but given key '{}' is invalid.", oldSessionNumber, clientName, oldConnectionKey);
 
-        String errMessage = """
-                {
-                    "method": "notifyError",
-                    "code": 400,
-                    "message": "Given key '%s' for the reconnect is invalid"
-                }
-                """.formatted(oldConnectionKey);
+        String errMessage = "{\n"
+                + "    \"method\": \"notifyError\",\n"
+                + "    \"code\": 400,\n"
+                + "    \"message\": \"Given key '" + oldConnectionKey + "' for the reconnect is invalid\"\n"
+                + "}";
 
         try {
             sourceConnection.sendMessage(new TextMessage(errMessage));

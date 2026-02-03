@@ -1,14 +1,15 @@
 package ch.so.agi.cccservice.deamon;
 
-import ch.so.agi.cccservice.TestUtil;
-import ch.so.agi.cccservice.session.Session;
-import ch.so.agi.cccservice.session.Sessions;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.Sessions;
 
 class PingSenderTest {
     @BeforeEach
@@ -21,7 +22,7 @@ class PingSenderTest {
         assertEquals(0, Sessions.allSessions().count());
 
         assertDoesNotThrow(
-                () -> (new PingSender()).pingConnections()
+                () -> new PingSender().pingConnections()
         );
     }
 
@@ -35,7 +36,7 @@ class PingSenderTest {
         bothClosed.getGisWebSocket().close();
         bothClosed.getAppWebSocket().close();
 
-        int pingedSessions = (new PingSender()).pingConnections();
+        int pingedSessions = new PingSender().pingConnections();
 
         assertEquals(1, pingedSessions);
     }

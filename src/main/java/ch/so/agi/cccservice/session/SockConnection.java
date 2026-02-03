@@ -10,7 +10,7 @@ import java.io.IOException;
  * WebSocket connection between server
  * and either app or gis client.
  */
-public class SockConnection {
+public final class SockConnection {
     public static final String PROTOCOL_V1 = "1.0";
     public static final String PROTOCOL_V12 = "1.2";
 
