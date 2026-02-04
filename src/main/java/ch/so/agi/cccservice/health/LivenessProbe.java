@@ -1,14 +1,10 @@
 package ch.so.agi.cccservice.health;
 
-import ch.so.agi.cccservice.WebSocketConfig;
-import ch.so.agi.cccservice.session.SockConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component("cccLiveness")
 public class LivenessProbe implements HealthIndicator {
@@ -18,7 +14,7 @@ public class LivenessProbe implements HealthIndicator {
     private TestClient client;
 
     @Override
-    public Health health() {
+    public synchronized Health health() {
         try {
             if(client == null)
                 client = new TestClient();

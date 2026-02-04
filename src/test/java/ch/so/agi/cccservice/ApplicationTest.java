@@ -12,10 +12,15 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,6 +42,9 @@ class ApplicationTest {
 
     @Autowired
     private SessionsKiller killer;
+
+    @Autowired
+    private LivenessProbe livenessProbe;
 
     @Test
     void testClient_reconnectAndSend_WorksTwice(){
@@ -106,6 +114,23 @@ class ApplicationTest {
         TestUtil.wait(CCCWebSocketHandler.CONNECT_MSG_MAX_DELAY_SECONDS * 1000 + 100);
 
         assertFalse(c.webSocketIsOpen());
+    }
+
+    @Test
+    void livenessProbe_concurrent_allHealthy() throws Exception {
+        int threadCount = 5;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
+        List<Future<Health>> futures = IntStream.range(0, threadCount)
+                .mapToObj(i -> executor.submit(() -> livenessProbe.health()))
+                .collect(Collectors.toList());
+
+        executor.shutdown();
+        executor.awaitTermination(30, TimeUnit.SECONDS);
+
+        for (Future<Health> future : futures) {
+            assertEquals(Status.UP, future.get().getStatus());
+        }
     }
 
     private static List<TestClient> createClients(int numClients){
