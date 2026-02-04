@@ -24,6 +24,7 @@ public class LivenessProbe implements HealthIndicator {
             return Health.up().withDetail("liveness", "ccc-service is alive").build();
         } catch (Exception e) {
             log.error("Health check threw exception.", e);
+            client = null;
             return Health.down().withDetail("liveness", "liveness check failed").build();
         }
     }

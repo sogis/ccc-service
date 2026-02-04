@@ -20,7 +20,7 @@ class CCCWebSocketHandlerTest {
     @BeforeEach
     void setUp() {
         Sessions.resetSessionCollection();
-        handler = new CCCWebSocketHandler(new MessageAccumulator());
+        handler = new CCCWebSocketHandler(new MessageAccumulator(), CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS);
     }
 
     @Test

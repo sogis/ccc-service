@@ -8,10 +8,12 @@ import ch.so.agi.cccservice.deamon.SessionsKiller;
 import ch.so.agi.cccservice.deamon.PingSender;
 import ch.so.agi.cccservice.deamon.SessionsGroomer;
 import ch.so.agi.cccservice.session.Sessions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,6 +47,9 @@ class ApplicationTest {
 
     @Autowired
     private LivenessProbe livenessProbe;
+
+    @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
+    private int connectMsgMaxDelaySeconds;
 
     @Test
     void testClient_reconnectAndSend_WorksTwice(){
@@ -84,7 +89,7 @@ class ApplicationTest {
      */
     @Test
     void connections_stayValid_after_deamons(){
-
+        Sessions.resetSessionCollection();
         int numClients = 5;
 
         assertDoesNotThrow(
@@ -111,9 +116,9 @@ class ApplicationTest {
         SocketClient c = new SocketClient(adr, SocketClient.ClientType.APP);
         c.connectWebSocket();
 
-        TestUtil.wait(CCCWebSocketHandler.CONNECT_MSG_MAX_DELAY_SECONDS * 1000 + 100);
-
-        assertFalse(c.webSocketIsOpen());
+        Awaitility.await()
+                .atMost(connectMsgMaxDelaySeconds + 2, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertFalse(c.webSocketIsOpen()));
     }
 
     @Test
