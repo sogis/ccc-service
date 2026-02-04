@@ -1,0 +1,67 @@
+package ch.so.agi.cccservice.health;
+
+import static ch.so.agi.cccservice.health.SocketClient.ClientType.APP;
+import static ch.so.agi.cccservice.health.SocketClient.ClientType.GIS;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+@Tag("smoke")
+class SmokeTest {
+
+    private static final String PROPERTY_KEY = "ccc.smoke.url";
+
+    @Test
+    void connectAndReconnect() {
+        String url = resolveUrl();
+
+        // 1. Both clients connect (new session)
+        SocketClient gis = new SocketClient(url, GIS);
+        SocketClient app = new SocketClient(url, APP);
+        UUID session = UUID.randomUUID();
+        gis.connectCCC(session, "smoke-gis", "1.2", GIS);
+        app.connectCCC(session, "smoke-app", "1.2", APP);
+
+        // 2. GIS reconnect + send message
+        gis.reconnectCCC();
+        gis.sendMinimalCCCMessage();
+
+        // 3. APP reconnect + send message
+        app.reconnectCCC();
+        app.sendMinimalCCCMessage();
+
+        // 4. Cleanup
+        gis.closeWebSocket();
+        app.closeWebSocket();
+    }
+
+    private static String resolveUrl() {
+        String sysProp = System.getProperty(PROPERTY_KEY);
+        if (sysProp != null && !sysProp.isBlank()) {
+            return sysProp;
+        }
+
+        Properties props = new Properties();
+        try (InputStream in = SmokeTest.class.getClassLoader()
+                .getResourceAsStream("application.properties")) {
+            if (in != null) {
+                props.load(in);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load application.properties", e);
+        }
+
+        String value = props.getProperty(PROPERTY_KEY);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException(
+                    "No smoke test URL configured. Set '" + PROPERTY_KEY
+                            + "' in application.properties or pass -D" + PROPERTY_KEY + "=...");
+        }
+        return value;
+    }
+}

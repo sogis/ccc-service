@@ -39,7 +39,7 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('test') {
     useJUnitPlatform {
-        excludeTags 'integration'
+        excludeTags 'integration', 'smoke'
     }
 }
 
@@ -50,6 +50,20 @@ tasks.register('integrationTest', Test) {
     classpath = testing.suites.test.sources.runtimeClasspath
     useJUnitPlatform {
         includeTags 'integration'
+        excludeTags 'smoke'
+    }
+}
+
+tasks.register('smokeTest', Test) {
+    description = 'Runs smoke tests against a deployed CCC service.'
+    group = 'verification'
+    testClassesDirs = testing.suites.test.sources.output.classesDirs
+    classpath = testing.suites.test.sources.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'smoke'
+    }
+    if (findProperty('ccc.smoke.url')) {
+        systemProperty 'ccc.smoke.url', findProperty('ccc.smoke.url')
     }
 }
 
