@@ -36,7 +36,13 @@ public class TestClient {
     public void reconnectAndSend() {
         assertConnected();
 
-        gisClient.reconnectCCC();
+        try {
+            gisClient.reconnectCCC();
+        } catch (Exception e) {
+            log.warn("Reconnect failed, creating new session: {}", e.getMessage());
+            connectClients();
+            gisClient.reconnectCCC();
+        }
         gisClient.sendMinimalCCCMessage();
 
         appClient.reconnectCCC();
