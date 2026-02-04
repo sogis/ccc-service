@@ -49,6 +49,7 @@ public class SocketClient extends TextWebSocketHandler {
 
     private volatile String latestConnectionKey;
     private volatile Integer sessionNr;
+    private volatile Boolean reconnectResult; // null=pending, true=success, false=failure
 
     private ClientType clientType;
 
@@ -75,6 +76,7 @@ public class SocketClient extends TextWebSocketHandler {
         switch (method) {
             case "keyChange" -> handleKeyChange(payload);
             case SessionReady.METHOD_TYPE -> handleSessionReady(payload);
+            case "notifyError" -> { reconnectResult = false; }
             default -> log.warn("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
         }
     }
@@ -94,9 +96,10 @@ public class SocketClient extends TextWebSocketHandler {
 
     public synchronized void reconnectCCC() {
         awaitSessionReady();
+        reconnectResult = null;
 
-        if(!webSocketIsOpen())
-            connectWebSocket();
+        closeWebSocket();
+        connectWebSocket();
 
         ObjectNode reconnectPayload = OBJECT_MAPPER.createObjectNode();
         reconnectPayload.put("method", clientType.reconnectMethod);
@@ -104,6 +107,8 @@ public class SocketClient extends TextWebSocketHandler {
         reconnectPayload.put("oldSessionNumber", sessionNr);
 
         sendPayload(sockSession, reconnectPayload);
+
+        awaitReconnectResult();
     }
 
     public synchronized void sendMinimalCCCMessage() {
@@ -161,6 +166,7 @@ public class SocketClient extends TextWebSocketHandler {
 
     private void handleKeyChange(JsonNode payload) {
         latestConnectionKey = payload.path("newConnectionKey").asText(null);
+        reconnectResult = true;
         log.debug("Received key change with new connection key: {}", latestConnectionKey);
     }
 
@@ -183,6 +189,16 @@ public class SocketClient extends TextWebSocketHandler {
                 .timeout(2000, TimeUnit.MILLISECONDS)
                 .pollDelay(50, TimeUnit.MILLISECONDS)
                 .until(() -> sessionNr != null);
+    }
+
+    private void awaitReconnectResult() {
+        Awaitility.await()
+                .timeout(2000, TimeUnit.MILLISECONDS)
+                .pollDelay(50, TimeUnit.MILLISECONDS)
+                .until(() -> reconnectResult != null);
+
+        if (Boolean.FALSE.equals(reconnectResult))
+            throw new RuntimeException("Reconnect failed: server rejected the connection key");
     }
 
     public Integer getSessionNr() {

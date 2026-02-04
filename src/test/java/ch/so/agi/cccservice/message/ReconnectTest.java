@@ -32,6 +32,7 @@ class ReconnectTest {
         MessageHandler.handleMessage(newAppSocket, reconnectMsg);
 
         assertSame(newAppSocket, s.getAppWebSocket());
+        assertKeyChangeSent(newAppSocket);
     }
 
     @Test
@@ -44,6 +45,34 @@ class ReconnectTest {
         MessageHandler.handleMessage(newGisSocket, reconnectMsg);
 
         assertSame(newGisSocket, s.getGisWebSocket());
+        assertKeyChangeSent(newGisSocket);
+    }
+
+    @Test
+    void reconnect_validKey_sendsKeyChange() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        String oldKey = s.getAppConnection().getConnectionKey();
+
+        MockWebSocketSession newSocket = new MockWebSocketSession();
+        MessageHandler.handleMessage(newSocket, reconnectMessage("reconnectApp", oldKey, s.getSessionNr()));
+
+        String sent = newSocket.getLastSentTextMessage();
+        assertNotNull(sent, "Expected keyChange message after reconnect");
+        assertTrue(sent.contains("\"method\": \"keyChange\""), "Expected keyChange method in message");
+        assertTrue(sent.contains("\"newConnectionKey\""), "Expected newConnectionKey in message");
+    }
+
+    @Test
+    void reconnect_validKey_updatesSessionMap() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        String oldKey = s.getAppConnection().getConnectionKey();
+
+        MockWebSocketSession newSocket = new MockWebSocketSession();
+        MessageHandler.handleMessage(newSocket, reconnectMessage("reconnectApp", oldKey, s.getSessionNr()));
+
+        Session found = Sessions.findByConnection(newSocket);
+        assertNotNull(found, "Session should be findable by the new WebSocket after reconnect");
+        assertEquals(s.getSessionNr(), found.getSessionNr());
     }
 
     @Test
@@ -70,6 +99,12 @@ class ReconnectTest {
 
         MockWebSocketSession newSocket = new MockWebSocketSession();
         assertThrows(ForbiddenReconnectException.class, () -> msg.process(newSocket));
+    }
+
+    private void assertKeyChangeSent(MockWebSocketSession socket) {
+        String sent = socket.getLastSentTextMessage();
+        assertNotNull(sent, "Expected keyChange message after reconnect");
+        assertTrue(sent.contains("keyChange"), "Expected keyChange in sent message");
     }
 
     private String reconnectMessage(String method, String oldConnectionKey, int oldSessionNumber) {

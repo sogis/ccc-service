@@ -49,16 +49,22 @@ public abstract class Reconnect extends Message {
             return;
         }
 
-        s.assertConnected();
-
-        SockConnection con = s.getAppConnection();
-        if(!isAppClient())
-            con = s.getGisConnection();
+        SockConnection con = isAppClient() ? s.getAppConnection() : s.getGisConnection();
 
         if(SockConnection.PROTOCOL_V1.equals(con.getApiVersion()))
             throw new ForbiddenReconnectException("V1 clients are not allowed to reconnect");
 
+        // 1. Switch to new WebSocket first
         con.switchToNewWebSocketCon(sourceConnection);
+
+        // 2. Update Sessions map so the new WebSocket is indexed
+        Sessions.addOrReplace(s);
+
+        // 3. Assert both connections are open (including the new WebSocket)
+        s.assertConnected();
+
+        // 4. Send keyChange so client has a valid key for the next reconnect
+        KeyChange.sendKeyChangeToConnection(con);
 
         log.info("Session {}: {} reconnected.", s.getSessionNr(), clientType());
     }
