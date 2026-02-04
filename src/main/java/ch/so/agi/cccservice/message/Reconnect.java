@@ -44,7 +44,7 @@ public abstract class Reconnect extends Message {
     @Override
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnectionKey(oldConnectionKey, isAppClient());
-        if(s == null){
+        if(s == null || s.getSessionNr() != oldSessionNumber){
             sendErrorMessage(sourceConnection, clientType());
             return;
         }
