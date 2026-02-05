@@ -112,7 +112,9 @@ class SessionsTest {
         Session healthy = createSession(new MockWebSocketSession(), new MockWebSocketSession());
         Sessions.addOrReplace(healthy);
 
-        Session expired = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        // Incomplete session (only app connection, no gis) with expired handshake window
+        SockConnection appCon = new SockConnection("app-client", "1.0", new MockWebSocketSession());
+        Session expired = new Session(UUID.randomUUID(), appCon, true);
         expired.setHandShakeMaxDuration(Duration.ZERO);
         Sessions.addOrReplace(expired);
 
