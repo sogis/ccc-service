@@ -52,7 +52,7 @@ public final class SockConnection {
         this.webSocketConnection = webSocketConnection;
     }
 
-    public WebSocketSession getWebSocketConnection() {
+    public synchronized WebSocketSession getWebSocketConnection() {
         return webSocketConnection;
     }
 
@@ -63,7 +63,7 @@ public final class SockConnection {
             throw new RuntimeException(String.format("Protocol must be either %s or %s, but was %s", PROTOCOL_V1, PROTOCOL_V12, apiVersion));
     }
 
-    public boolean isOpen(){
+    public synchronized boolean isOpen(){
         if (webSocketConnection == null)
             return false;
 
