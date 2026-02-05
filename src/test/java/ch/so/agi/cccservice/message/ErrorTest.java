@@ -1,12 +1,14 @@
 package ch.so.agi.cccservice.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
 import ch.so.agi.cccservice.JsonStringAssertions;
 import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.session.Session;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ErrorTest {
     private static final String MESSAGE = """

@@ -1,20 +1,23 @@
 package ch.so.agi.cccservice.deamon;
 
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.message.KeyChange;
 import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import ch.so.agi.cccservice.session.SockConnection;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class KeyChangerTest {
 
-    private static final String KEYCHANGE_METHOD = "keyChange";
+    private static final String KEYCHANGE_METHOD = KeyChange.METHOD_TYPE;
 
     @BeforeEach
     void resetSessions() {

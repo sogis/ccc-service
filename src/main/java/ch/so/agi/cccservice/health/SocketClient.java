@@ -1,8 +1,10 @@
 package ch.so.agi.cccservice.health;
 
-import ch.so.agi.cccservice.message.SessionReady;
-import ch.so.agi.cccservice.message.app.ChangeLayerVisibility;
-import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +17,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.*;
+import ch.so.agi.cccservice.message.ErrorMessage;
+import ch.so.agi.cccservice.message.KeyChange;
+import ch.so.agi.cccservice.message.SessionReady;
+import ch.so.agi.cccservice.message.app.ChangeLayerVisibility;
+import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
 
 /**
  * WebSocket client used by health checks to interact with the CCC service.
@@ -74,9 +78,9 @@ public class SocketClient extends TextWebSocketHandler {
         }
 
         switch (method) {
-            case "keyChange" -> handleKeyChange(payload);
+            case KeyChange.METHOD_TYPE -> handleKeyChange(payload);
             case SessionReady.METHOD_TYPE -> handleSessionReady(payload);
-            case "notifyError" -> { reconnectResult = false; }
+            case ErrorMessage.MESSAGE_TYPE -> { reconnectResult = false; }
             default -> log.warn("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
         }
     }

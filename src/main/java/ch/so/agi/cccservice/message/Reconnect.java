@@ -73,7 +73,7 @@ public abstract class Reconnect extends Message {
         log.warn("Session {}: {} tried to reconnect, but given key '{}' is invalid.", oldSessionNumber, clientName, oldConnectionKey);
 
         String errMessage = "{\n"
-                + "    \"method\": \"notifyError\",\n"
+                + "    \"method\": \"" + ErrorMessage.MESSAGE_TYPE + "\",\n"
                 + "    \"code\": 400,\n"
                 + "    \"message\": \"Given key '" + oldConnectionKey + "' for the reconnect is invalid\"\n"
                 + "}";

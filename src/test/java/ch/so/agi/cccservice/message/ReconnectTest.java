@@ -1,9 +1,12 @@
 package ch.so.agi.cccservice.message;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +88,7 @@ class ReconnectTest {
 
         String sent = newSocket.getLastSentTextMessage();
         assertNotNull(sent);
-        assertTrue(sent.contains("notifyError"));
+        assertTrue(sent.contains(ErrorMessage.MESSAGE_TYPE));
         assertTrue(sent.contains("invalidKey"));
     }
 
@@ -104,7 +107,7 @@ class ReconnectTest {
     private void assertKeyChangeSent(MockWebSocketSession socket) {
         String sent = socket.getLastSentTextMessage();
         assertNotNull(sent, "Expected keyChange message after reconnect");
-        assertTrue(sent.contains("keyChange"), "Expected keyChange in sent message");
+        assertTrue(sent.contains(KeyChange.METHOD_TYPE), "Expected keyChange in sent message");
     }
 
     private String reconnectMessage(String method, String oldConnectionKey, int oldSessionNumber) {
