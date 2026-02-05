@@ -17,7 +17,7 @@ class SmokeTest {
     private static final String PROPERTY_KEY = "ccc.smoke.url";
 
     @Test
-    void connectAndReconnect() {
+    void connectAndReconnect() throws InterruptedException {
         String url = resolveUrl();
 
         // 1. Both clients connect (new session)
@@ -35,7 +35,8 @@ class SmokeTest {
         app.reconnectCCC();
         app.sendMinimalCCCMessage();
 
-        // 4. Cleanup
+        // 4. Cleanup — wait for server to finish forwarding the last message before closing
+        Thread.sleep(500);
         gis.closeWebSocket();
         app.closeWebSocket();
     }

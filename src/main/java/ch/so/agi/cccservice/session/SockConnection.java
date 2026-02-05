@@ -1,10 +1,10 @@
 package ch.so.agi.cccservice.session;
 
+import java.io.IOException;
+
 import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-
-import java.io.IOException;
 
 /**
  * WebSocket connection between server
@@ -110,20 +110,17 @@ public final class SockConnection {
         return key.isEqual(keyString);
     }
 
-    public void switchToNewWebSocketCon(WebSocketSession con){
+    public synchronized void switchToNewWebSocketCon(WebSocketSession con){
         if(webSocketConnection == null)
             throw new IllegalStateException("Expected old connection to be present, but was null");
 
-        /*
-        try{
-            webSocketConnection.close();
-        }
-        catch(IOException e){
-            throw new RuntimeException("Exception when closing connection", e);
-        }
-
-         */
-
+        WebSocketSession oldConnection = webSocketConnection;
         webSocketConnection = con;
+
+        try {
+            oldConnection.close();
+        } catch (IOException e) {
+            // Don't fail - the reconnect has already succeeded
+        }
     }
 }
