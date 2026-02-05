@@ -148,6 +148,7 @@ public class Sessions {
     public static List<Session> openSessions(){
         return Sessions.allSessions()
                 .filter(session -> !session.hasClosedConnections())
+                .filter(session -> session.getAppConnection() != null && session.getGisConnection() != null)
                 .toList();
     }
 
