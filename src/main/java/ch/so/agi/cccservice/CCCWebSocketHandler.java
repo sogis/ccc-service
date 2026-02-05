@@ -60,7 +60,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void assertClientSentConnectMessage(WebSocketSession con) {
-        if (Sessions.findByConnection(con) == null) { // No connect / reconnect message was sent
+        if (Sessions.findByConnection(con) == null && con.isOpen()) {
             try {
                 con.close();
             } catch (IOException e) {
