@@ -89,14 +89,21 @@ public class Sessions {
         if(s == null)
             return;
 
-        // remove all entries pointing to this session (including orphaned keys from reconnects)
-        sessionsBySocket.values().removeIf(session -> session.getSessionUid().equals(s.getSessionUid()));
+        WebSocketSession currentApp = s.getAppWebSocket();
+        WebSocketSession currentGis = s.getGisWebSocket();
 
-        if (s.getAppWebSocket() != null) {
-            sessionsBySocket.put(s.getAppWebSocket(), s);
+        // remove orphaned entries for this session, but keep entries for the current websockets
+        sessionsBySocket.entrySet().removeIf(entry ->
+                entry.getValue().getSessionUid().equals(s.getSessionUid())
+                && entry.getKey() != currentApp
+                && entry.getKey() != currentGis
+        );
+
+        if (currentApp != null) {
+            sessionsBySocket.put(currentApp, s);
         }
-        if (s.getGisWebSocket() != null) {
-            sessionsBySocket.put(s.getGisWebSocket(), s);
+        if (currentGis != null) {
+            sessionsBySocket.put(currentGis, s);
         }
     }
 
