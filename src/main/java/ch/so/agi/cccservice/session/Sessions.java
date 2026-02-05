@@ -89,12 +89,8 @@ public class Sessions {
         if(s == null)
             return;
 
-        // remove by the old sockets of the session
-        Session old = findBySessionUid(s.getSessionUid());
-        if(old != null){
-            sessionsBySocket.remove(old.getAppWebSocket());
-            sessionsBySocket.remove(old.getGisWebSocket());
-        }
+        // remove all entries pointing to this session (including orphaned keys from reconnects)
+        sessionsBySocket.values().removeIf(session -> session.getSessionUid().equals(s.getSessionUid()));
 
         if (s.getAppWebSocket() != null) {
             sessionsBySocket.put(s.getAppWebSocket(), s);
@@ -105,11 +101,7 @@ public class Sessions {
     }
 
     private static void removeSession(Session s){
-        if(s.getGisWebSocket() != null)
-            sessionsBySocket.remove(s.getGisWebSocket());
-
-        if(s.getAppWebSocket() != null)
-            sessionsBySocket.remove(s.getAppWebSocket());
+        sessionsBySocket.values().removeIf(session -> session.equals(s));
     }
 
     /**
