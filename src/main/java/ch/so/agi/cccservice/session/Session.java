@@ -173,6 +173,8 @@ public class Session implements Comparable<Session>{
     }
 
     public boolean handShakeExceeded() {
+        boolean handshakeComplete = appConnection != null && gisConnection != null;
+        if (handshakeComplete) return false;
         return LocalDateTime.now(ZoneId.systemDefault()).isAfter(handShakeInitialized.plus(handShakeMaxDuration));
     }
 
