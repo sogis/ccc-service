@@ -41,4 +41,30 @@ class SessionReadyTest {
         assertTrue(sent.contains("connectionKey"));
         assertTrue(sent.contains("sessionNr"));
     }
+
+    @Test
+    public void appReceivesAppKey_gisReceivesGisKey() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        String appKey = s.getAppConnection().getConnectionKey();
+        String gisKey = s.getGisConnection().getConnectionKey();
+
+        // Keys must be different
+        assertNotEquals(appKey, gisKey, "App and GIS should have different connection keys");
+
+        // Send SessionReady to both
+        SessionReady.send(s.getAppWebSocket());
+        SessionReady.send(s.getGisWebSocket());
+
+        String sentToApp = ((MockWebSocketSession) s.getAppWebSocket()).getLastSentTextMessage();
+        String sentToGis = ((MockWebSocketSession) s.getGisWebSocket()).getLastSentTextMessage();
+
+        // App must receive App key, not GIS key
+        assertTrue(sentToApp.contains(appKey), "App should receive its own connection key");
+        assertFalse(sentToApp.contains(gisKey), "App should NOT receive GIS connection key");
+
+        // GIS must receive GIS key, not App key
+        assertTrue(sentToGis.contains(gisKey), "GIS should receive its own connection key");
+        assertFalse(sentToGis.contains(appKey), "GIS should NOT receive App connection key");
+    }
 }
