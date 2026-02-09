@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 @Service
 public class KeyChanger {
 
-    private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
+    /** Key rotation interval: 5 minutes */
+    public static final int DELAY_MILLIS = 5 * 60 * 1000;
+
     private static final Logger log = LoggerFactory.getLogger(KeyChanger.class);
 
     public KeyChanger(){

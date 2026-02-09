@@ -1,10 +1,11 @@
 package ch.so.agi.cccservice.session;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Base64;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 /**
  * Class representing a cryptographic key with a validation function
@@ -18,8 +19,14 @@ public final class CryptoKey {
 
     private record IssuedKey(String key, Instant timestamp) {}
 
+    /**
+     * Key validity: KeyChanger.DELAY_MILLIS (5 min) + 1 minute grace period = 6 minutes total.
+     * Must be greater than KeyChanger.DELAY_MILLIS to allow reconnects after key rotation.
+     */
+    public static final int DEFAULT_GRACE_PERIOD_SECONDS = 360;
+
     public CryptoKey() {
-        this(60);
+        this(DEFAULT_GRACE_PERIOD_SECONDS);
     }
 
     /**

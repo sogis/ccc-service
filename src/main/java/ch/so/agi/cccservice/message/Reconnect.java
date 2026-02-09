@@ -57,8 +57,20 @@ public abstract class Reconnect extends Message {
         }
 
         Session s = Sessions.findByConnectionKey(oldConnectionKey, isAppClient());
-        if(s == null || s.getSessionNr() != oldSessionNumber){
+        if(s == null){
             rateLimiter.recordFailedAttempt(clientIp);
+            log.warn("Reconnect failed for {} (session {}): No session found for given key. Key may have expired or session was removed.",
+                    clientType(), oldSessionNumber);
+            log.debug("Reconnect failed - invalid key details: key='{}', clientType={}", oldConnectionKey, clientType());
+            sendErrorMessage(sourceConnection, clientType());
+            return;
+        }
+        if(s.getSessionNr() != oldSessionNumber){
+            rateLimiter.recordFailedAttempt(clientIp);
+            log.warn("Reconnect failed for {}: Session number mismatch. Client sent {}, but key belongs to different session.",
+                    clientType(), oldSessionNumber);
+            log.debug("Reconnect session mismatch details: clientSession={}, actualSession={}, key='{}'",
+                    oldSessionNumber, s.getSessionNr(), oldConnectionKey);
             sendErrorMessage(sourceConnection, clientType());
             return;
         }
@@ -95,12 +107,10 @@ public abstract class Reconnect extends Message {
     }
 
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {
-        log.warn("Session {}: {} tried to reconnect, but given key '{}' is invalid.", oldSessionNumber, clientName, oldConnectionKey);
-
         String errMessage = "{\n"
                 + "    \"method\": \"" + ErrorMessage.MESSAGE_TYPE + "\",\n"
                 + "    \"code\": 400,\n"
-                + "    \"message\": \"Given key '" + oldConnectionKey + "' for the reconnect is invalid\"\n"
+                + "    \"message\": \"Reconnect failed: invalid or expired connection key\"\n"
                 + "}";
 
         try {

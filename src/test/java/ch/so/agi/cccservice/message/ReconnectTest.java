@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -92,7 +93,9 @@ class ReconnectTest {
         String sent = newSocket.getLastSentTextMessage();
         assertNotNull(sent);
         assertTrue(sent.contains(ErrorMessage.MESSAGE_TYPE));
-        assertTrue(sent.contains("invalidKey"));
+        // Error message should NOT contain the key (security)
+        assertFalse(sent.contains("invalidKey"), "Error message should not contain the connection key");
+        assertTrue(sent.contains("invalid or expired"), "Error message should indicate invalid/expired key");
     }
 
     @Test
