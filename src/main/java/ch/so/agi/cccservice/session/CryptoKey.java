@@ -1,11 +1,9 @@
 package ch.so.agi.cccservice.session;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Base64;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 /**
  * Class representing a cryptographic key with a validation function
@@ -37,24 +35,19 @@ public final class CryptoKey {
         refreshKey();
     }
 
-    private static String encode(SecretKey key) {
-        return Base64.getEncoder().encodeToString(key.getEncoded());
-    }
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int TOKEN_LENGTH_BYTES = 16; // 128 bits
 
     public synchronized String getKeyString() {
         return issuedKeys.peekFirst().key();
     }
 
     public synchronized void refreshKey() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(128);
-            SecretKey newKey = keyGen.generateKey();
-            // newest key goes to the FRONT
-            issuedKeys.addFirst(new IssuedKey(encode(newKey), Instant.now()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        byte[] tokenBytes = new byte[TOKEN_LENGTH_BYTES];
+        SECURE_RANDOM.nextBytes(tokenBytes);
+        String token = Base64.getEncoder().encodeToString(tokenBytes);
+        // newest key goes to the FRONT
+        issuedKeys.addFirst(new IssuedKey(token, Instant.now()));
     }
 
     public synchronized boolean isEqual(String key) {
