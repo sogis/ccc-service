@@ -1,21 +1,22 @@
 package ch.so.agi.cccservice;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import ch.so.agi.cccservice.message.MessageAccumulator;
+import ch.so.agi.cccservice.security.ConnectionLimiter;
 import ch.so.agi.cccservice.session.Sessions;
 
 @Component
@@ -49,14 +50,36 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         accumulator.cleanup(session);
+
+        String clientIp = extractClientIp(session);
+        ConnectionLimiter.getInstance().recordConnectionClosed(clientIp);
     }
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        Executor delayedExecutor = CompletableFuture.delayedExecutor(connectMsgMaxDelaySeconds, TimeUnit.SECONDS);
+        String clientIp = extractClientIp(session);
+        ConnectionLimiter limiter = ConnectionLimiter.getInstance();
 
+        // Check connection limits before accepting
+        if (!limiter.isConnectionAllowed(clientIp)) {
+            log.warn("Connection from {} rejected due to connection limit", clientIp);
+            session.close(CloseStatus.POLICY_VIOLATION);
+            return;
+        }
+
+        limiter.recordConnectionOpened(clientIp);
+
+        Executor delayedExecutor = CompletableFuture.delayedExecutor(connectMsgMaxDelaySeconds, TimeUnit.SECONDS);
         CompletableFuture.runAsync(() -> assertClientSentConnectMessage(session), delayedExecutor);
+    }
+
+    private String extractClientIp(WebSocketSession session) {
+        InetSocketAddress remoteAddress = session.getRemoteAddress();
+        if (remoteAddress != null && remoteAddress.getAddress() != null) {
+            return remoteAddress.getAddress().getHostAddress();
+        }
+        return "unknown";
     }
 
     private void assertClientSentConnectMessage(WebSocketSession con) {

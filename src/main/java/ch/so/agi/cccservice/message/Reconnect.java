@@ -1,5 +1,7 @@
 package ch.so.agi.cccservice.message;
 
+import java.net.InetSocketAddress;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
@@ -9,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.so.agi.cccservice.exception.ForbiddenReconnectException;
+import ch.so.agi.cccservice.exception.RateLimitExceededException;
+import ch.so.agi.cccservice.security.ConnectionRateLimiter;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import ch.so.agi.cccservice.session.SockConnection;
@@ -43,8 +47,18 @@ public abstract class Reconnect extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
+        String clientIp = extractClientIp(sourceConnection);
+        ConnectionRateLimiter rateLimiter = ConnectionRateLimiter.getReconnectLimiter();
+
+        // Check rate limit before processing
+        if (!rateLimiter.isAllowed(clientIp)) {
+            throw new RateLimitExceededException(
+                    "Too many failed reconnect attempts. Please wait before retrying.");
+        }
+
         Session s = Sessions.findByConnectionKey(oldConnectionKey, isAppClient());
         if(s == null || s.getSessionNr() != oldSessionNumber){
+            rateLimiter.recordFailedAttempt(clientIp);
             sendErrorMessage(sourceConnection, clientType());
             return;
         }
@@ -66,7 +80,18 @@ public abstract class Reconnect extends Message {
         // 4. Send keyChange so client has a valid key for the next reconnect
         KeyChange.sendKeyChangeToConnection(con);
 
+        // 5. Record successful reconnect to reset rate limit
+        rateLimiter.recordSuccess(clientIp);
+
         log.info("Session {}: {} reconnected.", s.getSessionNr(), clientType());
+    }
+
+    private String extractClientIp(WebSocketSession connection) {
+        InetSocketAddress remoteAddress = connection.getRemoteAddress();
+        if (remoteAddress != null && remoteAddress.getAddress() != null) {
+            return remoteAddress.getAddress().getHostAddress();
+        }
+        return "unknown";
     }
 
     private void sendErrorMessage(WebSocketSession sourceConnection, String clientName) {

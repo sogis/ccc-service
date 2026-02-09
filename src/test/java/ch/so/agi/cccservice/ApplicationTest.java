@@ -7,8 +7,10 @@ import ch.so.agi.cccservice.deamon.KeyChanger;
 import ch.so.agi.cccservice.deamon.SessionsKiller;
 import ch.so.agi.cccservice.deamon.PingSender;
 import ch.so.agi.cccservice.deamon.SessionsGroomer;
+import ch.so.agi.cccservice.security.ConnectionLimiter;
 import ch.so.agi.cccservice.session.Sessions;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -50,6 +52,11 @@ class ApplicationTest {
 
     @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
     private int connectMsgMaxDelaySeconds;
+
+    @BeforeEach
+    void resetConnectionLimiter() {
+        ConnectionLimiter.getInstance().reset();
+    }
 
     @Test
     void testClient_reconnectAndSend_WorksTwice(){

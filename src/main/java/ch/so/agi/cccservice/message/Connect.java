@@ -1,18 +1,22 @@
 package ch.so.agi.cccservice.message;
 
+import java.net.InetSocketAddress;
+import java.util.UUID;
+
+import org.springframework.web.socket.WebSocketSession;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromSameConnectionException;
 import ch.so.agi.cccservice.exception.HandshakeToLateException;
+import ch.so.agi.cccservice.exception.RateLimitExceededException;
+import ch.so.agi.cccservice.security.ConnectionRateLimiter;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import ch.so.agi.cccservice.session.SockConnection;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.web.socket.WebSocketSession;
-
 import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract public class Connect extends Message {
@@ -45,7 +49,26 @@ abstract public class Connect extends Message {
 
     @Override
     public void process(WebSocketSession sourceConnection) {
-        Session s = addClient(sourceConnection);
+        String clientIp = extractClientIp(sourceConnection);
+        ConnectionRateLimiter rateLimiter = ConnectionRateLimiter.getConnectLimiter();
+
+        // Check rate limit before processing
+        if (!rateLimiter.isAllowed(clientIp)) {
+            throw new RateLimitExceededException(
+                    "Too many connection attempts. Please wait before retrying.");
+        }
+
+        Session s;
+        try {
+            s = addClient(sourceConnection);
+        } catch (DuplicateConnectMessageFromOtherConnectionException e) {
+            // Security relevant: someone tried to hijack a session
+            rateLimiter.recordFailedAttempt(clientIp);
+            throw e;
+        }
+
+        // Record successful connect
+        rateLimiter.recordSuccess(clientIp);
 
         if(s.getPeerConnection(sourceConnection) != null){
             SessionReady.send(s.getAppWebSocket());
@@ -58,6 +81,14 @@ abstract public class Connect extends Message {
         }
     }
 
+    private String extractClientIp(WebSocketSession connection) {
+        InetSocketAddress remoteAddress = connection.getRemoteAddress();
+        if (remoteAddress != null && remoteAddress.getAddress() != null) {
+            return remoteAddress.getAddress().getHostAddress();
+        }
+        return "unknown";
+    }
+
     /**
      * Type of the connecting client (app or gis). To be implemented in the subclasses
      */
@@ -68,12 +99,9 @@ abstract public class Connect extends Message {
     }
 
     private Session addClient(WebSocketSession sourceConnection) {
-
-        Session s = null;
-
         synchronized (Connect.class) { // avoid parallel app and gis connect. Parallel would lead to app and gis not joining the same session.
             SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
-            s = Sessions.findBySessionUid(sessionUid);
+            Session s = Sessions.findBySessionUid(sessionUid);
             if (s == null) {
                 s = new Session(sessionUid, con, isAppClient());
                 Sessions.addOrReplace(s);
@@ -86,9 +114,8 @@ abstract public class Connect extends Message {
 
                 Sessions.addOrReplace(s);
             }
+            return s;
         }
-
-        return s;
     }
 
     private void assertNoDuplicateConnectAttempts(Session s, WebSocketSession sourceCon) {
