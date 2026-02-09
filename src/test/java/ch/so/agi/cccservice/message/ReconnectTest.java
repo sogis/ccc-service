@@ -1,6 +1,9 @@
 package ch.so.agi.cccservice.message;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -108,6 +111,37 @@ class ReconnectTest {
         String sent = socket.getLastSentTextMessage();
         assertNotNull(sent, "Expected keyChange message after reconnect");
         assertTrue(sent.contains(KeyChange.METHOD_TYPE), "Expected keyChange in sent message");
+    }
+
+    @Test
+    void simultaneousReconnects_bothClientsSucceed() throws Exception {
+        UUID sessionId = UUID.randomUUID();
+        Session session = TestUtil.initSession(sessionId, SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        String appKey = session.getAppConnection().getConnectionKey();
+        String gisKey = session.getGisConnection().getConnectionKey();
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        // Beide Clients reconnecten gleichzeitig
+        MockWebSocketSession newApp = new MockWebSocketSession();
+        MockWebSocketSession newGis = new MockWebSocketSession();
+
+        Future<?> appReconnect = executor.submit(() ->
+            MessageHandler.handleMessage(newApp,
+                reconnectMessage("reconnectApp", appKey, session.getSessionNr())));
+
+        Future<?> gisReconnect = executor.submit(() ->
+            MessageHandler.handleMessage(newGis,
+                reconnectMessage("reconnectGis", gisKey, session.getSessionNr())));
+
+        appReconnect.get();
+        gisReconnect.get();
+
+        assertSame(newApp, session.getAppWebSocket());
+        assertSame(newGis, session.getGisWebSocket());
+
+        executor.shutdown();
     }
 
     private String reconnectMessage(String method, String oldConnectionKey, int oldSessionNumber) {

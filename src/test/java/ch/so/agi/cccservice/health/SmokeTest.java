@@ -41,6 +41,32 @@ class SmokeTest {
         app.closeWebSocket();
     }
 
+    @Test
+    void rapidReconnects_multipleRounds() throws InterruptedException {
+        String url = resolveUrl();
+
+        // 1. Both clients connect (new session)
+        SocketClient gis = new SocketClient(url, GIS);
+        SocketClient app = new SocketClient(url, APP);
+        UUID session = UUID.randomUUID();
+        gis.connectCCC(session, "smoke-gis", "1.2", GIS);
+        app.connectCCC(session, "smoke-app", "1.2", APP);
+
+        // 2. Multiple reconnect rounds to test stability
+        for (int i = 0; i < 5; i++) {
+            gis.reconnectCCC();
+            app.reconnectCCC();
+            gis.sendMinimalCCCMessage();
+            app.sendMinimalCCCMessage();
+            Thread.sleep(100);
+        }
+
+        // 3. Cleanup
+        Thread.sleep(500);
+        gis.closeWebSocket();
+        app.closeWebSocket();
+    }
+
     private static String resolveUrl() {
         String sysProp = System.getProperty(PROPERTY_KEY);
         if (sysProp != null && !sysProp.isBlank()) {

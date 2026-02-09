@@ -106,4 +106,39 @@ class SockConnectionTest {
 
         assertSame(newSocket, con.getWebSocketConnection());
     }
+
+    @Test
+    void switchToNewWebSocketCon_closesOldConnection() {
+        MockWebSocketSession oldSocket = new MockWebSocketSession();
+        MockWebSocketSession newSocket = new MockWebSocketSession();
+        SockConnection con = new SockConnection("test", SockConnection.PROTOCOL_V1, oldSocket);
+
+        con.switchToNewWebSocketCon(newSocket);
+
+        assertFalse(oldSocket.isOpen(), "Old connection should be closed");
+        assertTrue(newSocket.isOpen(), "New connection should stay open");
+        assertSame(newSocket, con.getWebSocketConnection());
+    }
+
+    @Test
+    void switchToNewWebSocketCon_succeedsEvenIfOldConnectionAlreadyClosed() throws IOException {
+        // Alte Connection ist bereits geschlossen
+        MockWebSocketSession oldSocket = new MockWebSocketSession();
+        oldSocket.close();
+        MockWebSocketSession newSocket = new MockWebSocketSession();
+        SockConnection con = new SockConnection("test", SockConnection.PROTOCOL_V1, oldSocket);
+
+        // Sollte trotzdem funktionieren
+        assertDoesNotThrow(() -> con.switchToNewWebSocketCon(newSocket));
+        assertSame(newSocket, con.getWebSocketConnection());
+        assertTrue(newSocket.isOpen());
+    }
+
+    @Test
+    void switchToNewWebSocketCon_throwsWhenOldConnectionIsNull() {
+        SockConnection con = new SockConnection("test", SockConnection.PROTOCOL_V1, null);
+
+        assertThrows(IllegalStateException.class,
+                () -> con.switchToNewWebSocketCon(new MockWebSocketSession()));
+    }
 }

@@ -166,4 +166,64 @@ class SessionsTest {
         assertNull(Sessions.findByConnectionKey("unknown", true));
         assertNull(Sessions.findByConnectionKey("unknown", false));
     }
+
+    // --- openSessions ---
+
+    @Test
+    void openSessions_excludesPartiallySetUpSessions() {
+        // Session mit nur einer Connection (App, keine GIS)
+        SockConnection appCon = new SockConnection("app-client", "1.0", new MockWebSocketSession());
+        Session partial = new Session(UUID.randomUUID(), appCon, true);
+        Sessions.addOrReplace(partial);
+
+        // Vollständig eingerichtete Session
+        Session complete = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(complete);
+
+        List<Session> openSessions = Sessions.openSessions();
+
+        assertEquals(1, openSessions.size());
+        assertSame(complete, openSessions.get(0));
+    }
+
+    @Test
+    void openSessions_excludesSessionsWithClosedConnections() throws IOException {
+        // Vollständige Session mit geschlossener Connection
+        MockWebSocketSession closedApp = new MockWebSocketSession();
+        Session closedSession = createSession(closedApp, new MockWebSocketSession());
+        Sessions.addOrReplace(closedSession);
+        closedApp.close();
+
+        // Offene Session
+        Session openSession = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(openSession);
+
+        List<Session> openSessions = Sessions.openSessions();
+
+        assertEquals(1, openSessions.size());
+        assertSame(openSession, openSessions.get(0));
+    }
+
+    @Test
+    void openSessions_returnsOnlyFullySetUpAndOpenSessions() throws IOException {
+        // Vollständig eingerichtete offene Session
+        Session open = createSession(new MockWebSocketSession(), new MockWebSocketSession());
+        Sessions.addOrReplace(open);
+
+        // Teilweise eingerichtete Session
+        SockConnection partialCon = new SockConnection("app", "1.0", new MockWebSocketSession());
+        Session partial = new Session(UUID.randomUUID(), partialCon, true);
+        Sessions.addOrReplace(partial);
+
+        // Vollständige aber geschlossene Session
+        MockWebSocketSession closedSocket = new MockWebSocketSession();
+        Session closed = createSession(closedSocket, new MockWebSocketSession());
+        Sessions.addOrReplace(closed);
+        closedSocket.close();
+
+        List<Session> openSessions = Sessions.openSessions();
+
+        assertEquals(1, openSessions.size());
+        assertSame(open, openSessions.get(0));
+    }
 }
