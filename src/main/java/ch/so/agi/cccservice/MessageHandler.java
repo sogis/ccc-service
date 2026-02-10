@@ -59,5 +59,16 @@ public class MessageHandler {
             log.debug("Message validation details: {}", details);
             ErrorSender.send(sender, new MessageMalformedException("Message validation failed. Check required fields."));
         }
+        catch (Exception ex){
+            Session s = Sessions.findByConnection(sender);
+            String messageType = m != null ? m.getMessageType() : "unknown";
+            if(s != null){
+                log.error("Session {}: Unexpected error processing '{}'.", s.getSessionNr(), messageType);
+            }
+            else{
+                log.error("Unexpected error processing '{}'.", messageType);
+            }
+            log.debug("Unexpected error details", ex);
+        }
     }
 }
