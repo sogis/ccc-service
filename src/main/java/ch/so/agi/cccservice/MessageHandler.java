@@ -6,6 +6,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import ch.so.agi.cccservice.exception.CccSecurityException;
 import ch.so.agi.cccservice.exception.ClientException;
+import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.message.ErrorSender;
 import ch.so.agi.cccservice.message.Message;
 import ch.so.agi.cccservice.session.Session;
@@ -27,6 +28,9 @@ public class MessageHandler {
         }
         catch (CccSecurityException se){
             log.error(se.getMessage());
+            if(se instanceof DuplicateConnectMessageFromOtherConnectionException dup){
+                log.debug(dup.getDebugMessage());
+            }
         }
         catch (ClientException clientException) {
             Session s = Sessions.findByConnection(sender);

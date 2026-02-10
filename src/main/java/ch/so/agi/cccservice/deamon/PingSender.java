@@ -6,17 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.PingMessage;
-import org.springframework.web.socket.WebSocketSession;
-
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PingSender {
 
-    private static final int DELAY_MILLIS = 5 * 60 * 1000; // 5 minutes in milliseconds
+    private static final int DELAY_MILLIS = 30 * 1000; // 30 seconds in milliseconds
     private static final Logger log = LoggerFactory.getLogger(PingSender.class);
 
     public PingSender(){
