@@ -9,6 +9,9 @@ import ch.so.agi.cccservice.deamon.PingSender;
 import ch.so.agi.cccservice.deamon.SessionsGroomer;
 import ch.so.agi.cccservice.security.ConnectionLimiter;
 import ch.so.agi.cccservice.session.Sessions;
+import ch.so.agi.cccservice.session.SockConnection;
+
+import java.util.UUID;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -143,6 +146,44 @@ class ApplicationTest {
         for (Future<Health> future : futures) {
             assertEquals(Status.UP, future.get().getStatus());
         }
+    }
+
+    @Test
+    void largeMessage_isForwardedWithoutDisconnect() {
+        String adr = "ws://localhost:" + WebServerPort.getPort() + WebSocketConfig.CCC_SOCKET_PATH;
+        UUID sesUid = UUID.randomUUID();
+
+        int largeBuffer = 2 * 1024 * 1024;
+        SocketClient appClient = new SocketClient(adr, SocketClient.ClientType.APP, largeBuffer);
+        SocketClient gisClient = new SocketClient(adr, SocketClient.ClientType.GIS, largeBuffer);
+
+        appClient.connectCCC(sesUid, "test-app", SockConnection.PROTOCOL_V12, SocketClient.ClientType.APP);
+        gisClient.connectCCC(sesUid, "test-gis", SockConnection.PROTOCOL_V12, SocketClient.ClientType.GIS);
+
+        // Wait for handshake
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+                .until(() -> appClient.getSessionNr() != null && gisClient.getSessionNr() != null);
+
+        // Build a showGeoObject message >100KB (exceeds maxTextMessageBufferSize)
+        StringBuilder coords = new StringBuilder();
+        for (int i = 0; i < 5000; i++) {
+            if (i > 0) coords.append(",");
+            coords.append("[260").append(7000 + i).append(".123,122").append(9000 + i).append(".456]");
+        }
+        String largeMessage = """
+                {"method":"showGeoObject","context":{},"data":{"type":"Polygon","coordinates":[[%s]]}}
+                """.formatted(coords.toString());
+
+        assertTrue(largeMessage.length() > 102400, "Message must exceed buffer size");
+
+        appClient.sendRawMessage(largeMessage);
+
+        // GIS client should receive the forwarded message
+        Awaitility.await().atMost(5, TimeUnit.SECONDS)
+                .until(() -> "showGeoObject".equals(gisClient.getLastReceivedMethod()));
+
+        assertTrue(appClient.webSocketIsOpen(), "App connection must stay open");
+        assertTrue(gisClient.webSocketIsOpen(), "GIS connection must stay open");
     }
 
     private static List<TestClient> createClients(int numClients){

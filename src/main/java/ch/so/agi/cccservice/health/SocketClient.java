@@ -5,6 +5,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.WebSocketContainer;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +48,7 @@ public class SocketClient extends TextWebSocketHandler {
         }
     }
 
-    private final StandardWebSocketClient webSocketClient = new StandardWebSocketClient();
+    private final StandardWebSocketClient webSocketClient;
     private final String baseAddress;
 
     private WebSocketSession sockSession;
@@ -54,12 +56,24 @@ public class SocketClient extends TextWebSocketHandler {
     private volatile String latestConnectionKey;
     private volatile Integer sessionNr;
     private volatile Boolean reconnectResult; // null=pending, true=success, false=failure
+    private volatile String lastReceivedMethod;
 
     private ClientType clientType;
 
     public SocketClient(String baseAddress, ClientType clientType) {
+        this(baseAddress, clientType, 0);
+    }
+
+    public SocketClient(String baseAddress, ClientType clientType, int maxTextMessageBufferSize) {
         this.baseAddress = baseAddress;
         this.clientType = clientType;
+        if (maxTextMessageBufferSize > 0) {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            container.setDefaultMaxTextMessageBufferSize(maxTextMessageBufferSize);
+            this.webSocketClient = new StandardWebSocketClient(container);
+        } else {
+            this.webSocketClient = new StandardWebSocketClient();
+        }
     }
 
     @Override
@@ -81,7 +95,10 @@ public class SocketClient extends TextWebSocketHandler {
             case KeyChange.METHOD_TYPE -> handleKeyChange(payload);
             case SessionReady.METHOD_TYPE -> handleSessionReady(payload);
             case ErrorMessage.MESSAGE_TYPE -> { reconnectResult = false; }
-            default -> log.debug("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
+            default -> {
+                lastReceivedMethod = method;
+                log.debug("Received websocket message '{}'. Message details: {}", method, message);
+            }
         }
     }
 
@@ -207,5 +224,18 @@ public class SocketClient extends TextWebSocketHandler {
 
     public Integer getSessionNr() {
         return sessionNr;
+    }
+
+    public String getLastReceivedMethod() {
+        return lastReceivedMethod;
+    }
+
+    public void sendRawMessage(String message) {
+        assertSocketOpen();
+        try {
+            sockSession.sendMessage(new TextMessage(message));
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not send raw message", e);
+        }
     }
 }
