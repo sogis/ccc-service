@@ -45,6 +45,11 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
+    public boolean supportsPartialMessages() {
+        return true;
+    }
+
+    @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         accumulator.accumulate(
                 session,
