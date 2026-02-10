@@ -58,6 +58,26 @@ class MessageHandlerTest {
     }
 
     @Test
+    void missingRequiredField_sendsNotifyError() throws Exception {
+        String msg = """
+            {
+                "method": "connectApp",
+                "apiVersion": "1.0"
+            }
+            """;
+        MockWebSocketSession sender = new MockWebSocketSession();
+
+        MessageHandler.handleMessage(sender, msg);
+
+        String response = sender.getLastSentTextMessage();
+        assertNotNull(response, "Expected notifyError to be sent to client");
+        JsonNode notifyError = MAPPER.readTree(response);
+        assertEquals("notifyError", notifyError.get("method").asText());
+        assertEquals(MessageMalformedException.class.getName(), notifyError.get("nativeCode").asText());
+        assertFalse(notifyError.get("message").asText().contains("uuid"), "Error message must not leak sensitive field values");
+    }
+
+    @Test
     void appDidNotCloseHandshake_sendsNotifyError() throws Exception {
         Session s = TestUtil.openSession(false);
         MessageHandler.handleMessage(s.getGisWebSocket(), GIS_MESSAGE);

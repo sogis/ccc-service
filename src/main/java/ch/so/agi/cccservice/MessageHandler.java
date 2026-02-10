@@ -7,10 +7,12 @@ import org.springframework.web.socket.WebSocketSession;
 import ch.so.agi.cccservice.exception.CccSecurityException;
 import ch.so.agi.cccservice.exception.ClientException;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
+import ch.so.agi.cccservice.exception.MessageMalformedException;
 import ch.so.agi.cccservice.message.ErrorSender;
 import ch.so.agi.cccservice.message.Message;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  * Helper class containing the ccc specific functionality to
@@ -47,6 +49,15 @@ public class MessageHandler {
             }
 
             ErrorSender.send(sender, clientException);
+        }
+        catch (ConstraintViolationException cve){
+            String details = cve.getConstraintViolations().stream()
+                    .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("unknown");
+            log.warn("Message validation failed!");
+            log.debug("Message validation details: {}", details);
+            ErrorSender.send(sender, new MessageMalformedException("Message validation failed. Check required fields."));
         }
     }
 }

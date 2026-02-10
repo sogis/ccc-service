@@ -81,7 +81,7 @@ public class SocketClient extends TextWebSocketHandler {
             case KeyChange.METHOD_TYPE -> handleKeyChange(payload);
             case SessionReady.METHOD_TYPE -> handleSessionReady(payload);
             case ErrorMessage.MESSAGE_TYPE -> { reconnectResult = false; }
-            default -> log.warn("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
+            default -> log.debug("Ignoring unhandled websocket message '{}'. Message details: {}", method, message);
         }
     }
 
