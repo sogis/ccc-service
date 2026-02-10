@@ -6,6 +6,16 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!-- Singletons: returning the instance is intentional -->
+    <Match>
+        <Class name="ch.so.agi.cccservice.security.ConnectionLimiter"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="ch.so.agi.cccservice.security.ConnectionRateLimiter"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+
     <!-- SessionReady.method is read by Jackson via reflection -->
     <Match>
         <Class name="ch.so.agi.cccservice.message.SessionReady"/>

@@ -33,7 +33,18 @@ public class ConnectionLimiter {
     private final Map<String, ConnectionRecord> connectionsByIp = new ConcurrentHashMap<>();
     private volatile Instant lastCleanup = Instant.now();
 
+    private volatile boolean enabled = false;
+
     private ConnectionLimiter() {}
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        log.info("ConnectionLimiter {}", enabled ? "enabled" : "disabled");
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 
     /**
      * Checks if a new connection is allowed for the given IP address.
@@ -42,6 +53,10 @@ public class ConnectionLimiter {
      * @return true if allowed, false if limit exceeded
      */
     public boolean isConnectionAllowed(String ipAddress) {
+        if (!enabled) {
+            return true;
+        }
+
         if (ipAddress == null || ipAddress.isBlank()) {
             return true;
         }

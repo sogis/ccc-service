@@ -34,9 +34,19 @@ public class ConnectionRateLimiter {
     }
 
     private final String limiterType;
+    private volatile boolean enabled = false;
 
     private ConnectionRateLimiter(String limiterType) {
         this.limiterType = limiterType;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        log.info("ConnectionRateLimiter [{}] {}", limiterType, enabled ? "enabled" : "disabled");
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     private static final int MAX_ATTEMPTS_BEFORE_LIMIT = 2;
@@ -52,6 +62,10 @@ public class ConnectionRateLimiter {
      * @return true if allowed, false if rate limited
      */
     public boolean isAllowed(String ipAddress) {
+        if (!enabled) {
+            return true;
+        }
+
         if (ipAddress == null || ipAddress.isBlank()) {
             return true; // Allow if IP unknown (shouldn't happen)
         }

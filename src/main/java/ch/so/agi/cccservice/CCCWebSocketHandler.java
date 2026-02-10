@@ -17,6 +17,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import ch.so.agi.cccservice.message.MessageAccumulator;
 import ch.so.agi.cccservice.security.ConnectionLimiter;
+import ch.so.agi.cccservice.security.ConnectionRateLimiter;
 import ch.so.agi.cccservice.session.Sessions;
 
 @Component
@@ -31,10 +32,16 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
 
     public CCCWebSocketHandler(
             MessageAccumulator accumulator,
-            @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}") int connectMsgMaxDelaySeconds
+            @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}") int connectMsgMaxDelaySeconds,
+            @Value("${ccc.security.connection-limiter.enabled:false}") boolean connectionLimiterEnabled,
+            @Value("${ccc.security.rate-limiter.enabled:false}") boolean rateLimiterEnabled
     ) {
         this.accumulator = accumulator;
         this.connectMsgMaxDelaySeconds = connectMsgMaxDelaySeconds;
+
+        ConnectionLimiter.getInstance().setEnabled(connectionLimiterEnabled);
+        ConnectionRateLimiter.getConnectLimiter().setEnabled(rateLimiterEnabled);
+        ConnectionRateLimiter.getReconnectLimiter().setEnabled(rateLimiterEnabled);
     }
 
     @Override
