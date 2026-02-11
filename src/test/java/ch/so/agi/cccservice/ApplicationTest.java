@@ -170,9 +170,9 @@ class ApplicationTest {
             if (i > 0) coords.append(",");
             coords.append("[260").append(7000 + i).append(".123,122").append(9000 + i).append(".456]");
         }
-        String largeMessage = """
-                {"method":"showGeoObject","context":{},"data":{"type":"Polygon","coordinates":[[%s]]}}
-                """.formatted(coords.toString());
+        String largeMessage = String.format(
+                "{\"method\":\"showGeoObject\",\"context\":{},\"data\":{\"type\":\"Polygon\",\"coordinates\":[[%s]]}}",
+                coords.toString());
 
         assertTrue(largeMessage.length() > 102400, "Message must exceed buffer size");
 
