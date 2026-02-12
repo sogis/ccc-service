@@ -51,7 +51,7 @@ class ApplicationTest {
     private SessionsKiller killer;
 
     @Autowired
-    private LivenessProbe livenessProbe;
+    private ReadinessProbe readinessProbe;
 
     @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
     private int connectMsgMaxDelaySeconds;
@@ -132,12 +132,12 @@ class ApplicationTest {
     }
 
     @Test
-    void livenessProbe_concurrent_allHealthy() throws Exception {
+    void readinessProbe_concurrent_allHealthy() throws Exception {
         int threadCount = 5;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
         List<Future<Health>> futures = IntStream.range(0, threadCount)
-                .mapToObj(i -> executor.submit(() -> livenessProbe.health()))
+                .mapToObj(i -> executor.submit(() -> readinessProbe.health()))
                 .collect(Collectors.toList());
 
         executor.shutdown();

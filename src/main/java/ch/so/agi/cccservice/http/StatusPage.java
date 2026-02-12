@@ -1,7 +1,5 @@
 package ch.so.agi.cccservice.http;
 
-import ch.so.agi.cccservice.health.LivenessProbe;
-import ch.so.agi.cccservice.health.TestClient;
 import ch.so.agi.cccservice.session.Sessions;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

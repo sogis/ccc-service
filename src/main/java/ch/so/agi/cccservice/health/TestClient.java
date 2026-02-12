@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class TestClient {
 
-    private static final Logger log = LoggerFactory.getLogger(LivenessProbe.class);
+    private static final Logger log = LoggerFactory.getLogger(ReadinessProbe.class);
 
     private SocketClient gisClient;
     private SocketClient appClient;
