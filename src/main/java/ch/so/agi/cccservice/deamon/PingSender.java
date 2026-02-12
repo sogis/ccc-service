@@ -32,7 +32,11 @@ public class PingSender {
             s.getGisConnection().sendPing();
         }
 
-        log.info("Sent ping to {} sessions.", sessions.size());
+        String sessionNrs = sessions.stream()
+                .map(s -> String.valueOf(s.getSessionNr()))
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+        log.info("Sent ping to {} sessions: [{}].", sessions.size(), sessionNrs);
         return sessions.size();
     }
 }
