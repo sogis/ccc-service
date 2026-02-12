@@ -8,8 +8,10 @@ import ch.so.agi.cccservice.exception.CccSecurityException;
 import ch.so.agi.cccservice.exception.ClientException;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.exception.MessageMalformedException;
+import ch.so.agi.cccservice.message.Connect;
 import ch.so.agi.cccservice.message.ErrorSender;
 import ch.so.agi.cccservice.message.Message;
+import ch.so.agi.cccservice.message.Reconnect;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 import jakarta.validation.ConstraintViolationException;
@@ -26,6 +28,15 @@ public class MessageHandler {
         try {
             m = Message.forJsonString(message);
             m.setRawMessage(message);
+
+            if (!(m instanceof Connect) && !(m instanceof Reconnect)) {
+                Session s = Sessions.findByConnection(sender);
+                if (s == null) {
+                    log.warn("Ignoring '{}' message: no session found for connection. Session was likely already removed.", m.getMessageType());
+                    return;
+                }
+            }
+
             m.process(sender);
         }
         catch (CccSecurityException se){
