@@ -14,7 +14,7 @@ COPY ccc/ccc-service.jar .
 
 # Set ownership for OpenShift compatibility
 RUN chown -R 1001:0 /home/ccc && \
-    chmod -R g+rw /home/ccc \
+    chmod -R g+rw /home/ccc &&\
     ls -la /home/ccc
 
 # Run as non-root user
