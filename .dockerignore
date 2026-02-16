@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Build output
+build/
+target/
+*.jar
+*.war
+
+# Gradle
+.gradle/
+gradle.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker/
+.dockerignore
+
+# Documentation
+*.md
+README*
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Tests
+*.log
+*.tmp
+.test-results/
