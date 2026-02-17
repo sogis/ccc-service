@@ -1,7 +1,6 @@
 # Single-stage Dockerfile for existing build process
 # This version works with the existing 'jardist' Gradle task
-# Using Debian-based image because Alpine libpng CVE-2026-25646 is not yet patched
-FROM eclipse-temurin:25-jre-jammy
+FROM eclipse-temurin:25-jre-alpine
 
 # OCI Labels (will be set by buildImage task in build.gradle)
 LABEL org.opencontainers.image.title="CCC-Service"
@@ -10,6 +9,11 @@ LABEL org.opencontainers.image.vendor="sogis"
 LABEL org.opencontainers.image.source="https://github.com/sogis/ccc-service"
 
 WORKDIR /home/ccc
+
+# Note: CVE-2026-25646 (libpng) is reported but not yet patched in Alpine repositories
+# This CVE does not affect the application (no image processing), but may trigger security scanners
+# The application only routes WebSocket messages and does not use libpng
+# Update will be applied automatically when Alpine releases the patched version
 
 # Copy pre-built JAR
 COPY ccc/ccc-service.jar .
