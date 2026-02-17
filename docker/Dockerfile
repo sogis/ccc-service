@@ -1,6 +1,7 @@
 # Single-stage Dockerfile for existing build process
 # This version works with the existing 'jardist' Gradle task
-FROM eclipse-temurin:25-jre-alpine
+# Using Debian-based image to avoid Alpine CVE issues (libpng CVE-2026-25646)
+FROM eclipse-temurin:25-jre-jammy
 
 # OCI Labels (will be set by buildImage task in build.gradle)
 LABEL org.opencontainers.image.title="CCC-Service"
