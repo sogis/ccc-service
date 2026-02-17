@@ -6,6 +6,7 @@ FROM eclipse-temurin:25-jre-alpine
 LABEL org.opencontainers.image.title="CCC-Service"
 LABEL org.opencontainers.image.description="CLIENT-CLIENT CONTEXT WebSocket service"
 LABEL org.opencontainers.image.vendor="sogis"
+LABEL org.opencontainers.image.source="https://github.com/sogis/ccc-service"
 
 WORKDIR /home/ccc
 
@@ -49,7 +50,7 @@ CMD exec java \
     -XX:+UseContainerSupport \
     -XX:+ExitOnOutOfMemoryError \
     -XX:+UseSerialGC \
-    -Xlog:gc*:stdout:time,level,tags \
+    -Xlog:gc:stdout:time,level \
     -Djava.security.egd=file:/dev/./urandom \
     -jar ccc-service.jar \
     ${CCC_DEBUG:+"--spring.profiles.active=ccc-debug"}

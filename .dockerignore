@@ -1,17 +1,15 @@
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Build output
+# Build outputs
 build/
 target/
+.gradle/
 *.jar
 *.war
+*.class
 
-# Gradle
-.gradle/
-gradle.properties
+# Git
+.git/
+.gitignore
+.gitattributes
 
 # IDE
 .idea/
@@ -19,14 +17,20 @@ gradle.properties
 *.iml
 *.ipr
 *.iws
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
 # Docker
-Dockerfile*
 docker/
+Dockerfile*
 .dockerignore
 
 # Documentation
@@ -39,7 +43,12 @@ docs/
 .gitlab-ci.yml
 Jenkinsfile
 
-# Tests
+# Logs and temp files
 *.log
 *.tmp
 .test-results/
+logs/
+
+# Local config
+gradle.properties
+local.properties
