@@ -18,6 +18,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ch.so.agi.cccservice.message.MessageAccumulator;
 import ch.so.agi.cccservice.security.ConnectionLimiter;
 import ch.so.agi.cccservice.security.ConnectionRateLimiter;
+import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
 @Component
@@ -63,8 +64,36 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         accumulator.cleanup(session);
 
+        Session cccSession = Sessions.findByConnection(session);
+        if (cccSession != null) {
+            cccSession.markConnectionClosed(session);
+
+            String clientType = determineClientType(cccSession, session);
+            log.info("Session {}: {} connection closed. Status: {}",
+                    cccSession.getSessionNr(),
+                    clientType,
+                    status);
+
+            // V1.0 sessions don't support reconnect - terminate immediately
+            if (!cccSession.hasV12Connection()) {
+                log.info("Session {}: V1.0 session terminated immediately (no reconnect support)",
+                        cccSession.getSessionNr());
+                cccSession.closeConnections();
+                Sessions.removeSession(cccSession);
+            }
+        }
+
         String clientIp = extractClientIp(session);
         ConnectionLimiter.getInstance().recordConnectionClosed(clientIp);
+    }
+
+    private String determineClientType(Session cccSession, WebSocketSession session) {
+        if (cccSession.getAppWebSocket() != null && cccSession.getAppWebSocket().equals(session)) {
+            return "App";
+        } else if (cccSession.getGisWebSocket() != null && cccSession.getGisWebSocket().equals(session)) {
+            return "GIS";
+        }
+        return "Unknown";
     }
 
     @Override
@@ -102,7 +131,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
                 throw new RuntimeException(e);
             }
 
-            log.error("Client connection from {} rejected as no (re)connect message was sent within {} sec.",
+            log.error("Client connection from {} rejected as no connect message was sent within {} sec.",
                     con.getRemoteAddress(), connectMsgMaxDelaySeconds);
         }
     }

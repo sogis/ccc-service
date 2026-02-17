@@ -57,6 +57,18 @@ public class Session implements Comparable<Session>{
      */
     private SockConnection gisConnection;
 
+    /**
+     * Timestamp when the app connection was first detected as closed.
+     * Used to implement a grace period for reconnection attempts.
+     */
+    private LocalDateTime appConnectionClosedAt;
+
+    /**
+     * Timestamp when the gis connection was first detected as closed.
+     * Used to implement a grace period for reconnection attempts.
+     */
+    private LocalDateTime gisConnectionClosedAt;
+
     public SockConnection getAppConnection() {
         return appConnection;
     }
@@ -167,9 +179,52 @@ public class Session implements Comparable<Session>{
             gisClosed = !getGisWebSocket().isOpen();
 
         if(appConnection != null)
-            appClosed = !getAppConnection().isOpen();
+            appClosed = !getAppWebSocket().isOpen();
 
         return gisClosed || appClosed;
+    }
+
+    /**
+     * Marks the connection as closed by recording the current timestamp.
+     * Called immediately from the WebSocket afterConnectionClosed callback.
+     */
+    public void markConnectionClosed(WebSocketSession ws) {
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        if (appConnection != null && ws.equals(getAppWebSocket())) {
+            appConnectionClosedAt = now;
+        }
+        if (gisConnection != null && ws.equals(getGisWebSocket())) {
+            gisConnectionClosedAt = now;
+        }
+    }
+
+    /**
+     * Resets the connection closed timestamp after a successful reconnect.
+     */
+    public void clearConnectionClosedAt(boolean isAppConnection) {
+        if (isAppConnection) {
+            appConnectionClosedAt = null;
+        } else {
+            gisConnectionClosedAt = null;
+        }
+    }
+
+    /**
+     * Checks if the session has closed connections that should be considered stale.
+     * For V1.0 sessions: immediately stale when any connection is closed (no reconnect support).
+     * For V1.2 sessions: stale only after the grace period has elapsed, allowing time for reconnection.
+     */
+    public boolean hasStaleClosedConnections(Duration gracePeriod) {
+        if (!hasV12Connection()) {
+            return hasClosedConnections();
+        }
+
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+
+        boolean appStale = appConnectionClosedAt != null && now.isAfter(appConnectionClosedAt.plus(gracePeriod));
+        boolean gisStale = gisConnectionClosedAt != null && now.isAfter(gisConnectionClosedAt.plus(gracePeriod));
+
+        return appStale || gisStale;
     }
 
     public boolean handShakeExceeded() {

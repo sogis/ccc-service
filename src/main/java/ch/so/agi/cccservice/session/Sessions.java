@@ -2,6 +2,7 @@ package ch.so.agi.cccservice.session;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -107,7 +108,7 @@ public class Sessions {
         }
     }
 
-    private static void removeSession(Session s){
+    public static void removeSession(Session s){
         sessionsBySocket.values().removeIf(session -> session.equals(s));
     }
 
@@ -126,15 +127,22 @@ public class Sessions {
     }
 
     /**
+     * Grace period for reconnection attempts before removing a session with closed connections.
+     * Sessions with closed connections will only be removed after this duration has elapsed,
+     * allowing clients time to reconnect (e.g., after network interruptions or app restarts).
+     */
+    private static final Duration RECONNECTION_GRACE_PERIOD = Duration.ofMinutes(1);
+
+    /**
      * Closes and removes stale sessions from the session collection.
      * A session is stale if:
-     * - One or both client connections are closed
+     * - One or both client connections have been closed for longer than RECONNECTION_GRACE_PERIOD
      * - The maximum delay for finishing the handshake is exceeded
      * Returns a Stream containing the returned session numbers
      */
     public static Stream<Integer> removeStaleSessions() {
         List<Session> staleSessions = Sessions.allSessions()
-                .filter(session -> (session.hasClosedConnections() || session.handShakeExceeded()))
+                .filter(session -> (session.hasStaleClosedConnections(RECONNECTION_GRACE_PERIOD) || session.handShakeExceeded()))
                 .sorted().toList();
 
         for(Session s : staleSessions){

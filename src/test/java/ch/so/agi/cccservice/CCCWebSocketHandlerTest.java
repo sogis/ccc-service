@@ -4,13 +4,15 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.socket.CloseStatus;
 
 import ch.so.agi.cccservice.message.MessageAccumulator;
 import ch.so.agi.cccservice.session.MockWebSocketSession;
+import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.SockConnection;
 import ch.so.agi.cccservice.session.Sessions;
 
 class CCCWebSocketHandlerTest {
@@ -56,5 +58,53 @@ class CCCWebSocketHandlerTest {
 
         // Connect-Message gesendet → Verbindung bleibt offen
         assertTrue(socket.isOpen());
+    }
+
+    // --- V1.0: sofortiger Abbruch bei WebSocket close ---
+
+    @Test
+    void v10_appConnectionClose_sessionRemovedAndPeerClosed() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+
+        handler.afterConnectionClosed(appSocket, CloseStatus.NORMAL);
+
+        assertEquals(0, Sessions.allSessions().count(), "V1.0 session should be removed immediately");
+        assertFalse(s.getGisWebSocket().isOpen(), "Peer connection should be closed");
+    }
+
+    @Test
+    void v10_gisConnectionClose_sessionRemovedAndPeerClosed() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession gisSocket = (MockWebSocketSession) s.getGisWebSocket();
+
+        handler.afterConnectionClosed(gisSocket, CloseStatus.NORMAL);
+
+        assertFalse(s.getAppWebSocket().isOpen(), "App connection should be closed when GIS disconnects");
+    }
+
+    @Test
+    void afterConnectionClosed_noSessionExists_noException() throws Exception {
+        MockWebSocketSession socket = new MockWebSocketSession();
+
+        handler.afterConnectionClosed(socket, CloseStatus.NORMAL);
+
+        assertEquals(0, Sessions.allSessions().count());
+    }
+
+    // --- V1.2: Session bleibt bestehen bei WebSocket close ---
+
+    @Test
+    void v12_sessionSurvivesConnectionClose() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+
+        handler.afterConnectionClosed(appSocket, CloseStatus.NORMAL);
+
+        assertEquals(1, Sessions.allSessions().count(), "V1.2 session should survive for reconnect");
+        assertTrue(s.getGisWebSocket().isOpen(), "Peer connection should remain open");
     }
 }

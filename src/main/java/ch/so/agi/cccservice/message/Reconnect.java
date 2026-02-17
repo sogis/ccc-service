@@ -86,13 +86,16 @@ public abstract class Reconnect extends Message {
         // 2. Update Sessions map so the new WebSocket is indexed
         Sessions.addOrReplace(s);
 
-        // 3. Assert both connections are open (including the new WebSocket)
+        // 3. Clear the closed-at timestamp so the session is no longer considered stale
+        s.clearConnectionClosedAt(isAppClient());
+
+        // 4. Assert both connections are open (including the new WebSocket)
         s.assertConnected();
 
-        // 4. Send keyChange so client has a valid key for the next reconnect
+        // 5. Send keyChange so client has a valid key for the next reconnect
         KeyChange.sendKeyChangeToConnection(con);
 
-        // 5. Record successful reconnect to reset rate limit
+        // 6. Record successful reconnect to reset rate limit
         rateLimiter.recordSuccess(clientIp);
 
         log.info("Session {}: {} reconnected.", s.getSessionNr(), clientType());

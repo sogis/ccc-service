@@ -191,4 +191,120 @@ class SessionTest {
         Session s = TestUtil.initSession();
         assertEquals(s.hashCode(), s.hashCode());
     }
+
+    // --- hasStaleClosedConnections V1.0 ---
+
+    @Test
+    void hasStaleClosedConnections_v10_immediatelyStaleWhenConnectionClosed() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+
+        s.getAppWebSocket().close();
+
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMinutes(1)));
+    }
+
+    @Test
+    void hasStaleClosedConnections_v10_notStaleWhenBothOpen() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMinutes(1)));
+    }
+
+    // --- hasStaleClosedConnections V1.2 ---
+
+    @Test
+    void hasStaleClosedConnections_v12_notStaleWhenBothOpen() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMinutes(1)));
+    }
+
+    @Test
+    void hasStaleClosedConnections_v12_notStaleWithinGracePeriod() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getAppWebSocket().close();
+        s.markConnectionClosed(s.getAppWebSocket());
+
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMinutes(1)));
+    }
+
+    @Test
+    void hasStaleClosedConnections_v12_staleAfterGracePeriodElapsed() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getAppWebSocket().close();
+        s.markConnectionClosed(s.getAppWebSocket());
+
+        TestUtil.wait(150);
+
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+    }
+
+    @Test
+    void hasStaleClosedConnections_v12_gisConnectionStaleAfterGracePeriod() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getGisWebSocket().close();
+        s.markConnectionClosed(s.getGisWebSocket());
+
+        TestUtil.wait(150);
+
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+    }
+
+    // --- markConnectionClosed ---
+
+    @Test
+    void markConnectionClosed_enablesStaleDetection() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getAppWebSocket().close();
+
+        // Without markConnectionClosed, no timestamp is set, so not stale
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMillis(0)));
+
+        s.markConnectionClosed(s.getAppWebSocket());
+
+        // Now with timestamp set and zero grace period, should be stale
+        TestUtil.wait(5);
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMillis(0)));
+    }
+
+    // --- clearConnectionClosedAt ---
+
+    @Test
+    void clearConnectionClosedAt_resetsTimestampAfterReconnect() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getAppWebSocket().close();
+        s.markConnectionClosed(s.getAppWebSocket());
+
+        TestUtil.wait(150);
+
+        // Grace period elapsed, should be stale
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+
+        // Simulate reconnect: clear the timestamp
+        s.clearConnectionClosedAt(true);
+
+        // No longer stale
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+    }
+
+    @Test
+    void clearConnectionClosedAt_resetsGisTimestamp() throws IOException {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        s.getGisWebSocket().close();
+        s.markConnectionClosed(s.getGisWebSocket());
+
+        TestUtil.wait(150);
+
+        assertTrue(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+
+        s.clearConnectionClosedAt(false);
+
+        assertFalse(s.hasStaleClosedConnections(Duration.ofMillis(100)));
+    }
 }
