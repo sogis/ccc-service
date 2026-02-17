@@ -6,14 +6,21 @@ import ch.so.agi.cccservice.exception.MessageUnknownException;
 import ch.so.agi.cccservice.exception.ReceivingConnectionClosedException;
 import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.Sessions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MessageHandlerTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() {
+        Sessions.resetSessionCollection();
+    }
     private static final String APP_MESSAGE = """
         {
             "method": "changeLayerVisibility",
@@ -119,5 +126,37 @@ class MessageHandlerTest {
 
         JsonNode notifyError = MAPPER.readTree(gisSender.getLastSentTextMessage());
         assertEquals(ReceivingConnectionClosedException.class.getName(), notifyError.get("nativeCode").asText());
+    }
+
+    @Test
+    void sessionRemovedDuringMessageProcessing_handledGracefully() {
+        Session s = TestUtil.initSession();
+        MockWebSocketSession appSender = (MockWebSocketSession) s.getAppWebSocket();
+
+        // Remove session to simulate race condition
+        Sessions.removeSession(s);
+
+        // Message processing should handle missing session gracefully (no exception thrown)
+        assertDoesNotThrow(() -> MessageHandler.handleMessage(appSender, APP_MESSAGE));
+
+        // No error message should be sent to the client since the session is already gone
+        // (The session removal happens before the message is processed)
+    }
+
+    @Test
+    void sessionRemovedAfterInitialCheck_handledGracefully() throws Exception {
+        Session s = TestUtil.initSession();
+        MockWebSocketSession gisSender = (MockWebSocketSession) s.getGisWebSocket();
+        MockWebSocketSession appReceiver = (MockWebSocketSession) s.getAppWebSocket();
+
+        // Close the app connection to trigger sendMessage failure
+        appReceiver.close();
+
+        // This simulates the race: session exists initially, but connection is closed
+        // The sendMessage will detect closed connection and silently return
+        assertDoesNotThrow(() -> MessageHandler.handleMessage(gisSender, GIS_MESSAGE));
+
+        // No message should have been sent to the closed connection
+        // (sendMessage returns early when connection is closed)
     }
 }

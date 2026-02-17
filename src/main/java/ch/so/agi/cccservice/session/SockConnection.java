@@ -78,6 +78,9 @@ public final class SockConnection {
      * Synchronized sending of the message
      */
     public synchronized void sendMessage(String message){
+        if (!isOpen()) {
+            return;
+        }
         TextMessage msg = new TextMessage(message);
         try {
             webSocketConnection.sendMessage(msg);

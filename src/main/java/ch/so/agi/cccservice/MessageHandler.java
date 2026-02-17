@@ -29,10 +29,19 @@ public class MessageHandler {
             m = Message.forJsonString(message);
             m.setRawMessage(message);
 
+            // For non-connect messages, verify session exists and connections are open
+            // Check twice to minimize (but not eliminate) race condition window
             if (!(m instanceof Connect) && !(m instanceof Reconnect)) {
                 Session s = Sessions.findByConnection(sender);
                 if (s == null) {
                     log.warn("Ignoring '{}' message: no session found for connection. Session was likely already removed.", m.getMessageType());
+                    return;
+                }
+
+                // Second check right before processing to catch race condition
+                // where session is removed between first check and process()
+                if (!sender.isOpen()) {
+                    log.warn("Ignoring '{}' message: connection closed before processing could complete.", m.getMessageType());
                     return;
                 }
             }
