@@ -109,8 +109,20 @@ tasks.register('waitUntilUp', Exec) {
     }
 }
 
+tasks.register('stopTestContainer', Exec) {
+    commandLine 'docker', 'stop', 'ccctest'
+    ignoreExitValue = true
+}
+
+tasks.register('removeTestContainer', Exec) {
+    dependsOn stopTestContainer
+    commandLine 'docker', 'rm', 'ccctest'
+    ignoreExitValue = true
+}
+
 tasks.register('testImage', Exec) {
     dependsOn waitUntilUp
+    finalizedBy removeTestContainer
     commandLine 'curl', '-f', 'http://localhost:8080/actuator/health'
 }
 
