@@ -84,6 +84,10 @@ public final class SockConnection {
         TextMessage msg = new TextMessage(message);
         try {
             webSocketConnection.sendMessage(msg);
+        } catch (IllegalStateException e) {
+            // Connection was closed between isOpen() check and sendMessage()
+            // This is a race condition that can happen during session termination
+            // Silently ignore - the message is lost but that's acceptable
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
