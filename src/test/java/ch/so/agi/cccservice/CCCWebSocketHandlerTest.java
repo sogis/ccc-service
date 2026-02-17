@@ -107,4 +107,42 @@ class CCCWebSocketHandlerTest {
         assertEquals(1, Sessions.allSessions().count(), "V1.2 session should survive for reconnect");
         assertTrue(s.getGisWebSocket().isOpen(), "Peer connection should remain open");
     }
+
+    // --- Mixed V1.0/V1.2: V1.0 connection close terminates session ---
+
+    @Test
+    void mixed_v10AppClose_sessionTerminatedImmediately() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+
+        handler.afterConnectionClosed(appSocket, CloseStatus.NORMAL);
+
+        assertEquals(0, Sessions.allSessions().count(), "Session with V1.0 App should be terminated immediately");
+        assertFalse(s.getGisWebSocket().isOpen(), "Peer (V1.2 GIS) connection should be closed");
+    }
+
+    @Test
+    void mixed_v10GisClose_sessionTerminatedImmediately() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession gisSocket = (MockWebSocketSession) s.getGisWebSocket();
+
+        handler.afterConnectionClosed(gisSocket, CloseStatus.NORMAL);
+
+        assertEquals(0, Sessions.allSessions().count(), "Session with V1.0 GIS should be terminated immediately");
+        assertFalse(s.getAppWebSocket().isOpen(), "Peer (V1.2 App) connection should be closed");
+    }
+
+    @Test
+    void mixed_v12AppClose_sessionSurvives() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+
+        handler.afterConnectionClosed(appSocket, CloseStatus.NORMAL);
+
+        assertEquals(1, Sessions.allSessions().count(), "V1.2 App close should allow reconnect");
+        assertTrue(s.getGisWebSocket().isOpen(), "V1.0 GIS connection should remain open");
+    }
 }

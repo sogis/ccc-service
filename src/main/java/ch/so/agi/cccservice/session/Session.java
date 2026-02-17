@@ -88,6 +88,20 @@ public class Session implements Comparable<Session>{
     }
 
     /**
+     * Checks if the given WebSocket connection uses protocol V1.0.
+     * Returns false if the connection is not found in this session.
+     */
+    public boolean isV10Connection(WebSocketSession ws) {
+        if (appConnection != null && ws.equals(getAppWebSocket())) {
+            return SockConnection.PROTOCOL_V1.equals(appConnection.getApiVersion());
+        }
+        if (gisConnection != null && ws.equals(getGisWebSocket())) {
+            return SockConnection.PROTOCOL_V1.equals(gisConnection.getApiVersion());
+        }
+        return false;
+    }
+
+    /**
      * Opens the Session and the handshake as reaction to either the connectApp or connectGIS message.
      */
     public Session(UUID sessionUid, SockConnection connection, boolean isAppConnection){

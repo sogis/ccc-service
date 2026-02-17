@@ -74,9 +74,9 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
                     clientType,
                     status);
 
-            // V1.0 sessions don't support reconnect - terminate immediately
-            if (!cccSession.hasV12Connection()) {
-                log.info("Session {}: V1.0 session terminated immediately (no reconnect support)",
+            // V1.0 connections don't support reconnect - terminate session immediately
+            if (cccSession.isV10Connection(session)) {
+                log.info("Session {}: V1.0 connection closed - terminating session immediately (no reconnect support)",
                         cccSession.getSessionNr());
                 cccSession.closeConnections();
                 Sessions.removeSession(cccSession);
