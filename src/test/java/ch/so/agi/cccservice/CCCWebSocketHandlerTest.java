@@ -31,9 +31,9 @@ class CCCWebSocketHandlerTest {
 
         handler.afterConnectionEstablished(socket);
 
-        // Kein Connect innerhalb 2 Sek. → Verbindung wird geschlossen
+        // Kein Connect innerhalb DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS → Verbindung wird geschlossen
         Awaitility.await()
-                .atMost(4, TimeUnit.SECONDS)
+                .atMost(CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + 2, TimeUnit.SECONDS)
                 .untilAsserted(() -> assertFalse(socket.isOpen()));
     }
 

@@ -53,6 +53,9 @@ class ApplicationTest {
     @Autowired
     private ReadinessProbe readinessProbe;
 
+    @Autowired
+    private WebSocketHealthIndicator webSocketHealthIndicator;
+
     @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
     private int connectMsgMaxDelaySeconds;
 
@@ -132,12 +135,18 @@ class ApplicationTest {
     }
 
     @Test
-    void readinessProbe_concurrent_allHealthy() throws Exception {
+    void readinessProbe_isLightweight() {
+        Health health = readinessProbe.health();
+        assertEquals(Status.UP, health.getStatus());
+    }
+
+    @Test
+    void webSocketHealthIndicator_concurrent_allHealthy() throws Exception {
         int threadCount = 5;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
         List<Future<Health>> futures = IntStream.range(0, threadCount)
-                .mapToObj(i -> executor.submit(() -> readinessProbe.health()))
+                .mapToObj(i -> executor.submit(() -> webSocketHealthIndicator.health()))
                 .collect(Collectors.toList());
 
         executor.shutdown();

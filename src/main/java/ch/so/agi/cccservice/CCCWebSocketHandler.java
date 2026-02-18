@@ -24,7 +24,7 @@ import ch.so.agi.cccservice.session.Sessions;
 @Component
 public class CCCWebSocketHandler extends TextWebSocketHandler {
 
-    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 10;
+    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 2;
 
     private static final Logger log = LoggerFactory.getLogger(CCCWebSocketHandler.class);
 
@@ -126,12 +126,15 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     private void assertClientSentConnectMessage(WebSocketSession con) {
         if (Sessions.findByConnection(con) == null && con.isOpen()) {
             try {
-                con.close();
+                con.close(new CloseStatus(
+                    CloseStatus.POLICY_VIOLATION.getCode(),
+                    "No connect message within " + connectMsgMaxDelaySeconds + "s"
+                ));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            log.error("Client connection from {} rejected as no connect message was sent within {} sec.",
+            log.warn("Client connection from {} rejected as no connect message was sent within {} sec.",
                     con.getRemoteAddress(), connectMsgMaxDelaySeconds);
         }
     }
