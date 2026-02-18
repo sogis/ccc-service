@@ -47,7 +47,7 @@ public class Sessions {
         List<Session> ses = allSessions(oldSessionsMap).toList();
 
         for(Session s : ses){
-            s.closeConnections();
+            s.closeConnections(org.springframework.web.socket.CloseStatus.SERVICE_RESTARTED);
         }
         return ses.size();
     }
@@ -146,7 +146,10 @@ public class Sessions {
                 .sorted().toList();
 
         for(Session s : staleSessions){
-            s.closeConnections();
+            org.springframework.web.socket.CloseStatus status = s.handShakeExceeded()
+                ? org.springframework.web.socket.CloseStatus.POLICY_VIOLATION
+                : org.springframework.web.socket.CloseStatus.GOING_AWAY;
+            s.closeConnections(status);
             removeSession(s);
         }
 

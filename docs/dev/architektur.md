@@ -248,14 +248,19 @@ Daten-Nachrichten werden **1:1 weitergeleitet** (Raw-Message, keine Re-Serialisi
 | Daemon           | Intervall      | Aktion                                   |
 +------------------+----------------+------------------------------------------+
 | SessionsKiller   | taeglich 3:00  | Alle Sessions schliessen, Zaehler reset  |
-| SessionsGroomer  | alle 5 Min.    | Stale Sessions + abgelaufene Buffer      |
-|                  |                | entfernen                                |
-| PingSender       | alle 5 Min.    | WebSocket-PING an alle offenen Sessions  |
+| SessionsGroomer  | alle 5 Min.    | Stale Sessions entfernen +               |
+|                  |                | abgelaufene MessageAccumulator-Buffer    |
+|                  |                | purgen                                   |
+| PingSender       | alle 30 Sek.   | WebSocket-PING an alle offenen Sessions  |
 | KeyChanger       | alle 5 Min.    | Neue Keys an v1.2-Verbindungen senden    |
 +------------------+----------------+------------------------------------------+
 
+Stale-Session Erkennung (SessionsGroomer):
+  V1.0-Sessions: Sofort stale wenn eine Verbindung geschlossen wird
+  V1.2-Sessions: Erst stale nach 1 Minute Grace Period (Reconnect-Fenster)
+
 Zeitlicher Ablauf (Beispieltag):
-  00:00 ─── Groomer, Ping, KeyChanger laufen alle 5 Min. ───
+  00:00 ─── Groomer laueft alle 5 Min., Ping alle 30 Sek., KeyChanger alle 5 Min. ───
   03:00 ─── SessionsKiller: alle Sessions gekillt, Zaehler -> 0
   03:01 ─── Erste neue Session bekommt Nr. 1
   ...
@@ -330,7 +335,7 @@ KeyChanger (alle 5 Min.):
               |            +--------------------+  | (alle 5 Min.)|  |
               |                                    +--------------+  |
               |                                    | PingSender   |  |
-              |                                    | (alle 5 Min.)|  |
+              |                                    | (alle 30 Sek)|  |
               |                                    +--------------+  |
               |                                    | KeyChanger   |  |
               |                                    | (alle 5 Min.)|  |
@@ -349,13 +354,88 @@ Nachrichtenfluss (Beispiel: App sendet editGeoObject):
                                                       > GIS WebSocket ──> GIS
 ```
 
+## Verbindungsabbruch-Verhalten
+
+```
+V1.0-Client Verbindung bricht ab:
+  afterConnectionClosed()
+    -> Session sofort terminiert (kein Reconnect)
+    -> Session aus Registry entfernt
+
+V1.2-Client Verbindung bricht ab:
+  afterConnectionClosed()
+    -> markConnectionClosed(timestamp)
+    -> Session bleibt bestehen (Reconnect-Fenster)
+    -> SessionsGroomer entfernt nach 1 Min. Grace Period
+       falls kein Reconnect erfolgt
+```
+
+## Sicherheit (Package ch.so.agi.cccservice.security)
+
+### ConnectionLimiter (Singleton)
+
+Begrenzt WebSocket-Verbindungen pro IP-Adresse. Standardmaessig deaktiviert,
+aktivierbar via `ccc.security.connection-limiter.enabled=true`.
+
+```
+Limits:
+  - Max. 10 gleichzeitige Verbindungen pro IP
+  - Max. 30 neue Verbindungen pro Minute pro IP
+
+Ablauf:
+  afterConnectionEstablished()
+    -> ConnectionLimiter.isConnectionAllowed(ip)
+       -> Falls ueberschritten: Session sofort schliessen (POLICY_VIOLATION)
+    -> ConnectionLimiter.recordConnectionOpened(ip)
+
+  afterConnectionClosed()
+    -> ConnectionLimiter.recordConnectionClosed(ip)
+
+  Cleanup: alle 5 Min. werden inaktive Records entfernt
+```
+
+### ConnectionRateLimiter (Singletons: connect + reconnect)
+
+Rate Limiter mit exponentiellem Backoff gegen Brute-Force- und DoS-Angriffe.
+Standardmaessig deaktiviert, aktivierbar via `ccc.security.rate-limiter.enabled=true`.
+Zwei separate Instanzen: eine fuer Connect-Versuche, eine fuer Reconnect-Versuche.
+
+```
+Exponentielles Backoff bei Fehlversuchen:
+  1-2 Fehlversuche: keine Sperre
+  3 Fehlversuche:   5 Sek. Sperre
+  4 Fehlversuche:  15 Sek. Sperre
+  5 Fehlversuche:  60 Sek. Sperre
+  6+ Fehlversuche:  5 Min. Sperre
+
+  Erfolgreicher Versuch setzt den Zaehler zurueck.
+  Cleanup: alle 10 Min., Records verfallen nach 30 Min. Inaktivitaet.
+```
+
+## Graceful Shutdown (GracefulShutdownHandler)
+
+Behandelt das saubere Beenden bei Kubernetes Rolling Updates:
+
+```
+SIGTERM empfangen
+  -> @PreDestroy onShutdown()
+     -> Alle offenen Sessions ermitteln
+     -> Jede Session graceful schliessen (CloseStatus.GOING_AWAY)
+     -> App- und GIS-WebSocket jeweils einzeln schliessen
+```
+
 ## Thread-Safety
 
-| Klasse/Methode                        | Mechanismus              |
-|---------------------------------------|--------------------------|
-| `Sessions.sessionsBySocket`           | `ConcurrentHashMap`      |
-| `Connect.addClient()`                 | `synchronized` Block     |
-| `Sessions.resetSessionCollection()`   | `synchronized` Block     |
-| `SockConnection.sendMessage()`        | `synchronized` Methode   |
-| `SockConnection.sendPing()`           | `synchronized` Methode   |
-| `CryptoKey.refreshKey/isEqual/getKey` | `synchronized` Methoden  |
+| Klasse/Methode                              | Mechanismus              |
+|---------------------------------------------|--------------------------|
+| `Sessions.sessionsBySocket`                 | `ConcurrentHashMap`      |
+| `Connect.addClient()`                       | `synchronized` Block     |
+| `Sessions.resetSessionCollection()`         | `synchronized` Block     |
+| `SockConnection.sendMessage()`              | `synchronized` Methode   |
+| `SockConnection.sendPing()`                 | `synchronized` Methode   |
+| `SockConnection.getWebSocketConnection()`   | `synchronized` Methode   |
+| `SockConnection.isOpen()`                   | `synchronized` Methode   |
+| `SockConnection.switchToNewWebSocketCon()`  | `synchronized` Methode   |
+| `CryptoKey.refreshKey/isEqual/getKey`       | `synchronized` Methoden  |
+| `ConnectionLimiter.cleanupIfNeeded()`       | `synchronized` Block (DCL) |
+| `ConnectionRateLimiter.cleanupIfNeeded()`   | `synchronized` Block (DCL) |

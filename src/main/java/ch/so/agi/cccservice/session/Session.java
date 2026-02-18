@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
 import ch.so.agi.cccservice.exception.HandshakeIncompleteException;
@@ -263,10 +264,22 @@ public class Session implements Comparable<Session>{
         return connections;
     }
 
+    /**
+     * Closes both connections without specifying a reason.
+     * Use closeConnections(CloseStatus) to provide a reason to clients.
+     */
     public void closeConnections() {
+        closeConnections(CloseStatus.NORMAL);
+    }
+
+    /**
+     * Closes both GIS and App connections with the specified close status.
+     * The close status is communicated to the clients.
+     */
+    public void closeConnections(CloseStatus closeStatus) {
         if(gisConnection != null){
             try {
-                getGisWebSocket().close();
+                getGisWebSocket().close(closeStatus);
             } catch (IOException e) {
                 log.error("Session {}: Exception was thrown while closing gis connection. Exception: {}", getSessionNr(), e.toString());
             }
@@ -274,7 +287,7 @@ public class Session implements Comparable<Session>{
 
         if(appConnection != null){
             try {
-                getAppWebSocket().close();
+                getAppWebSocket().close(closeStatus);
             } catch (IOException e) {
                 log.error("Session {}: Exception was thrown while closing app connection. Exception: {}", getSessionNr(), e.toString());
             }
