@@ -1,18 +1,19 @@
 package ch.so.agi.cccservice.health;
 
-import ch.so.agi.cccservice.CCCWebSocketHandler;
-import ch.so.agi.cccservice.TestUtil;
-import ch.so.agi.cccservice.WebSocketConfig;
-import ch.so.agi.cccservice.deamon.KeyChanger;
-import ch.so.agi.cccservice.deamon.SessionsKiller;
-import ch.so.agi.cccservice.deamon.PingSender;
-import ch.so.agi.cccservice.deamon.SessionsGroomer;
-import ch.so.agi.cccservice.security.ConnectionLimiter;
-import ch.so.agi.cccservice.session.Sessions;
-import ch.so.agi.cccservice.session.SockConnection;
-
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.awaitility.Awaitility;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,16 +23,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import ch.so.agi.cccservice.CCCWebSocketHandler;
+import ch.so.agi.cccservice.WebSocketConfig;
+import ch.so.agi.cccservice.deamon.KeyChanger;
+import ch.so.agi.cccservice.deamon.PingSender;
+import ch.so.agi.cccservice.deamon.SessionsGroomer;
+import ch.so.agi.cccservice.deamon.SessionsKiller;
+import ch.so.agi.cccservice.security.ConnectionLimiter;
+import ch.so.agi.cccservice.session.Sessions;
+import ch.so.agi.cccservice.session.SockConnection;
 
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,6 +59,9 @@ class ApplicationTest {
 
     @Autowired
     private WebSocketHealthIndicator webSocketHealthIndicator;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
     private int connectMsgMaxDelaySeconds;
@@ -155,6 +162,24 @@ class ApplicationTest {
         for (Future<Health> future : futures) {
             assertEquals(Status.UP, future.get().getStatus());
         }
+    }
+
+    // --- Actuator Health Endpoint Tests ---
+
+    @Test
+    void readinessEndpoint_returnsUp() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health/readiness", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains("UP"));
+        assertTrue(response.getBody().contains("cccReadiness"), "Readiness should include cccReadines indicator");
+    }
+
+    @Test
+    void livenessEndpoint_returnsUp_withWebSocketCheck() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health/liveness", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().contains("UP"));
+        assertTrue(response.getBody().contains("websocket"), "Liveness should include websocket health indicator");
     }
 
     @Test
