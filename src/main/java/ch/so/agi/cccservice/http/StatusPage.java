@@ -13,7 +13,10 @@ public class StatusPage {
 
     @GetMapping("/")
     public String statusInfo() {
-        int sessionCount = (int)Sessions.allSessions().count();
-        return String.format("%s%nAnzahl Sessions: %d", VERSION, sessionCount);
+        int total = (int)Sessions.allSessions().count();
+        int open = Sessions.openSessions().size();
+        int partial = total - open;
+        return String.format("%s%nSessions total: %d (open: %d, partial: %d)",
+                VERSION, total, open, partial);
     }
 }
