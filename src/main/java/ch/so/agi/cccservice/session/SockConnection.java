@@ -97,9 +97,14 @@ public final class SockConnection {
      * Synchronized sending of a ping to the connection
      */
     public synchronized void sendPing(){
+        if (!isOpen()) {
+            return;
+        }
         PingMessage ping = new PingMessage();
         try {
             webSocketConnection.sendMessage(ping);
+        } catch (IllegalStateException e) {
+            // Connection was closed between isOpen() check and sendMessage()
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
