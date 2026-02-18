@@ -54,7 +54,7 @@ public class GracefulShutdownHandler {
     private void closeWebSocketConnection(WebSocketSession socket, int sessionNr, String connectionType) {
         if (socket != null && socket.isOpen()) {
             try {
-                socket.close(CloseStatus.GOING_AWAY);
+                socket.close(new CloseStatus(CloseStatus.GOING_AWAY.getCode(), "Kubernetes rolling update"));
                 log.debug("Session {}: {} connection closed", sessionNr, connectionType);
             } catch (IOException e) {
                 log.error("Session {}: Failed to close {} connection: {}",

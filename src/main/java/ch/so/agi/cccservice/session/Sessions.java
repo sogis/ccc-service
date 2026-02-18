@@ -47,7 +47,10 @@ public class Sessions {
         List<Session> ses = allSessions(oldSessionsMap).toList();
 
         for(Session s : ses){
-            s.closeConnections(org.springframework.web.socket.CloseStatus.SERVICE_RESTARTED);
+            s.closeConnections(
+                org.springframework.web.socket.CloseStatus.SERVICE_RESTARTED,
+                "Session reset"
+            );
         }
         return ses.size();
     }
@@ -146,10 +149,17 @@ public class Sessions {
                 .sorted().toList();
 
         for(Session s : staleSessions){
-            org.springframework.web.socket.CloseStatus status = s.handShakeExceeded()
-                ? org.springframework.web.socket.CloseStatus.POLICY_VIOLATION
-                : org.springframework.web.socket.CloseStatus.GOING_AWAY;
-            s.closeConnections(status);
+            if (s.handShakeExceeded()) {
+                s.closeConnections(
+                    org.springframework.web.socket.CloseStatus.POLICY_VIOLATION,
+                    "Handshake timeout exceeded"
+                );
+            } else {
+                s.closeConnections(
+                    org.springframework.web.socket.CloseStatus.GOING_AWAY,
+                    "Reconnection timeout"
+                );
+            }
             removeSession(s);
         }
 

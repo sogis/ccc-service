@@ -269,7 +269,7 @@ public class Session implements Comparable<Session>{
      * Use closeConnections(CloseStatus) to provide a reason to clients.
      */
     public void closeConnections() {
-        closeConnections(CloseStatus.NORMAL);
+        closeConnections(CloseStatus.NORMAL, null);
     }
 
     /**
@@ -277,9 +277,24 @@ public class Session implements Comparable<Session>{
      * The close status is communicated to the clients.
      */
     public void closeConnections(CloseStatus closeStatus) {
+        closeConnections(closeStatus, null);
+    }
+
+    /**
+     * Closes both GIS and App connections with the specified close status and reason.
+     * The close status and reason are communicated to the clients.
+     *
+     * @param closeStatus the close status code
+     * @param reason optional reason text (max 123 bytes UTF-8, per WebSocket spec)
+     */
+    public void closeConnections(CloseStatus closeStatus, String reason) {
+        CloseStatus statusWithReason = reason != null
+            ? new CloseStatus(closeStatus.getCode(), reason)
+            : closeStatus;
+
         if(gisConnection != null){
             try {
-                getGisWebSocket().close(closeStatus);
+                getGisWebSocket().close(statusWithReason);
             } catch (IOException e) {
                 log.error("Session {}: Exception was thrown while closing gis connection. Exception: {}", getSessionNr(), e.toString());
             }
@@ -287,7 +302,7 @@ public class Session implements Comparable<Session>{
 
         if(appConnection != null){
             try {
-                getAppWebSocket().close(closeStatus);
+                getAppWebSocket().close(statusWithReason);
             } catch (IOException e) {
                 log.error("Session {}: Exception was thrown while closing app connection. Exception: {}", getSessionNr(), e.toString());
             }

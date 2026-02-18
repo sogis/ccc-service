@@ -78,7 +78,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
             if (cccSession.isV10Connection(session)) {
                 log.info("Session {}: V1.0 connection closed - terminating session immediately (no reconnect support)",
                         cccSession.getSessionNr());
-                cccSession.closeConnections(CloseStatus.NORMAL);
+                cccSession.closeConnections(CloseStatus.NORMAL, "Peer connection closed");
                 Sessions.removeSession(cccSession);
             }
         }
