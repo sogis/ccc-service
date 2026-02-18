@@ -24,7 +24,7 @@ import ch.so.agi.cccservice.session.Sessions;
 @Component
 public class CCCWebSocketHandler extends TextWebSocketHandler {
 
-    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 2;
+    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 10;
 
     private static final Logger log = LoggerFactory.getLogger(CCCWebSocketHandler.class);
 
