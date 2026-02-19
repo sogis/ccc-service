@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,12 @@ public class Session implements Comparable<Session>{
      * Used to implement a grace period for reconnection attempts.
      */
     private LocalDateTime gisConnectionClosedAt;
+
+    /**
+     * Guards against concurrent termination attempts (e.g. both WebSocket connections
+     * closing simultaneously). Only the first thread to set this wins and performs cleanup.
+     */
+    private final AtomicBoolean terminationStarted = new AtomicBoolean(false);
 
     public SockConnection getAppConnection() {
         return appConnection;
@@ -265,6 +272,14 @@ public class Session implements Comparable<Session>{
     }
 
     /**
+     * Initiates session termination exactly once, even if called from multiple threads.
+     * Returns true if this call triggered the termination, false if another thread was first.
+     */
+    public boolean tryInitiateTermination() {
+        return terminationStarted.compareAndSet(false, true);
+    }
+
+    /**
      * Closes both connections without specifying a reason.
      * Use closeConnections(CloseStatus) to provide a reason to clients.
      */
@@ -295,16 +310,16 @@ public class Session implements Comparable<Session>{
         if(gisConnection != null){
             try {
                 getGisWebSocket().close(statusWithReason);
-            } catch (IOException e) {
-                log.error("Session {}: Exception was thrown while closing gis connection. Exception: {}", getSessionNr(), e.toString());
+            } catch (IOException | IllegalStateException e) {
+                log.warn("Session {}: Exception while closing gis connection: {}", getSessionNr(), e.toString());
             }
         }
 
         if(appConnection != null){
             try {
                 getAppWebSocket().close(statusWithReason);
-            } catch (IOException e) {
-                log.error("Session {}: Exception was thrown while closing app connection. Exception: {}", getSessionNr(), e.toString());
+            } catch (IOException | IllegalStateException e) {
+                log.warn("Session {}: Exception while closing app connection: {}", getSessionNr(), e.toString());
             }
         }
     }

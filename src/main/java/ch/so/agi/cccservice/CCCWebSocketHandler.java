@@ -74,8 +74,10 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
                     clientType,
                     status);
 
-            // V1.0 connections don't support reconnect - terminate session immediately
-            if (cccSession.isV10Connection(session)) {
+            // V1.0 connections don't support reconnect - terminate session immediately.
+            // tryInitiateTermination() guards against a race condition where both connections
+            // close simultaneously, ensuring cleanup happens exactly once.
+            if (cccSession.isV10Connection(session) && cccSession.tryInitiateTermination()) {
                 log.info("Session {}: V1.0 connection closed - terminating session immediately (no reconnect support)",
                         cccSession.getSessionNr());
                 cccSession.closeConnections(CloseStatus.NORMAL, "Peer connection closed");

@@ -1,6 +1,11 @@
 package ch.so.agi.cccservice;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
@@ -132,6 +137,48 @@ class CCCWebSocketHandlerTest {
 
         assertEquals(0, Sessions.allSessions().count(), "Session with V1.0 GIS should be terminated immediately");
         assertFalse(s.getAppWebSocket().isOpen(), "Peer (V1.2 App) connection should be closed");
+    }
+
+    @Test
+    void v10_bothConnectionsCloseConcurrently_noExceptionAndSessionRemoved() throws Exception {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V1);
+        Sessions.addOrReplace(s);
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+        MockWebSocketSession gisSocket = (MockWebSocketSession) s.getGisWebSocket();
+
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+
+        Thread appThread = new Thread(() -> {
+            try {
+                barrier.await();
+                handler.afterConnectionClosed(appSocket, CloseStatus.NORMAL);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                exceptions.add(e);
+            } catch (BrokenBarrierException e) {
+                exceptions.add(e);
+            }
+        });
+        Thread gisThread = new Thread(() -> {
+            try {
+                barrier.await();
+                handler.afterConnectionClosed(gisSocket, CloseStatus.NORMAL);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                exceptions.add(e);
+            } catch (BrokenBarrierException e) {
+                exceptions.add(e);
+            }
+        });
+
+        appThread.start();
+        gisThread.start();
+        appThread.join();
+        gisThread.join();
+
+        assertTrue(exceptions.isEmpty(), "No exceptions should be thrown during concurrent close: " + exceptions);
+        assertEquals(0, Sessions.allSessions().count(), "Session should be removed exactly once");
     }
 
     @Test

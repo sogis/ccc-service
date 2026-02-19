@@ -7,7 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,6 +108,54 @@ class SessionTest {
 
         assertFalse(session.getAppWebSocket().isOpen());
         assertFalse(session.getGisWebSocket().isOpen());
+    }
+
+    // --- tryInitiateTermination ---
+
+    @Test
+    void tryInitiateTermination_firstCallReturnsTrue() {
+        Session s = TestUtil.initSession();
+        assertTrue(s.tryInitiateTermination());
+    }
+
+    @Test
+    void tryInitiateTermination_secondCallReturnsFalse() {
+        Session s = TestUtil.initSession();
+        s.tryInitiateTermination();
+        assertFalse(s.tryInitiateTermination());
+    }
+
+    @Test
+    void tryInitiateTermination_concurrentCalls_exactlyOneWins() throws Exception {
+        Session s = TestUtil.initSession();
+        int threadCount = 10;
+        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        AtomicInteger winCount = new AtomicInteger(0);
+        List<Thread> threads = new ArrayList<>();
+
+        for (int i = 0; i < threadCount; i++) {
+            Thread t = new Thread(() -> {
+                try {
+                    barrier.await(); // alle Threads starten gleichzeitig
+                    if (s.tryInitiateTermination()) {
+                        winCount.incrementAndGet();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError("Thread interrupted", e);
+                } catch (BrokenBarrierException e) {
+                    throw new AssertionError("Barrier broken unexpectedly", e);
+                }
+            });
+            threads.add(t);
+            t.start();
+        }
+
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        assertEquals(1, winCount.get(), "Exactly one thread should win the termination race");
     }
 
     // --- getPeerConnection ---
