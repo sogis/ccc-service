@@ -174,6 +174,26 @@ public class Sessions {
     }
 
     /**
+     * Returns a human-readable summary of the current session counts,
+     * broken down by state: open, waiting for reconnect, and partial (incomplete handshake).
+     */
+    public static String sessionStats() {
+        List<Session> all = Sessions.allSessions().toList();
+        int total = all.size();
+        int open = Sessions.openSessions().size();
+        long waitingForReconnect = all.stream()
+                .filter(s -> s.getAppConnection() != null
+                        && s.getGisConnection() != null
+                        && s.hasClosedConnections())
+                .count();
+        long partial = all.stream()
+                .filter(s -> s.getAppConnection() == null || s.getGisConnection() == null)
+                .count();
+        return String.format("Sessions total: %d (open: %d, waiting for reconnect: %d, partial: %d)",
+                total, open, waitingForReconnect, partial);
+    }
+
+    /**
      * Returns the session containing the connection represented by the key.
      * Returns null, if no matching connection is found.
      */

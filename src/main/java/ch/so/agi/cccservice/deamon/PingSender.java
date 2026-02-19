@@ -1,13 +1,15 @@
 package ch.so.agi.cccservice.deamon;
 
-import ch.so.agi.cccservice.session.Session;
-import ch.so.agi.cccservice.session.Sessions;
+import java.time.Duration;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
-import java.util.List;
+
+import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.Sessions;
 
 @Service
 public class PingSender {
@@ -36,7 +38,7 @@ public class PingSender {
                 .map(s -> String.valueOf(s.getSessionNr()))
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
-        log.info("Sent ping to {} sessions: [{}].", sessions.size(), sessionNrs);
+        log.info("Sent ping to {} sessions: [{}]. {}", sessions.size(), sessionNrs, Sessions.sessionStats());
         return sessions.size();
     }
 }
