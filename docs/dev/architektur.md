@@ -275,7 +275,7 @@ SockConnection
   +-- CryptoKey
         |
         +-- Aktueller Key:  "U2FsdGVkX1+abc..."
-        +-- Grace Period:    60 Sekunden
+        +-- Grace Period:    360 Sekunden (6 Min.)
         +-- Alter Key:       "U2FsdGVkX1+xyz..."  (noch gueltig)
         |
         +-- keyEquals("U2FsdGVkX1+abc...")  -> true  (aktuell)
@@ -285,7 +285,7 @@ SockConnection
 KeyChanger (alle 5 Min.):
   1. refreshKey() -> neuer Key generiert
   2. keyChange-Nachricht an Client mit neuem Key
-  3. Alter Key bleibt 60 Sek. gueltig (Grace Period)
+  3. Alter Key bleibt 360 Sek. gueltig (= 5 Min. Rotation-Intervall + 1 Min. Ueberlappung)
 ```
 
 ## Gesamtarchitektur
