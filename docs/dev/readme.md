@@ -29,17 +29,20 @@ Erstellt für jede ankommende Nachricht eine Message und ruft deren process() Me
 ## Deamons (Package ch.so.agi.cccservice.deamon)
 
 Im Package sind die Klassen von Hintergrund-Diensten enthalten, welche mittels Spring
-"sceduled" werden. 
+"sceduled" werden.
 
 ## Monitoring
 
 Zwecks betrieblichem Monitoring sind die folgenden Klassen implementiert:
-* StatusPage (Package ch.so.agi.cccservice.http): 
-  * Gibt auf dem Root-Pfad als Antwort auf ein HTTP-Get die Version des CCC-Service und die Anzahl der registrierten Sessions aus.
+* StatusPage (Package ch.so.agi.cccservice.http):
+  * Gibt auf dem Root-Pfad als Antwort auf ein HTTP-Get die Version des CCC-Service und eine Aufschlüsselung der Sessions nach Zustand aus (offen, wartend auf Reconnect, unvollständiger Handshake).
   * Default-Pfad: http://localhost:8080
-* LivenessProbe (Package ch.so.agi.cccservice.health): 
-  * Prüft die Gesundheit des Service durch Verschicken von Testnachrichten von einem Test-Client.
-  * Default-Pfad: http://localhost:8080/actuator/health
+* WebSocketHealthIndicator (Package ch.so.agi.cccservice.health):
+  * Prüft die Gesundheit des Service durch Verschicken von Testnachrichten von einem Test-Client (Reconnect + Payload).
+  * Default-Pfad: http://localhost:8080/actuator/health/liveness
+* ReadinessProbe (Package ch.so.agi.cccservice.health):
+  * Leichtgewichtiger Readiness-Check für Kubernetes Rolling Updates. Gibt UP zurück, sobald Spring Boot bereit ist.
+  * Default-Pfad: http://localhost:8080/actuator/health/readiness
 
 ## Konzept für die automatischen Tests
 
