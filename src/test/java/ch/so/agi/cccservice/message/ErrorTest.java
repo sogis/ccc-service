@@ -9,11 +9,26 @@ import ch.so.agi.cccservice.JsonStringAssertions;
 import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.SockConnection;
+
+import java.util.UUID;
 
 class ErrorTest {
     private static final String MESSAGE = """
             {
                 "method": "notifyError",
+                "code": $CODE,
+                "message": $MESSAGE,
+                "userData": $USER_DATA,
+                "nativeCode": $NATIVE_CODE,
+                "technicalDetails": $TECH_DETAILS
+            }
+            """;
+
+    private static final String MESSAGE_WITH_API_VERSION = """
+            {
+                "method": "notifyError",
+                "apiVersion": "1.2",
                 "code": $CODE,
                 "message": $MESSAGE,
                 "userData": $USER_DATA,
@@ -69,13 +84,44 @@ class ErrorTest {
         assertTrue(TECH_DETAILS.contains(err.getTechnicalDetails()));
     }
 
+    private String buildMsg(String template) {
+        return template
+                .replace("$CODE", String.valueOf(CODE))
+                .replace("$MESSAGE", ERR_MESSAGE)
+                .replace("$USER_DATA", NULL)
+                .replace("$NATIVE_CODE", NULL)
+                .replace("$TECH_DETAILS", NULL);
+    }
+
     @Test
     void process_OK(){
-        String msg = MESSAGE.replace("$CODE", String.valueOf(CODE)).replace("$MESSAGE", ERR_MESSAGE).replace("$USER_DATA", NULL).replace("$NATIVE_CODE", NULL).replace("$TECH_DETAILS", NULL);
-
         Session s = TestUtil.initSession();
-        MessageHandler.handleMessage(s.getAppWebSocket(), msg);
+        MessageHandler.handleMessage(s.getAppWebSocket(), buildMsg(MESSAGE));
 
-        JsonStringAssertions.sentMessageEquals(msg, s.getGisWebSocket());
+        JsonStringAssertions.sentMessageEquals(buildMsg(MESSAGE), s.getGisWebSocket());
+    }
+
+    @Test
+    void process_gisToApp_apiVersionStrippedForLegacyApp() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
+        MessageHandler.handleMessage(s.getGisWebSocket(), buildMsg(MESSAGE_WITH_API_VERSION));
+
+        JsonStringAssertions.sentMessageEquals(buildMsg(MESSAGE), s.getAppWebSocket());
+    }
+
+    @Test
+    void process_gisToApp_apiVersionKeptForV12App() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        MessageHandler.handleMessage(s.getGisWebSocket(), buildMsg(MESSAGE_WITH_API_VERSION));
+
+        JsonStringAssertions.sentMessageEquals(buildMsg(MESSAGE_WITH_API_VERSION), s.getAppWebSocket());
+    }
+
+    @Test
+    void process_appToGis_apiVersionNotStripped() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V1);
+        MessageHandler.handleMessage(s.getAppWebSocket(), buildMsg(MESSAGE_WITH_API_VERSION));
+
+        JsonStringAssertions.sentMessageEquals(buildMsg(MESSAGE_WITH_API_VERSION), s.getGisWebSocket());
     }
 }

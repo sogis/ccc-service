@@ -38,7 +38,7 @@ public class EditGeoObjectDone extends Message {
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
-        s.getAppConnection().sendMessage(getRawMessage());
+        s.getAppConnection().sendMessage(rawMessageForApp(s.getAppConnection()));
         log.info("Session {}: Edit geo object done sent", s.getSessionNr());
     }
 }

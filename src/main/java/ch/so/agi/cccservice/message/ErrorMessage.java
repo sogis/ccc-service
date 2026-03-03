@@ -54,11 +54,13 @@ public class ErrorMessage extends Message {
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
-        s.getPeerConnection(sourceConnection).sendMessage(getRawMessage());
+        boolean destIsApp = !sourceConnection.equals(s.getAppWebSocket());
+        String msg = destIsApp ? rawMessageForApp(s.getAppConnection()) : getRawMessage();
+        s.getPeerConnection(sourceConnection).sendMessage(msg);
 
         String source = "app";
         String destination = "gis";
-        if(!sourceConnection.equals(s.getAppWebSocket())){
+        if (destIsApp) {
             source = "gis";
             destination = "app";
         }

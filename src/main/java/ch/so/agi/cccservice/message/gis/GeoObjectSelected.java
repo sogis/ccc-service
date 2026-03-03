@@ -45,7 +45,7 @@ public class GeoObjectSelected extends Message {
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
         s.assertConnected(this);
-        s.getAppConnection().sendMessage(getRawMessage());
+        s.getAppConnection().sendMessage(rawMessageForApp(s.getAppConnection()));
         log.info("Session {}: Notify geo object selected", s.getSessionNr());
     }
 }
