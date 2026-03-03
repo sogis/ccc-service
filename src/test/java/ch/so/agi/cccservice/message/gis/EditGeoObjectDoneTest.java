@@ -5,9 +5,11 @@ import ch.so.agi.cccservice.MessageHandler;
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.message.Message;
 import ch.so.agi.cccservice.session.Session;
+import ch.so.agi.cccservice.session.SockConnection;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EditGeoObjectDoneTest {
@@ -15,6 +17,15 @@ class EditGeoObjectDoneTest {
     private static final String MESSAGE = """
         {
             "method": "notifyEditGeoObjectDone",
+            "context": $CONTEXT,
+            "data": $DATA
+        }
+        """;
+
+    private static final String MESSAGE_WITH_API_VERSION = """
+        {
+            "method": "notifyEditGeoObjectDone",
+            "apiVersion": "1.2",
             "context": $CONTEXT,
             "data": $DATA
         }
@@ -63,6 +74,27 @@ class EditGeoObjectDoneTest {
     void process_OK(){
         Session s = TestUtil.initSession();
         String msg = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
+
+        MessageHandler.handleMessage(s.getGisWebSocket(), msg);
+
+        JsonStringAssertions.sentMessageEquals(msg, s.getAppWebSocket());
+    }
+
+    @Test
+    void process_apiVersionStrippedForLegacyApp() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V1, SockConnection.PROTOCOL_V12);
+        String msg = MESSAGE_WITH_API_VERSION.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
+
+        MessageHandler.handleMessage(s.getGisWebSocket(), msg);
+
+        String expected = MESSAGE.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
+        JsonStringAssertions.sentMessageEquals(expected, s.getAppWebSocket());
+    }
+
+    @Test
+    void process_apiVersionKeptForV12App() {
+        Session s = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+        String msg = MESSAGE_WITH_API_VERSION.replace("$CONTEXT", CONTEXT).replace("$DATA", NULL);
 
         MessageHandler.handleMessage(s.getGisWebSocket(), msg);
 

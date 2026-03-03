@@ -11,8 +11,10 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ch.so.agi.cccservice.exception.MessageMalformedException;
+import ch.so.agi.cccservice.session.SockConnection;
 import ch.so.agi.cccservice.exception.MessageUnknownException;
 import ch.so.agi.cccservice.message.app.CancelEditGeoObject;
 import ch.so.agi.cccservice.message.app.ChangeLayerVisibility;
@@ -75,7 +77,7 @@ abstract public class Message {
         this.rawMessage = rawMessage;
     }
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * Registry of all message types by their "method" name.
@@ -105,7 +107,7 @@ abstract public class Message {
 
         try{
             // First parse the method field to decide which subclass to use
-            JsonNode root = mapper.readTree(json);
+            JsonNode root = MAPPER.readTree(json);
             JsonNode methodNode = root.get("method");
             if (methodNode == null || !methodNode.isTextual()) {
                 throw new MessageMalformedException("Could not interpret message due to missing or malformed 'method' property. Message was: " + json);
@@ -119,7 +121,7 @@ abstract public class Message {
             }
 
             // Deserialize into the discovered subclass
-            Message m = mapper.readValue(json, targetType);
+            Message m = MAPPER.readValue(json, targetType);
 
             Set<ConstraintViolation<Message>> violations = validator.validate(m);
             if(!violations.isEmpty())
@@ -136,4 +138,20 @@ abstract public class Message {
      * Processes the Message (to be implemented by subclasses).
      */
     public abstract void process(WebSocketSession sourceConnection);
+
+    /**
+     * Returns the raw message with apiVersion stripped for legacy v1.0 app clients.
+     */
+    protected String rawMessageForApp(SockConnection appCon) {
+        if (!SockConnection.PROTOCOL_V1.equals(appCon.getApiVersion())) {
+            return getRawMessage();
+        }
+        try {
+            ObjectNode node = (ObjectNode) MAPPER.readTree(getRawMessage());
+            node.remove("apiVersion");
+            return MAPPER.writeValueAsString(node);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

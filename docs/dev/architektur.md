@@ -191,7 +191,32 @@ Schutzmechanismen:
      |<-- editGeoObjectDone ---|                           |
 ```
 
-Daten-Nachrichten werden **1:1 weitergeleitet** (Raw-Message, keine Re-Serialisierung).
+Daten-Nachrichten werden als Raw-Message weitergeleitet (keine Re-Serialisierung), mit Ausnahme des `apiVersion`-Kompatibilitaetsfilters (siehe unten).
+
+### apiVersion-Kompatibilitaetsfilter (GIS → App)
+
+Web GIS Clients koennen das Feld `apiVersion` in ihren Nachrichten mitschicken. Gewisse Legacy-v1.0-App-Clients koennen dieses Feld nicht verarbeiten. Der CCC-Service entfernt deshalb `apiVersion` aus allen GIS→App-Nachrichten, bevor sie an eine v1.0-App weitergeleitet werden.
+
+Betroffene Nachrichten:
+
+| Methode                   | Klasse              |
+|---------------------------|---------------------|
+| `notifyGeoObjectSelected` | `GeoObjectSelected` |
+| `notifyEditGeoObjectDone` | `EditGeoObjectDone` |
+| `notifyError` (GIS→App)   | `ErrorMessage`      |
+
+```
+GIS (v1.2)                CCC-Service                  App (v1.0)
+    |                          |                             |
+    |-- notifyGeoObjectSelected|                             |
+    |   { "method": "...",     |                             |
+    |     "apiVersion": "1.2", |   rawMessageForApp()        |
+    |     "context_list": ...} |   entfernt "apiVersion"     |
+    |                          |-- { "method": "...",     -->|
+    |                          |    "context_list": ...}     |
+```
+
+Implementiert in `Message.rawMessageForApp(SockConnection appCon)`. App→GIS-Nachrichten werden nicht gefiltert.
 
 ### Reconnect (nur v1.2)
 
