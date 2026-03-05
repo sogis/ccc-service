@@ -22,7 +22,7 @@
 {
     "method": "changeLayerVisibility",
     "data": {
-        "layerIdentifier": "ch.so.afu.abbaustellen",
+        "layer_identifier": "ch.so.afu.abbaustellen",
         "visible": true
     }
 }
@@ -93,7 +93,7 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 * gis_key: Flüchtiger kryptografischer Hash der Verbindung gis - ccc.
 * app_key: Füchtiger kryptografischer Hash der Verbindung (fach)app - ccc.
 
-## reconnect
+## reconnect (reconnectGis und reconnectApp)
 
 ### Aufbau der Nachricht
 
@@ -118,7 +118,7 @@ Falls das reconnect vom CCC-Server akzeptiert wird, sendet dieser in der Folge e
 }
 ```
 
-Die keyChange-Anforderung wird vom CCC-Server periodisch (Beispielsweise alle 10 Minuten) oder als Reaktion auf eine reconnect-Anforderung ausgelöst.
+Die keyChange-Anforderung wird vom CCC-Server periodisch (Beispielsweise alle 5 Minuten) oder als Reaktion auf eine reconnect-Anforderung ausgelöst.
 
 ## Erweiterung notifySessionReady
 
