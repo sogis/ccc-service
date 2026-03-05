@@ -101,6 +101,7 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 {
     "method": "reconnect",
     "oldConnectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
+    "oldSessionNumber":2
 }
 ```
 
