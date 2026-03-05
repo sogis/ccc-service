@@ -63,7 +63,7 @@ Bemerkungen:
 
 Die bei der Ersteinführung versprochene Netzstabilität über einen Zeitraum von 4 Stunden hat sich als Phasenweise nicht erfüllt erwiesen. Zudem wechseln die nun eingesetzten mobilen Geräte sowieso häufig ihre Netzwerkverbindung (Dock auf WLAN etc.).
 
-Damit der Benutzer von den Unterbrüchen nichts merkt, wird das Protokoll um die Nachrichten reconnect und keyChange erweitert.
+Damit der Benutzer von den Unterbrüchen nichts merkt, wird das Protokoll um die Nachrichten reconnect (d.h. reconnectGis & reconnectApp) und keyChange erweitert.
 
 ### Sicherheit
 
