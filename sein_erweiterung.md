@@ -99,7 +99,7 @@ Der CCC-Server führt neu für jede Session vier Informationen:
 
 ```json
 {
-    "method": "reconnect",
+    "method": "reconnectGis|reconnectApp",
     "oldConnectionKey": "U2FsdGVkX1+XA0aX3ZHvfCuI3TKx4H8OXTvBTVMv3og=",
     "oldSessionNumber":2
 }
