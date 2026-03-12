@@ -8,9 +8,9 @@ Das Image ist im Docker Hub unter https://hub.docker.com/r/sogis/ccc-service/ pu
 
 ## Starten
 
-    docker run -d -p 8081:8080 --name ccctest sogis/ccc-service
+    docker run -d -p 8080:8080 --name ccctest sogis/ccc-service
 
-Der ccc-service ist nun unter der URL `ws://localhost:8081/ccc-service` ansprechbar.
+Der ccc-service ist nun unter der URL `ws://localhost:8080/ccc-service` ansprechbar.
 
 ## Logs
 
@@ -27,4 +27,4 @@ Der ccc-service ist nun unter der URL `ws://localhost:8081/ccc-service` ansprech
 
 ## Health-Check
 
-    http://localhost:8081/actuator/health
+    http://localhost:8080/actuator/health
