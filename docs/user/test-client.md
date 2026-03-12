@@ -1,9 +1,11 @@
-# Verwendung des HTML-Testclient
+# HTML-Testclient
+
+Die Datei `htmlTestClient/htmlTestClient.html` stellt im Browser ein einfaches GUI dar, mit dem Nachrichten mit einem WebSocket-Server ausgetauscht werden können. Der Client kann als Mock sowohl für das GIS wie auch die Fachapplikation verwendet werden.
 
 ## Verbindung öffnen
 
 Zentral in den Schritten des Öffnens der Verbindung ist die UUID der Session.
-Mit der von der Fachapplikation bestimmten UUID wird das Pairing zwischen 
+Mit der von der Fachapplikation bestimmten UUID wird das Pairing zwischen
 Fachsystem und GIS für einen Benutzer bestimmt.
 
 Historisch bedingt wird die UUID:
@@ -12,7 +14,7 @@ Historisch bedingt wird die UUID:
 
 ### Websocket-Verbindung öffnen
 
-Die URL eingeben und die Websocket-Verbindung öffnen.
+Die URL eingeben und die Websocket-Verbindung öffnen:
 
     wss://fuu/bar
 
@@ -35,7 +37,7 @@ Typischerweise in der Rolle der Fachapplikation:
 
 ## Payload Nachricht schicken
 
-Beispielsweise, um ein Fachobjekt auf der Karte darzustellen
+Beispielsweise, um ein Fachobjekt auf der Karte darzustellen:
 
     {
         "method": "showGeoObject",
@@ -48,15 +50,15 @@ Beispielsweise, um ein Fachobjekt auf der Karte darzustellen
         }
     }
 
-## Vorgehen für einen Funktionstest des CCC-Service
+## Funktionstest des CCC-Service
 
-* Den HTML Test Client in zwei Browserfenstern öffnen;
+* Den HTML-Testclient in zwei Browserfenstern öffnen;
   das eine wird die Fachanwendung simulieren ("App-Client"),
   das andere die GIS-Seite ("GIS-Client")
 * In beiden Browserfenstern die Entwicklertools öffnen
   und sich den Netzwerkverkehr einblenden lassen
 * Aus dem "App-Client" eine Verbindung herstellen,
-  z.B. wss://geo-t.so.ch/ccc-service;
+  z.B. `wss://geo-t.so.ch/ccc-service`;
   in den Entwicklertools den Request markieren (anklicken)
 * Aus dem "GIS-Client" die Verbindung zum gleichen Server herstellen;
   in den Entwicklertools ebenfalls den Request markieren
@@ -70,11 +72,9 @@ Beispielsweise, um ein Fachobjekt auf der Karte darzustellen
     "session": "{E9C62508-025A-4A0F-B342-1B632282ABD8}",
     "clientName": "Test app"
   }
-
   ```
   In den Entwicklertools sieht man nun beim markierten Request
-  (in Firefox unter *Response*), dass die Nachricht gesendet worden ist
-  (grüner Pfeil)
+  (in Firefox unter *Response*), dass die Nachricht gesendet worden ist (grüner Pfeil)
 * Aus dem "GIS-Client" folgende Nachricht senden:
   ```
   {

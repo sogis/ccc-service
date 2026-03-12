@@ -56,3 +56,15 @@ komplett von Spring isoliert.
 Wenige Tests gehen über den Scope von MockWebSocketSession hinaus. Für diese wird vor der Testausführung
 ein Spring-Kontext hochgefahren.
 
+### Smoke Tests
+
+Smoke Tests prüfen einen bereits deployten CCC-Service. Sie sind mit dem JUnit-Tag `smoke` annotiert
+und werden mit dem Gradle-Task `smokeTest` ausgeführt:
+
+```bash
+./gradlew smokeTest -Pccc.smoke.url=https://<host>/ccc
+```
+
+Die Property `ccc.smoke.url` gibt die Basis-URL des zu testenden Service an.
+Ohne diese Property wird die in den Tests hinterlegte Default-URL verwendet.
+
