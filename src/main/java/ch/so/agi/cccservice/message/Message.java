@@ -101,16 +101,40 @@ abstract public class Message {
     }
 
     /**
+     * Sanitizes the entire JSON payload by removing potentially harmful characters and scripts.
+     */
+    private static String sanitizePayload(String json) {
+        if (json == null) {
+            return "";
+        }
+        
+        // Remove script tags and JavaScript keywords (case insensitive)
+        String sanitized = json.replaceAll("(?i)<script[^>]*>", "");
+        sanitized = sanitized.replaceAll("(?i)</script>", "");
+        sanitized = sanitized.replaceAll("(?i)(javascript|onerror|onclick|onload|eval|expression|alert|document\\.cookie)", "");
+        
+        // Remove HTML special characters and their encoded equivalents
+        sanitized = sanitized.replaceAll("[<>&#]", "");
+        sanitized = sanitized.replaceAll("(&#x?[0-9a-fA-F]+;?)", "");
+        sanitized = sanitized.replaceAll("(&#[0-9]+;?)", "");
+        
+        return sanitized;
+    }
+
+    /**
      * Returns a new Message-Instance for the given json string.
      */
     public static Message forJsonString(String json) {
 
         try{
+            // Sanitize the entire payload before processing
+            String sanitizedJson = sanitizePayload(json);
+            
             // First parse the method field to decide which subclass to use
-            JsonNode root = MAPPER.readTree(json);
+            JsonNode root = MAPPER.readTree(sanitizedJson);
             JsonNode methodNode = root.get("method");
             if (methodNode == null || !methodNode.isTextual()) {
-                throw new MessageMalformedException("Could not interpret message due to missing or malformed 'method' property. Message was: " + json);
+                throw new MessageMalformedException("Could not interpret message due to missing or malformed 'method' property. Message was: " + sanitizedJson);
             }
 
             String method = methodNode.asText();
@@ -120,8 +144,8 @@ abstract public class Message {
                 throw new MessageUnknownException(String.format("Could not interpret message as method '%s' is not known.", method));
             }
 
-            // Deserialize into the discovered subclass
-            Message m = MAPPER.readValue(json, targetType);
+            // Deserialize into the discovered subclass using sanitized JSON
+            Message m = MAPPER.readValue(sanitizedJson, targetType);
 
             Set<ConstraintViolation<Message>> violations = validator.validate(m);
             if(!violations.isEmpty())

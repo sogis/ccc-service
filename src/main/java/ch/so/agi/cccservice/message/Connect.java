@@ -2,6 +2,7 @@ package ch.so.agi.cccservice.message;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.springframework.web.socket.WebSocketSession;
 
@@ -39,6 +40,11 @@ abstract public class Connect extends Message {
 
     public String getClientName() {
         return clientName;
+    }
+
+    @JsonProperty
+    private void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     public String getApiVersion() {

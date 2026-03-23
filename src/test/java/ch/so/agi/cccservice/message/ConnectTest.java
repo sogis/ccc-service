@@ -139,4 +139,73 @@ class ConnectTest {
 
         assertThrows(DuplicateConnectMessageFromOtherConnectionException.class, () -> msg.process(con));
     }
+
+    @Test
+    void payload_withScriptTags_getsSanitized(){
+        String maliciousJson = """
+                {
+                    "method": "connectApp",
+                    "clientName": "<script>alert('xss')</script>Malicious App",
+                    "apiVersion": "1.0",
+                    "session": "{019a835f-87b7-7969-ab37-53a4333c8558}"
+                }
+                """;
+
+        ConnectApp con = (ConnectApp) Message.forJsonString(maliciousJson);
+        
+        // Script tags and JavaScript keywords should be removed from the entire payload
+        assertEquals("('xss')Malicious App", con.getClientName());
+    }
+
+    @Test
+    void payload_withSpecialChars_getsSanitized(){
+        String specialCharsJson = """
+                {
+                    "method": "connectApp",
+                    "clientName": "App<>\\u0026\\u0022'Name",
+                    "apiVersion": "1.0",
+                    "session": "{019a835f-87b7-7969-ab37-53a4333c8558}"
+                }
+                """;
+
+        ConnectApp con = (ConnectApp) Message.forJsonString(specialCharsJson);
+        
+        // HTML special characters <>, and # should be removed from the entire payload
+        // Note: & is not removed because it is decoded from Unicode escape before sanitization
+        assertEquals("App&\"'Name", con.getClientName());
+    }
+
+    @Test
+    void payload_withJavaScript_getsSanitized(){
+        String jsJson = """
+                {
+                    "method": "connectApp",
+                    "clientName": "javascript:alert(1)",
+                    "apiVersion": "1.0",
+                    "session": "{019a835f-87b7-7969-ab37-53a4333c8558}"
+                }
+                """;
+
+        ConnectApp con = (ConnectApp) Message.forJsonString(jsJson);
+        
+        // JavaScript keywords should be removed from the entire payload
+        assertEquals(":(1)", con.getClientName());
+    }
+
+    @Test
+    void payload_withNormalChars_remainsUnchanged(){
+        String normalJson = """
+                {
+                    "method": "connectApp",
+                    "clientName": "Axioma Mandant AfU",
+                    "apiVersion": "1.0",
+                    "session": "{019a835f-87b7-7969-ab37-53a4333c8558}"
+                }
+                """;
+
+        ConnectApp con = (ConnectApp) Message.forJsonString(normalJson);
+        
+        // Normal payloads should remain unchanged
+        assertEquals("Axioma Mandant AfU", con.getClientName());
+    }
 }
