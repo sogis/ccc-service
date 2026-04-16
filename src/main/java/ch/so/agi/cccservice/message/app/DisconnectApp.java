@@ -12,4 +12,9 @@ public class DisconnectApp extends Disconnect {
     protected String clientType() {
         return APP_CLIENT_TYPENAME;
     }
+
+    @Override
+    protected boolean isAppClient() {
+        return true;
+    }
 }

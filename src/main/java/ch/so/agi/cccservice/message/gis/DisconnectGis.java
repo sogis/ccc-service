@@ -12,4 +12,9 @@ public class DisconnectGis extends Disconnect {
     protected String clientType() {
         return GIS_CLIENT_TYPENAME;
     }
+
+    @Override
+    protected boolean isAppClient() {
+        return false;
+    }
 }

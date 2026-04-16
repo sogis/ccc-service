@@ -3,6 +3,7 @@ package ch.so.agi.cccservice.message;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,14 +67,15 @@ class DisconnectTest {
     }
 
     @Test
-    void disconnect_v10Session_removesSession() {
+    void disconnect_v10Session_isRejected() {
         UUID sessionId = UUID.randomUUID();
         Session s = TestUtil.initSession(sessionId);
 
         MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
         MessageHandler.handleMessage(appSocket, disconnectMessage("disconnectApp"));
 
-        assertNull(Sessions.findBySessionUid(sessionId), "V1.0 session should also be removed after disconnect");
+        assertNotNull(Sessions.findBySessionUid(sessionId), "V1.0 session should not be removed by disconnect");
+        assertTrue(appSocket.isOpen(), "V1.0 connection should remain open");
     }
 
     @Test

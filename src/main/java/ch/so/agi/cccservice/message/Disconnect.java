@@ -5,13 +5,16 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import ch.so.agi.cccservice.exception.MessageUnknownException;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
 /**
- * Message sent from app or gis to signal an intentional, final disconnection.
+ * Message sent from a V1.2 app or gis client to signal an intentional, final disconnection.
  * Upon receiving this message, the server closes both connections immediately
  * and removes the session — no reconnect grace period is applied.
+ * Only valid for V1.2 connections; V1.0 connections are terminated immediately
+ * on close and do not need this message.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Disconnect extends Message {
@@ -25,6 +28,8 @@ public abstract class Disconnect extends Message {
      */
     protected abstract String clientType();
 
+    protected abstract boolean isAppClient();
+
     @Override
     public void process(WebSocketSession sourceConnection) {
         Session s = Sessions.findByConnection(sourceConnection);
@@ -33,10 +38,14 @@ public abstract class Disconnect extends Message {
             return;
         }
 
+        if (!s.hasV12Connection()) {
+            throw new MessageUnknownException("Disconnect is only supported for V1.2 connections");
+        }
+
         if (s.tryInitiateTermination()) {
             log.info("Session {}: {} client sent disconnect — terminating session",
                     s.getSessionNr(), clientType());
-            s.closeConnections(CloseStatus.NORMAL, "Client disconnected");
+            s.closeConnections(CloseStatus.NORMAL, "Peer connection closed (V1.2)");
             Sessions.removeSession(s);
         }
     }
