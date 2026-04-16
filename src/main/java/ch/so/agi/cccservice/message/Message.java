@@ -22,9 +22,11 @@ import ch.so.agi.cccservice.message.app.ConnectApp;
 import ch.so.agi.cccservice.message.app.CreateGeoObject;
 import ch.so.agi.cccservice.message.app.EditGeoObject;
 import ch.so.agi.cccservice.message.app.ObjectUpdated;
+import ch.so.agi.cccservice.message.app.DisconnectApp;
 import ch.so.agi.cccservice.message.app.ReconnectApp;
 import ch.so.agi.cccservice.message.app.ShowGeoObject;
 import ch.so.agi.cccservice.message.gis.ConnectGis;
+import ch.so.agi.cccservice.message.gis.DisconnectGis;
 import ch.so.agi.cccservice.message.gis.EditGeoObjectDone;
 import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
 import ch.so.agi.cccservice.message.gis.ReconnectGis;
@@ -98,6 +100,8 @@ abstract public class Message {
         MESSAGE_TYPES.put(ObjectUpdated.MESSAGE_TYPE, ObjectUpdated.class);
         MESSAGE_TYPES.put(ReconnectGis.MESSAGE_TYPE, ReconnectGis.class);
         MESSAGE_TYPES.put(ReconnectApp.MESSAGE_TYPE, ReconnectApp.class);
+        MESSAGE_TYPES.put(DisconnectApp.MESSAGE_TYPE, DisconnectApp.class);
+        MESSAGE_TYPES.put(DisconnectGis.MESSAGE_TYPE, DisconnectGis.class);
     }
 
     /**
