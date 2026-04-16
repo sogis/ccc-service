@@ -92,10 +92,6 @@ class DisconnectTest {
     }
 
     private String disconnectMessage(String method) {
-        return """
-                {
-                    "method": "%s"
-                }
-                """.formatted(method);
+        return "{\"method\": \"" + method + "\"}";
     }
 }
