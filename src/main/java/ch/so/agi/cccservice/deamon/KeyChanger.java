@@ -33,21 +33,28 @@ public class KeyChanger {
         List<Session> v12Sessions = Sessions.allSessions()
                 .filter(Session::hasV12Connection).toList();
 
+        List<Session> sentSessions = new java.util.ArrayList<>();
+
         for(Session ses : v12Sessions){
+            boolean sent = false;
             for(SockConnection con : ses.v12Connections()){
-                if(con.isOpen())
+                if(con.isOpen()) {
                     KeyChange.sendKeyChangeToConnection(con);
+                    sent = true;
+                }
             }
+            if(sent)
+                sentSessions.add(ses);
         }
 
-        String v12SessionsString = v12Sessions.stream()
+        String sentSessionsString = sentSessions.stream()
                 .map(ses -> Integer.toString(ses.getSessionNr()))
-                .collect(Collectors.joining(", "));;
+                .collect(Collectors.joining(", "));
 
         log.info(
                 "Sent keychange to the v 1.2 connections of {} sessions. Session numbers: [{}].",
-                v12Sessions.size(),
-                v12SessionsString
+                sentSessions.size(),
+                sentSessionsString
         );
     }
 }
