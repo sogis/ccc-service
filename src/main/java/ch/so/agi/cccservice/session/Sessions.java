@@ -1,11 +1,14 @@
 package ch.so.agi.cccservice.session;
 
-import org.springframework.web.socket.WebSocketSession;
-
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+import org.springframework.web.socket.WebSocketSession;
 
 public class Sessions {
     /**
@@ -151,12 +154,12 @@ public class Sessions {
         for(Session s : staleSessions){
             if (s.handShakeExceeded()) {
                 s.closeConnections(
-                    org.springframework.web.socket.CloseStatus.POLICY_VIOLATION,
+                    org.springframework.web.socket.CloseStatus.GOING_AWAY,
                     "Handshake timeout exceeded"
                 );
             } else {
                 s.closeConnections(
-                    org.springframework.web.socket.CloseStatus.GOING_AWAY,
+                    org.springframework.web.socket.CloseStatus.NORMAL,
                     "Reconnection timeout"
                 );
             }

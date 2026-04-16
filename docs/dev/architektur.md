@@ -284,6 +284,10 @@ Stale-Session Erkennung (SessionsGroomer):
   V1.0-Sessions: Sofort stale wenn eine Verbindung geschlossen wird
   V1.2-Sessions: Erst stale nach 1 Minute Grace Period (Reconnect-Fenster)
 
+  CloseStatus beim Entfernen:
+    Handshake-Timeout:    GOING_AWAY (1001), "Handshake timeout exceeded"
+    Reconnection-Timeout: NORMAL (1000), "Reconnection timeout"
+
 Zeitlicher Ablauf (Beispieltag):
   00:00 ─── Groomer laueft alle 5 Min., Ping alle 30 Sek., KeyChanger alle 5 Min. ───
   03:00 ─── SessionsKiller: alle Sessions gekillt, Zaehler -> 0
@@ -410,7 +414,7 @@ Limits:
 Ablauf:
   afterConnectionEstablished()
     -> ConnectionLimiter.isConnectionAllowed(ip)
-       -> Falls ueberschritten: Session sofort schliessen (POLICY_VIOLATION)
+       -> Falls ueberschritten: Session sofort schliessen (SERVICE_OVERLOAD)
     -> ConnectionLimiter.recordConnectionOpened(ip)
 
   afterConnectionClosed()
