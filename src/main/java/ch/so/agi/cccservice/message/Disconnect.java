@@ -42,6 +42,13 @@ public abstract class Disconnect extends Message {
             throw new MessageUnknownException("Disconnect is only supported for V1.2 connections");
         }
 
+        String actualType = s.clientType(sourceConnection);
+        if (!clientType().equals(actualType)) {
+            log.warn("Session {}: {} sent {} — ignoring (wrong client type)",
+                    s.getSessionNr(), actualType, getMessageType());
+            return;
+        }
+
         if (s.tryInitiateTermination()) {
             log.info("Session {}: {} client sent disconnect — terminating session",
                     s.getSessionNr(), clientType());

@@ -93,6 +93,30 @@ class DisconnectTest {
         assertTrue(s2.getGisWebSocket().isOpen(), "Other session's gis connection should remain open");
     }
 
+    @Test
+    void disconnectApp_fromGisConnection_isIgnored() {
+        UUID sessionId = UUID.randomUUID();
+        Session s = TestUtil.initSession(sessionId, SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        MockWebSocketSession gisSocket = (MockWebSocketSession) s.getGisWebSocket();
+        MessageHandler.handleMessage(gisSocket, disconnectMessage("disconnectApp"));
+
+        assertNotNull(Sessions.findBySessionUid(sessionId), "Session should not be removed when wrong client sends disconnect");
+        assertTrue(gisSocket.isOpen(), "Connections should remain open");
+    }
+
+    @Test
+    void disconnectGis_fromAppConnection_isIgnored() {
+        UUID sessionId = UUID.randomUUID();
+        Session s = TestUtil.initSession(sessionId, SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        MockWebSocketSession appSocket = (MockWebSocketSession) s.getAppWebSocket();
+        MessageHandler.handleMessage(appSocket, disconnectMessage("disconnectGis"));
+
+        assertNotNull(Sessions.findBySessionUid(sessionId), "Session should not be removed when wrong client sends disconnect");
+        assertTrue(appSocket.isOpen(), "Connections should remain open");
+    }
+
     private String disconnectMessage(String method) {
         return "{\"method\": \"" + method + "\"}";
     }
