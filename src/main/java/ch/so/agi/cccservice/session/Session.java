@@ -96,6 +96,20 @@ public class Session implements Comparable<Session>{
     }
 
     /**
+     * Returns the client type name ("app" or "gis") for the given WebSocket connection,
+     * or "unknown" if the connection is not part of this session.
+     */
+    public String clientType(WebSocketSession ws) {
+        if (appConnection != null && ws.equals(getAppWebSocket())) {
+            return Message.APP_CLIENT_TYPENAME;
+        }
+        if (gisConnection != null && ws.equals(getGisWebSocket())) {
+            return Message.GIS_CLIENT_TYPENAME;
+        }
+        return "unknown";
+    }
+
+    /**
      * Checks if the given WebSocket connection uses protocol V1.0.
      * Returns false if the connection is not found in this session.
      */

@@ -14,6 +14,8 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ch.so.agi.cccservice.message.Message;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SessionTest {
@@ -199,6 +201,27 @@ class SessionTest {
 
         assertTrue(s.hasV12Connection());
         assertEquals(1, s.v12Connections().size());
+    }
+
+    // --- clientType ---
+
+    @Test
+    void clientType_returnsAppForAppConnection() {
+        Session s = TestUtil.initSession();
+        assertEquals(Message.APP_CLIENT_TYPENAME, s.clientType(s.getAppWebSocket()));
+    }
+
+    @Test
+    void clientType_returnsGisForGisConnection() {
+        Session s = TestUtil.initSession();
+        assertEquals(Message.GIS_CLIENT_TYPENAME, s.clientType(s.getGisWebSocket()));
+    }
+
+    @Test
+    void clientType_returnsUnknownForForeignConnection() {
+        Session s = TestUtil.initSession();
+        MockWebSocketSession foreign = new MockWebSocketSession();
+        assertEquals("unknown", s.clientType(foreign));
     }
 
     // --- compareTo ---

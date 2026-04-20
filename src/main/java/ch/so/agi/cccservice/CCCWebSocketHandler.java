@@ -68,10 +68,9 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
         if (cccSession != null) {
             cccSession.markConnectionClosed(session);
 
-            String clientType = determineClientType(cccSession, session);
             log.info("Session {}: {} connection closed. Status: {}",
                     cccSession.getSessionNr(),
-                    clientType,
+                    cccSession.clientType(session),
                     status);
 
             // V1.0 connections don't support reconnect - terminate session immediately.
@@ -87,15 +86,6 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
 
         String clientIp = extractClientIp(session);
         ConnectionLimiter.getInstance().recordConnectionClosed(clientIp);
-    }
-
-    private String determineClientType(Session cccSession, WebSocketSession session) {
-        if (cccSession.getAppWebSocket() != null && cccSession.getAppWebSocket().equals(session)) {
-            return "App";
-        } else if (cccSession.getGisWebSocket() != null && cccSession.getGisWebSocket().equals(session)) {
-            return "GIS";
-        }
-        return "Unknown";
     }
 
     @Override

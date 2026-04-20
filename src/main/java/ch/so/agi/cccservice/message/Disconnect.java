@@ -45,7 +45,7 @@ public abstract class Disconnect extends Message {
         if (s.tryInitiateTermination()) {
             log.info("Session {}: {} client sent disconnect — terminating session",
                     s.getSessionNr(), clientType());
-            s.closeConnections(CloseStatus.NORMAL, "Peer connection closed (V1.2)");
+            s.closeConnections(CloseStatus.NORMAL, clientType() + " sent disconnect");
             Sessions.removeSession(s);
         }
     }
