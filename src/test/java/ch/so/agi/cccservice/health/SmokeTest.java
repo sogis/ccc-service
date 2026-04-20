@@ -67,6 +67,48 @@ class SmokeTest {
         app.closeWebSocket();
     }
 
+    @Test
+    void connectAndDisconnect() throws InterruptedException {
+        String url = resolveUrl();
+
+        // 1. Both clients connect (new session)
+        SocketClient gis = new SocketClient(url, GIS);
+        SocketClient app = new SocketClient(url, APP);
+        UUID session = UUID.randomUUID();
+        gis.connectCCC(session, "smoke-gis", "1.2", GIS);
+        app.connectCCC(session, "smoke-app", "1.2", APP);
+
+        // 2. APP sends disconnect — server should close both connections
+        Thread.sleep(500);
+        app.disconnectCCC();
+
+        // 3. Verify both connections were closed by the server
+        Thread.sleep(500);
+        assert !app.webSocketIsOpen() : "App connection should be closed after disconnect";
+        assert !gis.webSocketIsOpen() : "Gis connection should be closed after disconnect";
+    }
+
+    @Test
+    void connectAndDisconnectFromGis() throws InterruptedException {
+        String url = resolveUrl();
+
+        // 1. Both clients connect (new session)
+        SocketClient gis = new SocketClient(url, GIS);
+        SocketClient app = new SocketClient(url, APP);
+        UUID session = UUID.randomUUID();
+        gis.connectCCC(session, "smoke-gis", "1.2", GIS);
+        app.connectCCC(session, "smoke-app", "1.2", APP);
+
+        // 2. GIS sends disconnect — server should close both connections
+        Thread.sleep(500);
+        gis.disconnectCCC();
+
+        // 3. Verify both connections were closed by the server
+        Thread.sleep(500);
+        assert !gis.webSocketIsOpen() : "Gis connection should be closed after disconnect";
+        assert !app.webSocketIsOpen() : "App connection should be closed after disconnect";
+    }
+
     private static String resolveUrl() {
         String sysProp = System.getProperty(PROPERTY_KEY);
         if (sysProp != null && !sysProp.isBlank()) {

@@ -62,7 +62,7 @@ Smoke Tests prüfen einen bereits deployten CCC-Service. Sie sind mit dem JUnit-
 und werden mit dem Gradle-Task `smokeTest` ausgeführt:
 
 ```bash
-./gradlew smokeTest -Pccc.smoke.url=https://<host>/ccc
+./gradlew smokeTest -Pccc.smoke.url=wss://<host>/ccc-service
 ```
 
 Die Property `ccc.smoke.url` gibt die Basis-URL des zu testenden Service an.
