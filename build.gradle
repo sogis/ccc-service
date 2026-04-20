@@ -7,6 +7,10 @@ plugins {
 
 apply plugin: 'io.spring.dependency-management'
 
+// Override Tomcat to 10.1.54 for CVE-2026-34483, CVE-2026-34486, CVE-2026-34487
+// Remove once Spring Boot ships with Tomcat >= 10.1.54
+ext['tomcat.version'] = '10.1.54'
+
 repositories {
     mavenCentral()
 }
