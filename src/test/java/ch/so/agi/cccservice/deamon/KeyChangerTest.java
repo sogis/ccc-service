@@ -72,4 +72,27 @@ class KeyChangerTest {
         lastMessage = ((MockWebSocketSession) v12Only.getGisWebSocket()).getLastSentTextMessage();
         assertTrue(lastMessage.contains(KEYCHANGE_METHOD));
     }
+
+    @Test
+    void sendKeyChangeSkipsClosedV12Connections() throws Exception {
+        Session session = TestUtil.initSession(UUID.randomUUID(), SockConnection.PROTOCOL_V12, SockConnection.PROTOCOL_V12);
+
+        MockWebSocketSession appSocket = (MockWebSocketSession) session.getAppWebSocket();
+        MockWebSocketSession gisSocket = (MockWebSocketSession) session.getGisWebSocket();
+
+        // Simulate GIS connection closed (e.g. browser reload)
+        gisSocket.close();
+
+        int appMessagesBefore = appSocket.getSentTextMessages().size();
+        int gisMessagesBefore = gisSocket.getSentTextMessages().size();
+
+        new KeyChanger().sendKeyChange();
+
+        // App connection is open — should receive keyChange
+        assertEquals(appMessagesBefore + 1, appSocket.getSentTextMessages().size());
+        assertTrue(appSocket.getLastSentTextMessage().contains(KEYCHANGE_METHOD));
+
+        // GIS connection is closed — should NOT receive keyChange
+        assertEquals(gisMessagesBefore, gisSocket.getSentTextMessages().size());
+    }
 }

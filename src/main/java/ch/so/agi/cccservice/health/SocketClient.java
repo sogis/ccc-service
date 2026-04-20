@@ -23,6 +23,8 @@ import ch.so.agi.cccservice.message.ErrorMessage;
 import ch.so.agi.cccservice.message.KeyChange;
 import ch.so.agi.cccservice.message.SessionReady;
 import ch.so.agi.cccservice.message.app.ChangeLayerVisibility;
+import ch.so.agi.cccservice.message.app.DisconnectApp;
+import ch.so.agi.cccservice.message.gis.DisconnectGis;
 import ch.so.agi.cccservice.message.gis.GeoObjectSelected;
 
 /**
@@ -146,6 +148,20 @@ public class SocketClient extends TextWebSocketHandler {
             json.put("layerIdentifier", "fuu");
             json.put("visible", false);
         }
+
+        sendPayload(sockSession, json);
+    }
+
+    public synchronized void disconnectCCC() {
+        awaitSessionReady();
+        assertSocketOpen();
+
+        String method = (clientType == ClientType.APP)
+                ? DisconnectApp.MESSAGE_TYPE
+                : DisconnectGis.MESSAGE_TYPE;
+
+        ObjectNode json = OBJECT_MAPPER.createObjectNode();
+        json.put("method", method);
 
         sendPayload(sockSession, json);
     }

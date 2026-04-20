@@ -107,7 +107,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
         // Check connection limits before accepting
         if (!limiter.isConnectionAllowed(clientIp)) {
             log.warn("Connection from {} rejected due to connection limit", clientIp);
-            session.close(CloseStatus.POLICY_VIOLATION);
+            session.close(CloseStatus.SERVICE_OVERLOAD);
             return;
         }
 

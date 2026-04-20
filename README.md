@@ -40,6 +40,7 @@ Details: [Spezifikation V1.0 (PDF)](docs/res/Spezifikation_CCC_Schnittstelle_V1.
 |---|---|---|---|
 |changeLayerVisibility|F > K|RUN|Aufforderung an die Kartenapplikation, eine geladene Ebene auf sichtbar/unsichtbar zu schalten.|
 |reconnectGis / reconnectApp|F,K > CCC|RUN|Anfrage eines V1.2-Clients, nach einem Verbindungsunterbruch wieder in die bestehende Session aufgenommen zu werden.|
+|disconnectGis / disconnectApp|F,K > CCC|RUN|Signalisiert dem Server, dass der V1.2-Client die Session absichtlich beendet. Sofortige Terminierung ohne Reconnect-Grace-Period.|
 |keyChange|CCC > F,K|RUN|Aufforderung des Servers an einen V1.2-Client, die Keys auszutauschen.|
 
 `notifySessionReady` wird mit V1.2 um `connectionKey` und `sessionNr` erweitert.

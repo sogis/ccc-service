@@ -62,8 +62,18 @@ tasks.register('smokeTest', Test) {
     useJUnitPlatform {
         includeTags 'smoke'
     }
-    if (findProperty('ccc.smoke.url')) {
-        systemProperty 'ccc.smoke.url', findProperty('ccc.smoke.url')
+    def smokeUrl = System.getProperty('ccc.smoke.url') ?: findProperty('ccc.smoke.url')
+    if (smokeUrl) {
+        systemProperty 'ccc.smoke.url', smokeUrl
+        doFirst { logger.lifecycle("Smoke test URL: {}", smokeUrl) }
+    } else {
+        def propsFile = file('src/main/resources/application.properties')
+        doFirst {
+            def props = new Properties()
+            propsFile.withInputStream { props.load(it) }
+            def fallback = props.getProperty('ccc.smoke.url')
+            logger.lifecycle("Smoke test URL (from application.properties): {}", fallback)
+        }
     }
 }
 
