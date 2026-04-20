@@ -135,6 +135,7 @@ message.process(webSocket)           // Polymorphe Verarbeitung
         |
         +-- Connect:    Session erstellen/vervollstaendigen
         +-- Reconnect:  WebSocket austauschen
+        +-- Disconnect: Absender validieren, Session terminieren
         +-- Daten:      An Peer weiterleiten
         +-- Error:      An Peer weiterleiten
 ```
@@ -248,6 +249,7 @@ Implementiert in `Message.rawMessageForApp(SockConnection appCon)`. App→GIS-Na
 | `changeLayerVisibility`| `ChangeLayerVisibility`| Layer im GIS ein-/ausblenden                  |
 | `notifyObjectUpdated`  | `ObjectUpdated`        | Fachobjekt geaendert, GIS soll neu laden      |
 | `reconnectApp`         | `ReconnectApp`         | Reconnect nach Verbindungsabbruch  |
+| `disconnectApp`        | `DisconnectApp`        | Session absichtlich beenden (v1.2) |
 
 ### GIS --> App
 
@@ -257,13 +259,14 @@ Implementiert in `Message.rawMessageForApp(SockConnection appCon)`. App→GIS-Na
 | `notifyGeoObjectSelected`    | `GeoObjectSelected`  | Objekt(e) auf Karte selektiert      |
 | `notifyEditGeoObjectDone`    | `EditGeoObjectDone`  | GIS-Aktion abgeschlossen            |
 | `reconnectGis`               | `ReconnectGis`       | Reconnect nach Verbindungsabbruch   |
+| `disconnectGis`              | `DisconnectGis`      | Session absichtlich beenden (v1.2)  |
 
 ### Server-generiert
 
 | Methode              | Klasse          | Beschreibung                           |
 |----------------------|-----------------|----------------------------------------|
 | `notifySessionReady` | `SessionReady`  | Handshake abgeschlossen                |
-| `notifyError`        | `Error`         | Fehlermeldung an Client                |
+| `notifyError`        | `ErrorMessage`  | Fehlermeldung an Client                |
 | `keyChange`          | `KeyChange`     | Neuer Reconnect-Key (alle 5 Min.)     |
 
 ## Hintergrund-Daemons
@@ -397,6 +400,12 @@ V1.2-Client Verbindung bricht ab:
     -> Session bleibt bestehen (Reconnect-Fenster)
     -> SessionsGroomer entfernt nach 1 Min. Grace Period
        falls kein Reconnect erfolgt
+
+V1.2-Client sendet disconnect (gewolltes Beenden):
+  Disconnect.process()
+    -> Absender-Validierung (App darf nur disconnectApp senden, GIS nur disconnectGis)
+    -> Beide Verbindungen sofort geschlossen (CloseStatus NORMAL)
+    -> Session aus Registry entfernt (kein Grace Period)
 ```
 
 ## Sicherheit (Package ch.so.agi.cccservice.security)

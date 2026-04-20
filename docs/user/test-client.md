@@ -31,7 +31,7 @@ Typischerweise in der Rolle der Fachapplikation:
     {
         "apiVersion": "1.0",
         "method": "connectApp",
-        "session": "{[UUID]]}",
+        "session": "{[UUID]}",
         "clientName": "Axioma Mandant AfU"
     }
 
@@ -91,3 +91,32 @@ Auch in den Entwicklertools des "GIS-Clients" sieht man,
 dass die `connectGis`-Nachricht gesendet worden ist,
 und es muss ein `notifySessionReady` empfangen worden sein.
 Dann ist die Verbindung der beiden Clients erfolgreich aufgebaut worden.
+
+## V1.2-Features testen
+
+### Reconnect
+
+Voraussetzung: Verbindung mit `apiVersion: "1.2"` aufgebaut (siehe oben, aber mit `"apiVersion": "1.2"` in den connect-Nachrichten). Nach dem `notifySessionReady` erhält jeder Client einen `connectionKey` und eine `sessionNr`.
+
+1. WebSocket-Verbindung im Testclient schliessen (ohne disconnect-Nachricht)
+2. Neue WebSocket-Verbindung zum gleichen Server öffnen
+3. Reconnect-Nachricht senden:
+   ```
+   {
+     "method": "reconnectApp",
+     "oldConnectionKey": "<connectionKey aus notifySessionReady>",
+     "oldSessionNumber": <sessionNr aus notifySessionReady>
+   }
+   ```
+4. Der Server antwortet mit einer `keyChange`-Nachricht mit dem neuen Key
+
+### Disconnect
+
+1. Disconnect-Nachricht senden:
+   ```
+   {
+     "method": "disconnectApp"
+   }
+   ```
+2. Der Server schliesst beide Verbindungen (App und GIS) sofort
+3. Die Session ist danach nicht mehr vorhanden — ein Reconnect ist nicht mehr möglich
