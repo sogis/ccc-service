@@ -3,10 +3,12 @@ package ch.so.agi.cccservice.http;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.info.BuildProperties;
 
 import ch.so.agi.cccservice.TestUtil;
 import ch.so.agi.cccservice.session.Session;
@@ -18,6 +20,18 @@ class StatusPageTest {
     @BeforeEach
     void setUp() {
         Sessions.resetSessionCollection();
+    }
+
+    @Test
+    void statusInfo_containsVersionFromBuildProperties() {
+        Properties props = new Properties();
+        props.setProperty("version", "1.2.2.42");
+        StatusPage page = new StatusPage(new BuildProperties(props));
+
+        String result = page.statusInfo();
+
+        assertContains(result, "CCC-Service Version 1.2.2.42");
+        assertContains(result, "Sessions total: 0");
     }
 
     @Test
