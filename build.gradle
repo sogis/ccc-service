@@ -7,6 +7,16 @@ plugins {
 
 apply plugin: 'io.spring.dependency-management'
 
+version = buildIdent()
+
+springBoot {
+    buildInfo()
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'ccc-service.jar'
+}
+
 // Override Tomcat to 10.1.54 for CVE-2026-34483, CVE-2026-34486, CVE-2026-34487
 // Remove once Spring Boot ships with Tomcat >= 10.1.54
 ext['tomcat.version'] = '10.1.54'
@@ -149,15 +159,20 @@ tasks.register('pushImage', Exec) {
 }
 
 def String buildIdent() {
+    String base = project.findProperty('cccVersion') ?: '0.0.0'
     String tag = System.getenv('RELEASE_TAG')
-    if (tag != null)
+    if (tag != null) {
+        // Erlaubt: exakt cccVersion ("1.2.2") oder Beta-Suffix ("1.2.2b3").
+        String pattern = '\\Q' + base + '\\E(b\\d+)?'
+        if (!tag.matches(pattern))
+            throw new GradleException(
+                    "RELEASE_TAG '${tag}' passt nicht zu cccVersion '${base}' in gradle.properties. " +
+                    "Erlaubt: '${base}' oder '${base}b<N>' (z.B. '${base}b3'). " +
+                    "Vor dem Release cccVersion bumpen.")
         return tag
-
-    String prefix = '1.2.'
-    String suffix = System.getenv('GITHUB_RUN_NUMBER')
-    if (suffix == null)
-        suffix = 'localbuild'
-    return prefix + suffix
+    }
+    String run = System.getenv('GITHUB_RUN_NUMBER') ?: 'localbuild'
+    return "${base}.${run}"
 }
 
 def getCheckedOutGitCommitHash() {
