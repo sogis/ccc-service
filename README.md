@@ -45,6 +45,8 @@ Details: [Spezifikation V1.0 (PDF)](docs/res/Spezifikation_CCC_Schnittstelle_V1.
 
 `notifySessionReady` wird mit V1.2 um `connectionKey` und `sessionNr` erweitert.
 
+`createGeoObject`, `editGeoObject`, `showGeoObject` wurden mit in V1.2 um optionales `style`-Objekt erweitert.
+
 Details: [Protokoll V1.2 Erweiterung](docs/protocol/v1.2.md)
 
 ## Dokumentation
