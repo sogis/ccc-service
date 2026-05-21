@@ -1,5 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.13'
+    // 3.5.14 fixes CVE-2026-40973 (ApplicationTemp temp-dir vulnerability, 7.0/HIGH)
+    id 'org.springframework.boot' version '3.5.14'
     id 'java'
     id 'com.github.spotbugs' version '6.4.12'
     id 'net.ltgt.errorprone' version '5.1.0'
