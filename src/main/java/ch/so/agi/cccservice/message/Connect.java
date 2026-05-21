@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.so.agi.cccservice.CCCWebSocketHandler;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromSameConnectionException;
 import ch.so.agi.cccservice.exception.HandshakeToLateException;
@@ -80,6 +81,11 @@ abstract public class Connect extends Message {
 
         // Record successful connect
         rateLimiter.recordSuccess(clientIp);
+
+        // Lift the pre-Connect idle timeout that was set in afterConnectionEstablished —
+        // this connection is now part of an active session and may legitimately stay
+        // idle between application messages (PingSender keeps it warm).
+        CCCWebSocketHandler.setIdleTimeout(sourceConnection, 0L);
 
         if(s.getPeerConnection(sourceConnection) != null){
             SessionReady.send(s.getAppWebSocket());
