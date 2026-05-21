@@ -6,4 +6,11 @@
 # Ignore Gradle build output directory
 build
 
+# Eclipse / IDE build output (parallel to Gradle's build/)
+bin/
+*.class
+
+# RTK (Rust Token Killer) local config
+.rtk/
+
 docker/ccc/ccc-service.jar

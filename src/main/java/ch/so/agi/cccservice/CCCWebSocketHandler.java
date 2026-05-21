@@ -35,7 +35,8 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
             MessageAccumulator accumulator,
             @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}") int connectMsgMaxDelaySeconds,
             @Value("${ccc.security.connection-limiter.enabled:false}") boolean connectionLimiterEnabled,
-            @Value("${ccc.security.rate-limiter.enabled:false}") boolean rateLimiterEnabled
+            @Value("${ccc.security.rate-limiter.enabled:false}") boolean rateLimiterEnabled,
+            @Value("${ccc.security.max-sessions:0}") int maxSessions
     ) {
         this.accumulator = accumulator;
         this.connectMsgMaxDelaySeconds = connectMsgMaxDelaySeconds;
@@ -43,6 +44,8 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
         ConnectionLimiter.getInstance().setEnabled(connectionLimiterEnabled);
         ConnectionRateLimiter.getConnectLimiter().setEnabled(rateLimiterEnabled);
         ConnectionRateLimiter.getReconnectLimiter().setEnabled(rateLimiterEnabled);
+        Sessions.setMaxSessions(maxSessions);
+        log.info("Session cap: {}", maxSessions > 0 ? maxSessions : "unlimited");
     }
 
     @Override

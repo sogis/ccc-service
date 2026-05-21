@@ -22,6 +22,11 @@ public final class MockWebSocketSession implements WebSocketSession {
     private final Map<String, Object> attributes = new HashMap<>();
     private final List<String> sentTextMessages = new ArrayList<>();
     private boolean open = true;
+    private CloseStatus lastCloseStatus;
+
+    public CloseStatus getLastCloseStatus() {
+        return lastCloseStatus;
+    }
 
     public MockWebSocketSession() {
         CryptoKey cryptoKey = new CryptoKey();
@@ -128,6 +133,7 @@ public final class MockWebSocketSession implements WebSocketSession {
     @Override
     public void close(CloseStatus status) throws IOException {
         open = false;
+        lastCloseStatus = status;
     }
 
     @Override
