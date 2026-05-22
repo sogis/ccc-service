@@ -19,9 +19,9 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class CCCWebSocketHandler extends TextWebSocketHandler {
 
-    // 10s mirrors Tomcat's WebSocket idle-check granularity — values < 10s are
-    // effectively rounded up by Tomcat's background process
-    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 10;
+    // Effective granularity is set by TomcatWebSocketTuning (default 1s), so
+    // values down to ~1s actually behave as configured.
+    public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 2;
 
     private static final Logger log = LoggerFactory.getLogger(
         CCCWebSocketHandler.class
@@ -115,6 +115,15 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
                 );
                 Sessions.removeSession(cccSession);
             }
+        } else {
+            // Closed before a Connect/Reconnect message promoted the WebSocket
+            // to a CCC session. Typical cause: Tomcat's idle-timeout firing
+            // after connectMsgMaxDelaySeconds.
+            log.warn(
+                "Pre-Connect WebSocket from {} closed without Connect message. Status: {}",
+                session.getRemoteAddress(),
+                status
+            );
         }
 
         String clientIp = extractClientIp(session);
