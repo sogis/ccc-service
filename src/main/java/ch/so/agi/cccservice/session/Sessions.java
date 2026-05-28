@@ -20,8 +20,45 @@ public class Sessions {
 
     private static int lastSessionNr = -99;
 
+    /**
+     * Global session cap. 0 (or negative) means unlimited.
+     * Configured at startup via {@link #setMaxSessions(int)} from
+     * {@code ccc.security.max-sessions} in application.properties.
+     */
+    private static volatile int maxSessions = 0;
+
     static {
         createSessionsMap();
+    }
+
+    /**
+     * Sets the global session cap. A value of 0 (or negative) disables the cap.
+     */
+    public static void setMaxSessions(int max) {
+        maxSessions = max;
+    }
+
+    public static int getMaxSessions() {
+        return maxSessions;
+    }
+
+    /**
+     * Counts distinct sessions currently tracked. O(n) over the internal map.
+     */
+    public static int sessionCount() {
+        return (int) allSessions().count();
+    }
+
+    /**
+     * Returns true if creating another session would exceed the configured cap.
+     * Returns false if the cap is disabled (maxSessions <= 0).
+     */
+    public static boolean isAtCapacity() {
+        int cap = maxSessions;
+        if (cap <= 0) {
+            return false;
+        }
+        return sessionCount() >= cap;
     }
 
     private static void createSessionsMap(){

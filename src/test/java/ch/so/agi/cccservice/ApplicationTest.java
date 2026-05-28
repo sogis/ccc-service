@@ -142,6 +142,35 @@ class ApplicationTest {
     }
 
     @Test
+    void establishedConnection_staysOpenBeyondPreConnectTimeout() {
+        // Counterpart to missingConnectMsg_closesConnection: after a successful
+        // Connect handshake, Connect#process must lift the pre-Connect idle
+        // timeout via setIdleTimeout(0L). Otherwise Tomcat would close the
+        // established WebSocket after connectMsgMaxDelaySeconds of inactivity,
+        // long before PingSender keeps it warm.
+        String adr = "ws://localhost:" + WebServerPort.getPort() + WebSocketConfig.CCC_SOCKET_PATH;
+        UUID sesUid = UUID.randomUUID();
+
+        SocketClient appClient = new SocketClient(adr, SocketClient.ClientType.APP);
+        SocketClient gisClient = new SocketClient(adr, SocketClient.ClientType.GIS);
+
+        appClient.connectCCC(sesUid, "test-app", SockConnection.PROTOCOL_V12, SocketClient.ClientType.APP);
+        gisClient.connectCCC(sesUid, "test-gis", SockConnection.PROTOCOL_V12, SocketClient.ClientType.GIS);
+
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+                .until(() -> appClient.getSessionNr() != null && gisClient.getSessionNr() != null);
+
+        long idleHoldMs = (connectMsgMaxDelaySeconds + 2) * 1000L;
+        Awaitility.await()
+                .pollDelay(idleHoldMs, TimeUnit.MILLISECONDS)
+                .atMost(idleHoldMs + 1000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
+
+        assertTrue(appClient.webSocketIsOpen(), "App connection must stay open beyond pre-Connect timeout");
+        assertTrue(gisClient.webSocketIsOpen(), "GIS connection must stay open beyond pre-Connect timeout");
+    }
+
+    @Test
     void readinessProbe_isLightweight() {
         Health health = readinessProbe.health();
         assertEquals(Status.UP, health.getStatus());

@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 
-import org.awaitility.Awaitility;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,20 +25,14 @@ class CCCWebSocketHandlerTest {
     @BeforeEach
     void setUp() {
         Sessions.resetSessionCollection();
-        handler = new CCCWebSocketHandler(new MessageAccumulator(), CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS, true, true);
+        handler = new CCCWebSocketHandler(new MessageAccumulator(), CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS, true, true, 0);
     }
 
-    @Test
-    void noConnectMessage_connectionClosedAfterDelay() throws Exception {
-        MockWebSocketSession socket = new MockWebSocketSession();
-
-        handler.afterConnectionEstablished(socket);
-
-        // Kein Connect innerhalb DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS → Verbindung wird geschlossen
-        Awaitility.await()
-                .atMost(CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + 2, TimeUnit.SECONDS)
-                .untilAsserted(() -> assertFalse(socket.isOpen()));
-    }
+    // The pre-Connect timeout is now enforced by Tomcat's native idle-timeout on
+    // the underlying jakarta.websocket.Session — not by a Java-scheduled task.
+    // MockWebSocketSession does not implement StandardWebSocketSession, so it
+    // cannot be auto-closed in a unit test. The behavioural verification lives
+    // in ApplicationTest#missingConnectMsg_closesConnection (integration test).
 
     @Test
     void connectMessageSent_connectionStaysOpen() throws Exception {

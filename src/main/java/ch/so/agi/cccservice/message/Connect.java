@@ -1,17 +1,21 @@
 package ch.so.agi.cccservice.message;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.so.agi.cccservice.CCCWebSocketHandler;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromOtherConnectionException;
 import ch.so.agi.cccservice.exception.DuplicateConnectMessageFromSameConnectionException;
 import ch.so.agi.cccservice.exception.HandshakeToLateException;
 import ch.so.agi.cccservice.exception.RateLimitExceededException;
+import ch.so.agi.cccservice.exception.SessionCapacityExceededException;
 import ch.so.agi.cccservice.security.ConnectionRateLimiter;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
@@ -61,6 +65,14 @@ abstract public class Connect extends Message {
         Session s;
         try {
             s = addClient(sourceConnection);
+        } catch (SessionCapacityExceededException e) {
+            log.warn("Connect rejected from {}: {}", clientIp, e.getMessage());
+            try {
+                sourceConnection.close(CloseStatus.SERVICE_OVERLOAD);
+            } catch (IOException closeEx) {
+                log.warn("Failed to close overloaded connection from {}: {}", clientIp, closeEx.toString());
+            }
+            return;
         } catch (DuplicateConnectMessageFromOtherConnectionException e) {
             // Security relevant: someone tried to hijack a session
             rateLimiter.recordFailedAttempt(clientIp);
@@ -69,6 +81,11 @@ abstract public class Connect extends Message {
 
         // Record successful connect
         rateLimiter.recordSuccess(clientIp);
+
+        // Lift the pre-Connect idle timeout that was set in afterConnectionEstablished —
+        // this connection is now part of an active session and may legitimately stay
+        // idle between application messages (PingSender keeps it warm).
+        CCCWebSocketHandler.setIdleTimeout(sourceConnection, 0L);
 
         if(s.getPeerConnection(sourceConnection) != null){
             SessionReady.send(s.getAppWebSocket());
@@ -103,6 +120,11 @@ abstract public class Connect extends Message {
             SockConnection con = new SockConnection(clientName, apiVersion, sourceConnection);
             Session s = Sessions.findBySessionUid(sessionUid);
             if (s == null) {
+                // Cap check happens for NEW sessions only; second-client-joining and reconnects to
+                // an existing session bypass it intentionally so an already-active user is never dropped.
+                if (Sessions.isAtCapacity()) {
+                    throw new SessionCapacityExceededException(Sessions.sessionCount(), Sessions.getMaxSessions());
+                }
                 s = new Session(sessionUid, con, isAppClient());
                 Sessions.addOrReplace(s);
             } else {

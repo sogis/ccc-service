@@ -1,5 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.13'
+    // 3.5.14 fixes CVE-2026-40973 (ApplicationTemp temp-dir vulnerability, 7.0/HIGH)
+    id 'org.springframework.boot' version '3.5.14'
     id 'java'
     id 'com.github.spotbugs' version '6.4.12'
     id 'net.ltgt.errorprone' version '5.1.0'
@@ -17,9 +18,12 @@ tasks.named('bootJar') {
     archiveFileName = 'ccc-service.jar'
 }
 
-// Override Tomcat to 10.1.54 for CVE-2026-34483, CVE-2026-34486, CVE-2026-34487
-// Remove once Spring Boot ships with Tomcat >= 10.1.54
-ext['tomcat.version'] = '10.1.54'
+// Override Tomcat to 10.1.55 for CVE-2026-43512 (auth bypass in digest auth, 9.8),
+// CVE-2026-41293 (improper input validation, 9.8) and CVE-2026-43515 (improper
+// authorization on HTTP method constraints, 9.1). Also covers the earlier
+// CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 fixed in 10.1.54.
+// Remove once Spring Boot ships with Tomcat >= 10.1.55.
+ext['tomcat.version'] = '10.1.55'
 
 repositories {
     mavenCentral()

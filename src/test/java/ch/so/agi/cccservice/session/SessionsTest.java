@@ -15,6 +15,7 @@ class SessionsTest {
     @BeforeEach
     void resetSessions() throws Exception {
         Sessions.resetSessionCollection();
+        Sessions.setMaxSessions(0);
     }
 
     private Session createSession(MockWebSocketSession appSession, MockWebSocketSession gisSession) {
@@ -202,6 +203,47 @@ class SessionsTest {
 
         assertEquals(1, openSessions.size());
         assertSame(openSession, openSessions.get(0));
+    }
+
+    // --- session cap ---
+
+    @Test
+    void isAtCapacity_falseWhenCapDisabled() {
+        Sessions.setMaxSessions(0);
+
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+
+        assertFalse(Sessions.isAtCapacity());
+    }
+
+    @Test
+    void isAtCapacity_falseWhenBelowCap() {
+        Sessions.setMaxSessions(3);
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+
+        assertFalse(Sessions.isAtCapacity());
+    }
+
+    @Test
+    void isAtCapacity_trueWhenAtCap() {
+        Sessions.setMaxSessions(2);
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+
+        assertTrue(Sessions.isAtCapacity());
+    }
+
+    @Test
+    void sessionCount_countsDistinctSessions() {
+        assertEquals(0, Sessions.sessionCount());
+
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+        assertEquals(1, Sessions.sessionCount());
+
+        Sessions.addOrReplace(createSession(new MockWebSocketSession(), new MockWebSocketSession()));
+        assertEquals(2, Sessions.sessionCount());
     }
 
     @Test

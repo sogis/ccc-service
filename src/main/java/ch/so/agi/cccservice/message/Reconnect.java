@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.so.agi.cccservice.CCCWebSocketHandler;
 import ch.so.agi.cccservice.exception.ForbiddenReconnectException;
 import ch.so.agi.cccservice.exception.RateLimitExceededException;
 import ch.so.agi.cccservice.security.ConnectionRateLimiter;
@@ -82,6 +83,10 @@ public abstract class Reconnect extends Message {
 
         // 1. Switch to new WebSocket first
         con.switchToNewWebSocketCon(sourceConnection);
+
+        // Lift the pre-Connect idle timeout that was set in afterConnectionEstablished
+        // for this new WebSocket — established reconnected sessions may stay idle.
+        CCCWebSocketHandler.setIdleTimeout(sourceConnection, 0L);
 
         // 2. Update Sessions map so the new WebSocket is indexed
         Sessions.addOrReplace(s);
