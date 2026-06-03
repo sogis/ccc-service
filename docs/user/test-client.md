@@ -22,7 +22,7 @@ Die URL eingeben und die Websocket-Verbindung öffnen:
 
 In der Adressleiste des Browser den WGC aufrufen. Beispielsweise:
 
-    https://geo.so.ch/map?appintegration=baugk&session=[UUID]
+    https://hostname/map?appintegration=integrationName&session=[UUID]
 
 ### Connect Nachricht schicken
 
@@ -58,7 +58,7 @@ Beispielsweise, um ein Fachobjekt auf der Karte darzustellen:
 * In beiden Browserfenstern die Entwicklertools öffnen
   und sich den Netzwerkverkehr einblenden lassen
 * Aus dem "App-Client" eine Verbindung herstellen,
-  z.B. `wss://geo-t.so.ch/ccc-service`;
+  z.B. `wss://hostname:port/ccc-service`;
   in den Entwicklertools den Request markieren (anklicken)
 * Aus dem "GIS-Client" die Verbindung zum gleichen Server herstellen;
   in den Entwicklertools ebenfalls den Request markieren
