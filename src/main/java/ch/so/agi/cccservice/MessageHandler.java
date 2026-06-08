@@ -22,6 +22,12 @@ import jakarta.validation.ConstraintViolationException;
  */
 public class MessageHandler {
     private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
+    private static final int MAX_LOG_PAYLOAD = 200;
+
+    private static String truncate(String s) {
+        if (s == null || s.length() <= MAX_LOG_PAYLOAD) return s;
+        return s.substring(0, MAX_LOG_PAYLOAD) + "…[+" + (s.length() - MAX_LOG_PAYLOAD) + " chars]";
+    }
 
     public static void handleMessage(WebSocketSession sender, String message){
         Message m = null;
@@ -57,11 +63,11 @@ public class MessageHandler {
         catch (ClientException clientException) {
             Session s = Sessions.findByConnection(sender);
             if(s == null){
-                log.warn("Could not find session for the received message - possibly as message is malformed or unknown. Message: '{}'. Exception: {}", message, clientException.toString());
+                log.warn("Could not find session for the received message - possibly as message is malformed or unknown. Message: '{}'. Exception: {}", truncate(message), clientException.toString());
             }
             else{
                 if(m == null){
-                    log.warn("Session {}: Could not parse the message '{}'. Exception: '{}'", s.getSessionNr(), message, clientException.toString());
+                    log.warn("Session {}: Could not parse the message '{}'. Exception: '{}'", s.getSessionNr(), truncate(message), clientException.toString());
                 }
                 else{
                     log.warn("Session {}: Could not execute the message '{}'. Exception: '{}'", s.getSessionNr(), m.getMessageType(), clientException.toString());
