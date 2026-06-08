@@ -104,6 +104,13 @@ abstract public class Message {
         MESSAGE_TYPES.put(DisconnectGis.MESSAGE_TYPE, DisconnectGis.class);
     }
 
+    private static final int MAX_EXCEPTION_PAYLOAD = 200;
+
+    private static String truncate(String s) {
+        if (s == null || s.length() <= MAX_EXCEPTION_PAYLOAD) return s;
+        return s.substring(0, MAX_EXCEPTION_PAYLOAD) + "…[+" + (s.length() - MAX_EXCEPTION_PAYLOAD) + " chars]";
+    }
+
     /**
      * Returns a new Message-Instance for the given json string.
      */
@@ -114,7 +121,7 @@ abstract public class Message {
             JsonNode root = MAPPER.readTree(json);
             JsonNode methodNode = root.get("method");
             if (methodNode == null || !methodNode.isTextual()) {
-                throw new MessageMalformedException("Could not interpret message due to missing or malformed 'method' property. Message was: " + json);
+                throw new MessageMalformedException("Could not interpret message due to missing or malformed 'method' property. Message was: " + truncate(json));
             }
 
             String method = methodNode.asText();
@@ -134,7 +141,7 @@ abstract public class Message {
             return m;
         }
         catch(JsonProcessingException e){
-            throw new MessageMalformedException("Sent json is malformed or does not comply to the ccc specification. Message was: " + json, e);
+            throw new MessageMalformedException("Sent json is malformed or does not comply to the ccc specification. Message was: " + truncate(json), e);
         }
     }
 
