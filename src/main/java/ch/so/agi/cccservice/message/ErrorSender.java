@@ -37,7 +37,11 @@ public final class ErrorSender {
         try {
             connection.sendMessage(new TextMessage(payload.toString()));
         } catch (IOException e) {
-            log.error("Could not send notifyError to client {}", connection.getId(), e);
+            if (!connection.isOpen()) {
+                log.debug("Could not send notifyError to client {}: connection already closed", connection.getId());
+            } else {
+                log.warn("Could not send notifyError to client {}", connection.getId(), e);
+            }
         }
     }
 }

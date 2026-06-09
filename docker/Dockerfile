@@ -10,10 +10,24 @@ LABEL org.opencontainers.image.source="https://github.com/sogis/ccc-service"
 
 WORKDIR /home/ccc
 
-# Note: CVE-2026-25646 (libpng) is reported but not yet patched in Alpine repositories
-# This CVE does not affect the application (no image processing), but may trigger security scanners
-# The application only routes WebSocket messages and does not use libpng
-# Update will be applied automatically when Alpine releases the patched version
+# CVEs reported by scanners that do not affect this application (WebSocket message router,
+# no image processing, no font rendering, no shell execution at runtime):
+#
+# CVE-2025-60876 (busybox 1.37.0-r30, CVSS 6.5)
+#   busybox is present in the Alpine base image but is not invoked at runtime.
+#   The container runs a JVM process directly (exec java ...) as non-root uid 1001.
+#
+# CVE-2026-25646 / CVE-2026-40930 (libpng 1.6.57-r0, CVSS 5.4)
+#   libpng is a transitive dependency of the Alpine base image.
+#   This service processes no image data; libpng is never loaded.
+#
+# CVE-2026-23865 (freetype 2.14.1-r0, CVSS 5.3)
+#   freetype is a transitive dependency of the Alpine base image.
+#   This service performs no font rendering; freetype is never loaded.
+#
+# CVE-2016-2781 (coreutils 9.8-r1, CVSS 4.6)
+#   chroot-related issue in coreutils. The container runs as non-root uid 1001
+#   inside an already-isolated namespace; chroot is not called by the application.
 
 # Copy pre-built JAR
 COPY ccc/ccc-service.jar .
