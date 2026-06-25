@@ -25,6 +25,11 @@ WORKDIR /home/ccc
 #   freetype is a transitive dependency of the Alpine base image.
 #   This service performs no font rendering; freetype is never loaded.
 #
+# CVE-2026-34182 (openssl, CVSS 9.1)
+#   CMS AuthEnvelopedData authentication bypass. This service does not use
+#   OpenSSL CMS/S/MIME; the JVM uses its own TLS stack (JSSE). The system
+#   OpenSSL library is never invoked by the application.
+#
 # CVE-2016-2781 (coreutils 9.8-r1, CVSS 4.6)
 #   chroot-related issue in coreutils. The container runs as non-root uid 1001
 #   inside an already-isolated namespace; chroot is not called by the application.
