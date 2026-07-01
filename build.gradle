@@ -57,6 +57,10 @@ tasks.named('test') {
     useJUnitPlatform {
         excludeTags 'integration', 'smoke'
     }
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+    }
 }
 
 tasks.register('integrationTest', Test) {
