@@ -25,6 +25,15 @@ tasks.named('bootJar') {
 // Remove once Spring Boot ships with Tomcat >= 10.1.55.
 ext['tomcat.version'] = '10.1.55'
 
+// Override Jackson to 2.21.4 for CVE-2026-54513 (jackson-databind RCE, 8.1):
+// BasicPolymorphicTypeValidator.allowIfSubTypeIsArray() didn't validate the
+// array's element type, letting a disallowed "gadget" class slip through
+// polymorphic deserialization. This app doesn't use Jackson's polymorphic typing
+// (no PolymorphicTypeValidator/@JsonTypeInfo/activateDefaultTyping), so the
+// vulnerable path isn't reachable today, but pin the fixed version anyway.
+// Remove once Spring Boot ships with jackson-bom >= 2.21.4.
+ext['jackson-bom.version'] = '2.21.4'
+
 repositories {
     mavenCentral()
 }
@@ -110,6 +119,7 @@ tasks.register('buildImage', Exec) {
 
     commandLine 'docker', 'build',
             '--no-cache',
+            '--pull',
             '-t', "sogis/ccc-service:latest",
             '-t', "sogis/ccc-service:$buildident",
             '--label', "ccc-service.created=$build_timestamp",
