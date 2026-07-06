@@ -23,7 +23,12 @@ public final class ErrorSender {
     private ErrorSender() {
     }
 
-    public static synchronized void send(WebSocketSession connection, ClientException exception) {
+    // Deliberately unsynchronized: mapper.createObjectNode() creates a fresh instance per
+    // call, so there is no shared mutable state to protect. A lock here would serialize
+    // error delivery for ALL sessions on a single monitor, so one slow/unresponsive client
+    // blocking inside sendMessage() would stall error delivery for every unrelated session
+    // too (see ErrorSenderConcurrencyTest).
+    public static void send(WebSocketSession connection, ClientException exception) {
         if (connection == null) {
             return;
         }

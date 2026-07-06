@@ -16,6 +16,13 @@
         <Bug pattern="MS_EXPOSE_REP"/>
     </Match>
 
+    <!-- Test mock: storing the exception injected via failSendsWith() is the
+         hook's whole purpose; a defensive copy of a RuntimeException makes no sense -->
+    <Match>
+        <Class name="ch.so.agi.cccservice.session.MockWebSocketSession"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
     <!-- SessionReady.method is read by Jackson via reflection -->
     <Match>
         <Class name="ch.so.agi.cccservice.message.SessionReady"/>

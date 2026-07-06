@@ -25,7 +25,7 @@ class CCCWebSocketHandlerTest {
     @BeforeEach
     void setUp() {
         Sessions.resetSessionCollection();
-        handler = new CCCWebSocketHandler(new MessageAccumulator(), CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS, true, true, 0);
+        handler = new CCCWebSocketHandler(new MessageAccumulator(), CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS, CCCWebSocketHandler.DEFAULT_SEND_TIMEOUT_SECONDS, true, true, 0);
     }
 
     // The pre-Connect timeout is now enforced by Tomcat's native idle-timeout on

@@ -23,12 +23,25 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     // values down to ~1s actually behave as configured.
     public static final int DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS = 2;
 
+    // Tomcat's own default (Constants.DEFAULT_BLOCKING_SEND_TIMEOUT) is 20s; we use a
+    // shorter default so an unresponsive peer ties up a worker thread for less time.
+    public static final int DEFAULT_SEND_TIMEOUT_SECONDS = 5;
+
+    // Recognized by Tomcat's WsRemoteEndpointImplBase as a per-session override for the
+    // blocking-send timeout (org.apache.tomcat.websocket.Constants.BLOCKING_SEND_TIMEOUT_PROPERTY).
+    // Not part of the Jakarta WebSocket standard API, so referenced by literal key rather
+    // than importing the Tomcat-internal class - see TomcatWebSocketTuning for the same
+    // Tomcat-coupling trade-off.
+    private static final String BLOCKING_SEND_TIMEOUT_PROPERTY =
+        "org.apache.tomcat.websocket.BLOCKING_SEND_TIMEOUT";
+
     private static final Logger log = LoggerFactory.getLogger(
         CCCWebSocketHandler.class
     );
 
     private final MessageAccumulator accumulator;
     private final int connectMsgMaxDelaySeconds;
+    private final int sendTimeoutSeconds;
 
     public CCCWebSocketHandler(
         MessageAccumulator accumulator,
@@ -37,6 +50,11 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
                 DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS +
                 "}"
         ) int connectMsgMaxDelaySeconds,
+        @Value(
+            "${ccc.websocket.send-timeout-seconds:" +
+                DEFAULT_SEND_TIMEOUT_SECONDS +
+                "}"
+        ) int sendTimeoutSeconds,
         @Value(
             "${ccc.security.connection-limiter.enabled:false}"
         ) boolean connectionLimiterEnabled,
@@ -47,6 +65,7 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
     ) {
         this.accumulator = accumulator;
         this.connectMsgMaxDelaySeconds = connectMsgMaxDelaySeconds;
+        this.sendTimeoutSeconds = sendTimeoutSeconds;
 
         ConnectionLimiter.getInstance().setEnabled(connectionLimiterEnabled);
         ConnectionRateLimiter.getConnectLimiter().setEnabled(
@@ -154,6 +173,11 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
         // is scheduled per incoming connection, so a connection storm cannot
         // starve commonPool or fill an unbounded DelayQueue.
         setIdleTimeout(session, connectMsgMaxDelaySeconds * 1000L);
+
+        // Bound how long a blocking sendMessage()/sendPing() call may wait on this
+        // connection (e.g. a peer that stopped reading). Applies for the connection's
+        // whole lifetime, unlike the idle timeout above which is lifted after Connect.
+        setSendTimeout(session, sendTimeoutSeconds * 1000L);
     }
 
     /**
@@ -171,6 +195,27 @@ public class CCCWebSocketHandler extends TextWebSocketHandler {
             jakarta.websocket.Session nativeSession = sws.getNativeSession();
             if (nativeSession != null) {
                 nativeSession.setMaxIdleTimeout(millis);
+            }
+        }
+    }
+
+    /**
+     * Bounds how long a blocking send (sendMessage/sendPing, via getBasicRemote()) may wait
+     * on this connection before Tomcat aborts it with a SocketTimeoutException and closes the
+     * session. Without this, Tomcat's own default of 20s (Constants.DEFAULT_BLOCKING_SEND_TIMEOUT)
+     * applies - long enough that an unresponsive peer can tie up a worker thread for a
+     * meaningful window. Set once; unlike the idle timeout, this is not lifted after Connect.
+     *
+     * @param session WebSocket session
+     * @param millis  send timeout in ms
+     */
+    public static void setSendTimeout(WebSocketSession session, long millis) {
+        if (session instanceof StandardWebSocketSession sws) {
+            jakarta.websocket.Session nativeSession = sws.getNativeSession();
+            if (nativeSession != null) {
+                nativeSession
+                    .getUserProperties()
+                    .put(BLOCKING_SEND_TIMEOUT_PROPERTY, millis);
             }
         }
     }

@@ -2,6 +2,8 @@ package ch.so.agi.cccservice.session;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -11,6 +13,8 @@ import org.springframework.web.socket.WebSocketSession;
  * and either app or gis client.
  */
 public final class SockConnection {
+    private static final Logger log = LoggerFactory.getLogger(SockConnection.class);
+
     public static final String PROTOCOL_V1 = "1.0";
     public static final String PROTOCOL_V12 = "1.2";
 
@@ -85,9 +89,11 @@ public final class SockConnection {
         try {
             webSocketConnection.sendMessage(msg);
         } catch (IllegalStateException e) {
-            // Connection was closed between isOpen() check and sendMessage()
-            // This is a race condition that can happen during session termination
-            // Silently ignore - the message is lost but that's acceptable
+            // Connection was closed between isOpen() check and sendMessage(),
+            // or another thread wrote to the same connection concurrently
+            // (TEXT_FULL_WRITING). The message is lost either way; log it so
+            // the loss is at least diagnosable.
+            log.debug("Message to client {} lost: {}", clientName, e.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -104,7 +110,9 @@ public final class SockConnection {
         try {
             webSocketConnection.sendMessage(ping);
         } catch (IllegalStateException e) {
-            // Connection was closed between isOpen() check and sendMessage()
+            // Connection was closed between isOpen() check and sendMessage(),
+            // or another thread wrote to the same connection concurrently.
+            log.debug("Ping to client {} lost: {}", clientName, e.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

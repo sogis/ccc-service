@@ -23,6 +23,7 @@ public final class MockWebSocketSession implements WebSocketSession {
     private final List<String> sentTextMessages = new ArrayList<>();
     private boolean open = true;
     private CloseStatus lastCloseStatus;
+    private RuntimeException sendFailure;
 
     public CloseStatus getLastCloseStatus() {
         return lastCloseStatus;
@@ -102,8 +103,20 @@ public final class MockWebSocketSession implements WebSocketSession {
         return Collections.emptyList();
     }
 
+    /**
+     * Lets every subsequent sendMessage() call throw the given exception, e.g. the
+     * IllegalStateException Tomcat throws on a concurrent write (TEXT_FULL_WRITING)
+     * or when the connection was closed between isOpen() check and send.
+     */
+    public void failSendsWith(RuntimeException e) {
+        this.sendFailure = e;
+    }
+
     @Override
     public void sendMessage(WebSocketMessage<?> message) throws IOException {
+        if (sendFailure != null) {
+            throw sendFailure;
+        }
         if (message instanceof TextMessage textMessage) {
             sentTextMessages.add(textMessage.getPayload());
         }
