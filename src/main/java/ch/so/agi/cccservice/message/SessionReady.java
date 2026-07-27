@@ -63,6 +63,6 @@ public class SessionReady {
         con.sendMessage(json);
         log.info("Session {}: Sent session ready to {} using protocol version {}.", s.getSessionNr(), clientType, apiVersion);
         log.debug("Session {}: Session uuid '{}'.", s.getSessionNr(), s.getSessionUid());
-        log.debug("Sent json: '{}'.", json);
+
     }
 }
