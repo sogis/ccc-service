@@ -1,0 +1,69 @@
+{
+  "name": "ccc-service",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  // docker-in-docker braucht privilegierten Container-Zugriff, damit der verschachtelte
+  // dockerd überhaupt starten kann.
+  "runArgs": ["--privileged"],
+
+  "features": {
+    // Projekt nutzt ein Gradle-Toolchain mit Java 25 (siehe build.gradle -> languageVersion = JavaLanguageVersion.of(25))
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "jdkDistro": "tem",
+      "installGradle": false
+    },
+    // build.gradle enthält Tasks (buildImage, runImage, testImage), die docker CLI benötigen.
+    // WICHTIG: docker-in-docker (nested Daemon), nicht docker-outside-of-docker! Die Gradle-
+    // Tasks curlen "localhost:8080" aus demselben Prozess/Container heraus (waitUntilUp,
+    // testImage). Mit docker-outside-of-docker würde "docker run -p 8080:8080" über den
+    // Host-Daemon laufen -> der App-Container läge im Netzwerk-Namespace des Hosts, nicht des
+    // Devcontainers, und "localhost" im Devcontainer würde ihn nie erreichen. docker-in-docker
+    // publiziert den Port im selben Netzwerk-Namespace wie den Devcontainer selbst.
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle",
+        "vmware.vscode-spring-boot",
+        "vmware.vscode-boot-dev-pack",
+        "redhat.vscode-xml",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.jdt.ls.java.home": "/usr/local/sdkman/candidates/java/current"
+      }
+    }
+  },
+
+  // Actuator/Health-Endpoint des Services (siehe build.gradle: waitUntilUp/testImage -> /actuator/health)
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "ccc-service (HTTP / WebSocket)",
+      "onAutoForward": "notify"
+    }
+  },
+
+  // Named Volume gehört initial root -> erst Ownership korrigieren, dann gradlew ausführbar
+  // machen und Dependencies vorab laden, damit der erste Build/Test schnell startet
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.gradle && chmod +x ./gradlew && ./gradlew --no-daemon dependencies || true",
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    // Gradle-Cache zwischen Container-Rebuilds persistieren
+    "source=ccc-service-gradle-cache,target=/home/vscode/.gradle,type=volume"
+  ]
+}
