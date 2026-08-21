@@ -6,4 +6,6 @@ FROM mcr.microsoft.com/devcontainers/java:1-21-bookworm
 # devcontainer-Feature-Installation mit, die intern apt-get update ausführt
 # (z.B. docker-outside-of-docker). Quelle entfernen, bevor Features gebaut werden.
 RUN rm -f /etc/apt/sources.list.d/yarn.list \
-    && apt-get update
+    && apt-get update \
+    && apt-get install -y --no-install-recommends tmux htop \
+    && rm -rf /var/lib/apt/lists/*
