@@ -26,7 +26,12 @@
       "version": "latest",
       "moby": true
     },
-    "ghcr.io/devcontainers/features/git:1": {}
+    "ghcr.io/devcontainers/features/git:1": {},
+
+    // Installiert die Claude-Code-CLI global. Braucht Node.js/npm, das im Java-Basisimage
+    // bereits enthalten ist (dieselbe Node-Installation, wegen der wir eingangs die kaputte
+    // Yarn-apt-Quelle im Dockerfile entfernt haben).
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
   },
 
   "customizations": {
@@ -58,12 +63,14 @@
 
   // Named Volume gehört initial root -> erst Ownership korrigieren, dann gradlew ausführbar
   // machen und Dependencies vorab laden, damit der erste Build/Test schnell startet
-  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.gradle && chmod +x ./gradlew && ./gradlew --no-daemon dependencies || true",
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.gradle /home/vscode/.claude && chmod +x ./gradlew && ./gradlew --no-daemon dependencies || true",
 
   "remoteUser": "vscode",
 
   "mounts": [
     // Gradle-Cache zwischen Container-Rebuilds persistieren
-    "source=ccc-service-gradle-cache,target=/home/vscode/.gradle,type=volume"
+    "source=ccc-service-gradle-cache,target=/home/vscode/.gradle,type=volume",
+    // Claude-Code-Login/Konfiguration zwischen Container-Rebuilds persistieren
+    "source=ccc-service-claude-config,target=/home/vscode/.claude,type=volume"
   ]
 }
