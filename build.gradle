@@ -18,21 +18,48 @@ tasks.named('bootJar') {
     archiveFileName = 'ccc-service.jar'
 }
 
-// Override Tomcat to 10.1.55 for CVE-2026-43512 (auth bypass in digest auth, 9.8),
-// CVE-2026-41293 (improper input validation, 9.8) and CVE-2026-43515 (improper
-// authorization on HTTP method constraints, 9.1). Also covers the earlier
-// CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 fixed in 10.1.54.
-// Remove once Spring Boot ships with Tomcat >= 10.1.55.
-ext['tomcat.version'] = '10.1.55'
+// Override Tomcat to 10.1.59 for CVE-2026-65905 (DIGEST auth replay bypass, 9.8),
+// CVE-2026-65182 (security constraint bypass via declaration order, 9.1) and
+// CVE-2026-68525 (FORM auth bypass of POST-only constraint, 9.1) - all fixed
+// upstream in 10.1.58, which was never published to Maven Central; 10.1.59 is
+// the first Maven Central release that includes the fix.
+// Also covers the earlier CVE-2026-43512, CVE-2026-41293, CVE-2026-43515,
+// CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 fixed in 10.1.54/10.1.55.
+// Remove once Spring Boot ships with Tomcat >= 10.1.59.
+ext['tomcat.version'] = '10.1.59'
 
-// Override Jackson to 2.21.4 for CVE-2026-54513 (jackson-databind RCE, 8.1):
-// BasicPolymorphicTypeValidator.allowIfSubTypeIsArray() didn't validate the
-// array's element type, letting a disallowed "gadget" class slip through
-// polymorphic deserialization. This app doesn't use Jackson's polymorphic typing
-// (no PolymorphicTypeValidator/@JsonTypeInfo/activateDefaultTyping), so the
-// vulnerable path isn't reachable today, but pin the fixed version anyway.
-// Remove once Spring Boot ships with jackson-bom >= 2.21.4.
-ext['jackson-bom.version'] = '2.21.4'
+// Override Jackson to 2.21.6 for CVE-2026-59889 / GHSA-mhm7-754m-9p8w
+// (@JsonView bypass for creator properties with @JsonTypeInfo(include=As.EXTERNAL_PROPERTY),
+// 6.5): this app uses neither @JsonView nor @JsonTypeInfo, so the vulnerable
+// path isn't reachable, but pin the fixed version anyway.
+// Also covers the earlier CVE-2026-54513 fixed in 2.21.4.
+// Remove once Spring Boot ships with jackson-bom >= 2.21.6.
+ext['jackson-bom.version'] = '2.21.6'
+
+// Override Spring Framework to 6.2.19 for CVE-2026-41842 (DoS via versioned
+// static resources, 7.5), CVE-2026-41841 (info disclosure via static resources,
+// 7.5), CVE-2026-41850 (SpEL algorithmic DoS, 7.5), CVE-2026-41845 (XSS via
+// JavaScriptUtils.javaScriptEscape(), 7.1) and CVE-2026-41846 (XSS via JSP form
+// tags, 5.9). This app serves no JSPs and evaluates no user-supplied SpEL, but
+// spring-boot-starter-web auto-configures static resource handling, so the
+// resource-resolution CVEs are potentially reachable.
+// Remove once Spring Boot ships with spring-framework >= 6.2.19.
+ext['spring-framework.version'] = '6.2.19'
+
+// Override Micrometer to 1.15.12 for CVE-2026-40984 (HTTP server instrumentation
+// DoS, 7.5) and CVE-2026-40983 (gRPC server instrumentation DoS, 7.5).
+// spring-boot-starter-actuator auto-instruments every HTTP request via
+// micrometer's ServerHttpObservationFilter, so this is reachable.
+// Remove once Spring Boot ships with micrometer >= 1.15.12.
+ext['micrometer.version'] = '1.15.12'
+
+// Override Log4j API to 2.26.1 for CVE-2026-49844 (MapMessage.asJson() emits
+// invalid JSON for NaN/Infinity values, 6.3). Only present transitively as the
+// log4j-to-slf4j bridge (this app logs via SLF4J/Logback, never constructs a
+// log4j2 MapMessage), so the vulnerable path isn't reachable, but pin the
+// fixed version anyway.
+// Remove once Spring Boot ships with log4j2 >= 2.26.1.
+ext['log4j2.version'] = '2.26.1'
 
 repositories {
     mavenCentral()

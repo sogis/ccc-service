@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
+import ch.so.agi.cccservice.session.SockConnection;
 
 @Service
 public class PingSender {
@@ -30,8 +31,8 @@ public class PingSender {
         List<Session> sessions = Sessions.openSessions();
 
         for(Session s : sessions){
-            s.getAppConnection().sendPing();
-            s.getGisConnection().sendPing();
+            pingConnection(s.getSessionNr(), "app", s.getAppConnection());
+            pingConnection(s.getSessionNr(), "gis", s.getGisConnection());
         }
 
         String sessionNrs = sessions.stream()
@@ -40,5 +41,17 @@ public class PingSender {
                 .orElse("");
         log.info("Sent ping to {} sessions: [{}]. {}", sessions.size(), sessionNrs, Sessions.sessionStats());
         return sessions.size();
+    }
+
+    /**
+     * Sends a ping to one connection, swallowing send failures so one unresponsive
+     * peer doesn't abort the ping round for the remaining sessions.
+     */
+    private void pingConnection(int sessionNr, String role, SockConnection connection){
+        try {
+            connection.sendPing();
+        } catch (RuntimeException e) {
+            log.warn("Ping to {} connection of session {} failed: {}", role, sessionNr, e.toString());
+        }
     }
 }

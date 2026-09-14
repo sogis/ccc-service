@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ch.so.agi.cccservice.TestUtil;
+import ch.so.agi.cccservice.session.MockWebSocketSession;
 import ch.so.agi.cccservice.session.Session;
 import ch.so.agi.cccservice.session.Sessions;
 
@@ -39,6 +40,21 @@ class PingSenderTest {
         int pingedSessions = new PingSender().pingConnections();
 
         assertEquals(1, pingedSessions);
+    }
+
+    @Test
+    void pingContinuesForRemainingSessions_afterOneConnectionFails() throws IOException {
+        Session failing = TestUtil.initSession();
+        ((MockWebSocketSession) failing.getAppWebSocket())
+                .failSendsWith(new RuntimeException("simulated send failure"));
+
+        TestUtil.initSession(); // healthy session, must still get pinged
+
+        int pingedSessions = assertDoesNotThrow(
+                () -> new PingSender().pingConnections()
+        );
+
+        assertEquals(2, pingedSessions);
     }
 }
 
