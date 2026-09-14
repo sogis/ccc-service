@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import ch.so.agi.cccservice.CCCWebSocketHandler;
 import ch.so.agi.cccservice.WebSocketConfig;
@@ -62,6 +63,9 @@ class ApplicationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private ThreadPoolTaskScheduler taskScheduler;
 
     @Value("${ccc.websocket.connect-msg-max-delay-seconds:" + CCCWebSocketHandler.DEFAULT_CONNECT_MSG_MAX_DELAY_SECONDS + "}")
     private int connectMsgMaxDelaySeconds;
@@ -168,6 +172,18 @@ class ApplicationTest {
 
         assertTrue(appClient.webSocketIsOpen(), "App connection must stay open beyond pre-Connect timeout");
         assertTrue(gisClient.webSocketIsOpen(), "GIS connection must stay open beyond pre-Connect timeout");
+    }
+
+    /**
+     * Regression test for a starvation bug: with the default single-thread
+     * scheduler, PingSender/SessionsGroomer/KeyChanger could monopolize the
+     * only thread and starve SessionsKiller's once-a-day cron indefinitely.
+     */
+    @Test
+    void scheduledTaskPool_hasMoreThanOneThread() {
+        assertTrue(taskScheduler.getPoolSize() > 1,
+                "spring.task.scheduling.pool.size must be >1 so PingSender/SessionsGroomer/"
+                        + "KeyChanger cannot starve the SessionsKiller daily cron");
     }
 
     @Test
