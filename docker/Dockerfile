@@ -34,6 +34,12 @@ WORKDIR /home/ccc
 #   chroot-related issue in coreutils. The container runs as non-root uid 1001
 #   inside an already-isolated namespace; chroot is not called by the application.
 
+# Pick up patched Alpine packages (e.g. openssl >= 3.5.8-r0 for CVE-2026-63073 /
+# CVE-2026-75803 / CVE-2026-63076 / CVE-2026-63072 / CVE-2026-14456, expat >=
+# 2.8.4-r0 for CVE-2026-66046 / CVE-2026-76641) instead of relying solely on
+# base-image rebuild cadence.
+RUN apk upgrade --no-cache
+
 # Copy pre-built JAR
 COPY ccc/ccc-service.jar .
 
