@@ -10,7 +10,5 @@ build
 bin/
 *.class
 
-# RTK (Rust Token Killer) local config
-.rtk/
-
 docker/ccc/ccc-service.jar
+.aider*
