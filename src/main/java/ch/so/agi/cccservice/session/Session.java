@@ -7,6 +7,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -27,6 +29,13 @@ import ch.so.agi.cccservice.message.Message;
 public class Session implements Comparable<Session>{
     private static final int HANDSHAKE_MAXDURATION_MILLIS = 60 * 1000;
     private static final Logger log = LoggerFactory.getLogger(Session.class);
+
+    /**
+     * Timeout for closing WebSocket connections. Prevents indefinite blocking
+     * when a client is unresponsive (e.g., network partition, zombie connection).
+     */
+    private static final int CLOSE_TIMEOUT_SECONDS = 5;
+
     /**
      * Maximum delay accepted between start and finish of the handshake
      */
@@ -205,8 +214,6 @@ public class Session implements Comparable<Session>{
         this.handShakeMaxDuration = d;
     }
 
-
-
     public boolean hasClosedConnections() {
         boolean gisClosed = false;
         boolean appClosed = false;
@@ -312,6 +319,7 @@ public class Session implements Comparable<Session>{
     /**
      * Closes both GIS and App connections with the specified close status and reason.
      * The close status and reason are communicated to the clients.
+     * Uses a timeout to prevent indefinite blocking on unresponsive clients.
      *
      * @param closeStatus the close status code
      * @param reason optional reason text (max 123 bytes UTF-8, per WebSocket spec)
@@ -322,19 +330,41 @@ public class Session implements Comparable<Session>{
             : closeStatus;
 
         if(gisConnection != null){
-            try {
-                getGisWebSocket().close(statusWithReason);
-            } catch (IOException | IllegalStateException e) {
-                log.warn("Session {}: Exception while closing gis connection: {}", getSessionNr(), e.toString());
-            }
+            closeWebSocketWithTimeout(getGisWebSocket(), statusWithReason, "gis");
         }
 
         if(appConnection != null){
-            try {
-                getAppWebSocket().close(statusWithReason);
-            } catch (IOException | IllegalStateException e) {
-                log.warn("Session {}: Exception while closing app connection: {}", getSessionNr(), e.toString());
-            }
+            closeWebSocketWithTimeout(getAppWebSocket(), statusWithReason, "app");
+        }
+    }
+
+    /**
+     * Closes a WebSocket session with a timeout to prevent indefinite blocking.
+     * If the close operation takes longer than CLOSE_TIMEOUT_SECONDS, it is abandoned
+     * and a warning is logged. The connection will eventually be cleaned up by the
+     * container or OS.
+     */
+    private void closeWebSocketWithTimeout(WebSocketSession ws, CloseStatus status, String connectionType) {
+        if (ws == null) {
+            return;
+        }
+
+        try {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    ws.close(status);
+                } catch (IOException | IllegalStateException e) {
+                    log.warn("Session {}: Exception while closing {} connection: {}", getSessionNr(), connectionType, e.toString());
+                }
+            }).orTimeout(CLOSE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+              .exceptionally(ex -> {
+                  log.warn("Session {}: Timeout after {} seconds while closing {} connection. " +
+                           "Connection may be stuck and will be cleaned up by the container.",
+                           getSessionNr(), CLOSE_TIMEOUT_SECONDS, connectionType);
+                  return null;
+              });
+        } catch (Exception e) {
+            log.warn("Session {}: Exception while initiating close of {} connection: {}", getSessionNr(), connectionType, e.toString());
         }
     }
 
