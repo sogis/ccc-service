@@ -36,8 +36,10 @@ WORKDIR /home/ccc
 
 # Pick up patched Alpine packages (e.g. openssl >= 3.5.8-r0 for CVE-2026-63073 /
 # CVE-2026-75803 / CVE-2026-63076 / CVE-2026-63072 / CVE-2026-14456, expat >=
-# 2.8.4-r0 for CVE-2026-66046 / CVE-2026-76641) instead of relying solely on
-# base-image rebuild cadence.
+# 2.8.4-r0 for CVE-2026-66046 / CVE-2026-76641; zlib >= 1.4-r0, expat >= 2.10.0-r0,
+# brotli-libs >= 1.2.1-r0 for CVE-2026-4738 / CVE-2026-111497 / CVE-2026-115506 and
+# related zlib/expat findings) instead of relying solely on base-image rebuild cadence.
+# Build with --no-cache (or --pull) so this layer is not reused with stale packages.
 RUN apk upgrade --no-cache
 
 # Copy pre-built JAR
