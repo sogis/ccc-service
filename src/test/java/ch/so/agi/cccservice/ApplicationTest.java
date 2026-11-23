@@ -124,6 +124,12 @@ class ApplicationTest {
                     clients.getFirst().closeConnection(true);
                     clients.getLast().closeConnection(false);
 
+                    // Client-side close is asynchronous: wait until the server has
+                    // registered both closed connections before running the daemons.
+                    Awaitility.await()
+                            .atMost(5, TimeUnit.SECONDS)
+                            .until(() -> Sessions.openSessions().size() == numClients - 2);
+
                     keyChanger.sendKeyChange();
                     pinger.pingConnections();
                     cleaner.removeStaleSessions();
