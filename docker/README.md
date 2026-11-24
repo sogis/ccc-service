@@ -47,5 +47,8 @@ des Images als Produkt). Beim Release prüft der CI-Workflow mit Docker Scout un
 nicht bewerteten HIGH/CRITICAL-CVEs ab:
 
 ```
-docker scout cves --only-severity critical,high sogis/ccc-service:<tag>
+docker scout cves --only-severity critical,high --vex-author sogis sogis/ccc-service:<tag>
 ```
+
+Ohne `--vex-author sogis` ignoriert Docker Scout das VEX: Standardmässig akzeptiert es nur
+Statements von Autoren `<.*@docker.com>`.

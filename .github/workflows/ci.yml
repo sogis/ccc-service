@@ -103,6 +103,9 @@ jobs:
         only-severities: critical,high
         exit-code: true
         vex-location: ${{ runner.temp }}/vex
+        # Scout only accepts VEX authors matching '<.*@docker.com>' by default;
+        # must match "author" in generate_vex.py.
+        vex-author: sogis
         dockerhub-user: ${{ secrets.CCC_DOCKER_USER }}
         dockerhub-password: ${{ secrets.CCC_DOCKER_PASS }}
     # Copy the tag registry-side so 'latest' points to exactly the verified (and attested) image.
