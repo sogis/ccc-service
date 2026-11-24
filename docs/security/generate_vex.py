@@ -14,9 +14,8 @@ Workflow for a new finding:
   5. verify:      grype --vex docs/security/ccc-service.openvex.json sogis/ccc-service:latest
 
 On release, the CI workflow regenerates the VEX with additional image-specific product ids
-(--product pkg:docker/sogis/ccc-service@<tag>, without subcomponents), attaches it to the
-pushed image as a Docker Scout attestation and fails on HIGH/CRITICAL CVEs that are not assessed
-here. Docker Scout only honours "not_affected" (not "fixed") and only accepts VEX authors passed
+(--product pkg:docker/sogis/ccc-service@<tag>, without subcomponents), checks the image with
+'docker scout cves --vex-location' and fails on HIGH/CRITICAL CVEs that are not assessed here. Docker Scout only honours "not_affected" (not "fixed") and only accepts VEX authors passed
 via --vex-author (default: Docker employees only).
 
 Because the statements are not tied to an image, a "not_affected" justification must not
@@ -33,7 +32,7 @@ ap.add_argument("--output", default=str(Path(__file__).with_name("ccc-service.op
 ap.add_argument("--product", action="append", default=[], metavar="PURL",
                 help="additional product id (repeatable). Docker Scout only matches ids of the form"
                      " pkg:docker/sogis/ccc-service@<tag>; used by the release workflow for the"
-                     " attestation, not for the committed file")
+                     " Docker Scout check, not for the committed file")
 args = ap.parse_args()
 
 # Generic product id (no tag/digest): matched by Grype and Trivy for every image of the repository.
@@ -148,6 +147,7 @@ doc={"@context":"https://openvex.dev/ns/v0.2.0",
  "timestamp":ASSESSED,"last_updated":NOW,"version":args.version,
  "tooling":"docs/security/generate_vex.py",
  "statements":S}
+Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 with open(args.output, "w", encoding="utf-8") as f:
     json.dump(doc, f, indent=2, ensure_ascii=False)
     f.write("\n")

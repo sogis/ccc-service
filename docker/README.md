@@ -42,14 +42,16 @@ trivy image --vex ccc-service.openvex.json --show-suppressed sogis/ccc-service:<
 Trivy wendet das VEX nur auf Images an, die bereits in der Registry liegen (Registry-Digest
 vorhanden); Grype auch auf lokal gebaute Images.
 
-Release-Images tragen das VEX zusätzlich als Docker-Scout-Attestation (mit Versions-Tag und
-`latest` als Produkt; Scout ordnet VEX nur über den Tag zu, mit dem das Image angesprochen
-wird). Beim Release prüft der CI-Workflow mit Docker Scout und bricht bei nicht bewerteten
-HIGH/CRITICAL-CVEs ab:
+Beim Release prüft der CI-Workflow mit Docker Scout und bricht bei nicht bewerteten
+HIGH/CRITICAL-CVEs ab. Docker Scout erkennt die generische Produkt-ID nicht; es braucht eine
+Variante mit `pkg:docker/sogis/ccc-service@<tag>` als Produkt (ohne Subcomponents), die der
+Generator mit `--product` erzeugt:
 
 ```
-docker scout cves --only-severity critical,high --vex-author sogis sogis/ccc-service:<tag>
+python3 docs/security/generate_vex.py --version 1 --product pkg:docker/sogis/ccc-service@<tag> --output /tmp/vex/ccc-service.vex.json
+docker scout cves --only-severity critical,high --vex-author sogis --vex-location /tmp/vex sogis/ccc-service:<tag>
 ```
 
-Ohne `--vex-author sogis` ignoriert Docker Scout das VEX: Standardmässig akzeptiert es nur
-Statements von Autoren `<.*@docker.com>`.
+- Ohne `--vex-author sogis` ignoriert Docker Scout das VEX (Standard: nur Autoren `<.*@docker.com>`).
+- Das VEX wird nicht als Docker-Scout-Attestation angehängt: `docker scout cves` (v1.30.0)
+  wendet VEX aus Attestationen nicht an (getestet), nur per `--vex-location`.
