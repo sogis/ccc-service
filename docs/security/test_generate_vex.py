@@ -79,16 +79,18 @@ def test_product_applies_to_all_images_of_the_repository(doc):
 
 
 def test_additional_products_for_docker_scout(tmp_path):
-    """--product adds image-specific ids (Docker Scout) to every statement, keeping the generic one."""
+    """--product adds image-specific ids (Docker Scout) to every statement, keeping the generic one.
+    The Scout products carry no subcomponents (statement applies to the whole image), because
+    Scout's matching of unversioned subcomponent purls is undocumented."""
     extra = ["pkg:docker/sogis/ccc-service@1.2.8", "pkg:docker/sogis/ccc-service@sha256:" + "ab" * 32]
     out = tmp_path / "scout.vex.json"
     r = run("--version", "3", "--output", str(out), "--product", extra[0], "--product", extra[1])
     assert r.returncode == 0, r.stderr
     d = json.loads(out.read_text(encoding="utf-8"))
     for s in d["statements"]:
-        assert [p["@id"] for p in s["products"]] == [PRODUCT, *extra]
-        subs = {tuple(c["@id"] for c in p["subcomponents"]) for p in s["products"]}
-        assert len(subs) == 1, "all products must carry the same subcomponents"
+        generic, *scout = s["products"]
+        assert generic["@id"] == PRODUCT and generic["subcomponents"]
+        assert scout == [{"@id": e} for e in extra]
 
 
 # --- statements ----------------------------------------------------------------
@@ -148,7 +150,8 @@ def test_alpine_binary_packages_are_listed(doc):
     by_name = {s["vulnerability"]["name"]: s for s in doc["statements"]}
     expected = {"CVE-2026-124709": ["openssl", "libcrypto3", "libssl3"],
                 "CVE-2016-2781": ["coreutils", "coreutils-env", "coreutils-fmt", "coreutils-sha512sum"],
-                "CVE-2025-60876": ["busybox", "busybox-binsh", "ssl_client"]}
+                "CVE-2025-60876": ["busybox", "busybox-binsh", "ssl_client"],
+                "CVE-2026-107891": ["musl", "musl-utils"]}
     for cve, pkgs in expected.items():
         subs = {c["@id"].split("/")[2].split("@")[0]
                 for p in by_name[cve]["products"] for c in p["subcomponents"]}

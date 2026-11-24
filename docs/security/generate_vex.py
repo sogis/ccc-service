@@ -14,8 +14,10 @@ Workflow for a new finding:
   5. verify:      grype --vex docs/security/ccc-service.openvex.json sogis/ccc-service:latest
 
 On release, the CI workflow regenerates the VEX with additional image-specific product ids
-(--product pkg:docker/sogis/ccc-service@<tag|digest>), attaches it to the pushed image as a
-Docker Scout attestation and fails on HIGH/CRITICAL CVEs that are not assessed here.
+(--product pkg:docker/sogis/ccc-service@<tag|digest>, without subcomponents), attaches it to the
+pushed image as a Docker Scout attestation and fails on HIGH/CRITICAL CVEs that are not assessed
+here. Docker Scout only honours "not_affected" (not "fixed") and only accepts VEX authors passed
+via --vex-author (default: Docker employees only).
 
 Because the statements are not tied to an image, a "not_affected" justification must not
 depend on a specific package version, and a "fixed" statement relies on the build keeping
@@ -36,7 +38,6 @@ args = ap.parse_args()
 
 # Generic product id (no tag/digest): matched by Grype and Trivy for every image of the repository.
 PROD = "pkg:oci/ccc-service?repository_url=index.docker.io/sogis/ccc-service"
-PRODUCTS = [PROD, *args.product]
 NOW = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 ASSESSED = "2026-11-24T00:00:00Z"  # default statement timestamp; pass ts=... for later assessments
 
@@ -64,11 +65,14 @@ def st(cve, subs, status, aliases=(), ts=ASSESSED, **kw):
     vuln={"name":cve}
     if aliases: vuln["aliases"]=list(aliases)
     s={"vulnerability":vuln,"timestamp":ts,
-       "products":[{"@id":p,"subcomponents":[{"@id":x} for x in subs]} for p in PRODUCTS],"status":status}
+       "products":[{"@id":PROD,"subcomponents":[{"@id":x} for x in subs]}]
+                  # Docker Scout: no subcomponents, so the statement applies to the whole image (documented
+                  # behaviour); Scout's matching of unversioned subcomponent purls is not documented.
+                  +[{"@id":p} for p in args.product],"status":status}
     s.update(kw); S.append(s)
 def fixed(cve, subs, note, aliases=(), ts=ASSESSED): st(cve, subs, "fixed", aliases, ts, status_notes=note)
-def na(cve, subs, impact, aliases=(), ts=ASSESSED):
-    st(cve, subs, "not_affected", aliases, ts, justification="vulnerable_code_not_in_execute_path", impact_statement=impact)
+def na(cve, subs, impact, aliases=(), ts=ASSESSED, justification="vulnerable_code_not_in_execute_path"):
+    st(cve, subs, "not_affected", aliases, ts, justification=justification, impact_statement=impact)
 
 # --- Tomcat (version override ext['tomcat.version'] in build.gradle)
 P=" build.gradle pins tomcat-embed-core >= 10.1.61 via ext['tomcat.version']."
@@ -129,6 +133,11 @@ na("CVE-2025-60876",BB,"Request-line injection in BusyBox wget: wget is never in
 na("CVE-2016-2781",CU,"chroot --userspec TIOCSTI escape: chroot is never invoked; the container runs only the JVM as non-root uid 1001.")
 na("CVE-2026-56392",CU,"Heap overflow in coreutils unexpand: unexpand is never invoked; the container runs only the JVM.")
 na("CVE-2026-56391",CU,"Out-of-bounds read in coreutils uniq -w: uniq is never invoked; the container runs only the JVM.")
+na("CVE-2026-107891",apk("musl","musl-utils"),"Integer overflows in musl regcomp() with an untrusted regular expression"
+   " (fixed in musl 1.2.7 / Alpine 1.2.6-r6, not yet available for Alpine 3.24). The JVM does not use libc regcomp(): Java"
+   " regular expressions are implemented in java.util.regex. No libc-regex tool (busybox grep/sed/awk) is invoked at runtime;"
+   " the container only runs the JVM, so no attacker-supplied pattern can reach regcomp().",
+   justification="vulnerable_code_cannot_be_controlled_by_adversary")
 O="System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no "
 for c,what in (("CVE-2026-124709","QUIC"),("CVE-2026-107494","QUIC"),("CVE-2026-95690","DTLS"),("CVE-2026-84786","DANE"),("CVE-2026-35190","OpenSSL TLS server with Suite B flags"),("CVE-2026-121482","CMS/PKCS#7 verification"),("CVE-2026-107493","PEM_X509_INFO_read_bio_ex()")):
     na(c,OSSL,O+what+".")
