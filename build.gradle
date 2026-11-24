@@ -137,6 +137,8 @@ tasks.register('smokeTest', Test) {
 
 tasks.register('jardist', Copy) {
     from tasks.named('bootJar')
+    // OpenVEX CVE assessment, baked into the image (see docker/Dockerfile)
+    from file('docs/security/ccc-service.openvex.json')
     into file('docker/ccc')
 }
 
@@ -200,7 +202,7 @@ tasks.register('pushLatestImage', Exec) {
 }
 
 tasks.register('pushImage', Exec) {
-    dependsOn pushLatestImage
+    //dependsOn pushLatestImage
     def buildident = buildIdent()
     commandLine 'docker', 'push', "sogis/ccc-service:$buildident"
 }

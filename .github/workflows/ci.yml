@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
     paths-ignore:
       - '**/*.md'
   pull_request:
@@ -57,7 +56,38 @@ jobs:
       run: ./gradlew testImage
       env:
         RELEASE_TAG: ${{ inputs.release_tag }}
-    - name: Push image to Docker Hub
+    # Docker Scout only matches product ids of the tag an image is referenced by
+    # (pkg:docker/<repo>@<tag>; digest ids and subcomponents did not match in tests), so the
+    # committed VEX is regenerated with the version tag added as product.
+    - name: Generate image-specific VEX
+      run: |
+        version=$(python3 -c 'import json; print(json.load(open("docs/security/ccc-service.openvex.json"))["version"])')
+        python3 docs/security/generate_vex.py --version "${version}" \
+          --product "pkg:docker/sogis/ccc-service@${RELEASE_TAG}" \
+          --output "$RUNNER_TEMP/vex/ccc-service.vex.json"
+      env:
+        RELEASE_TAG: ${{ inputs.release_tag }}
+    # Checks the locally built image before anything is pushed. Fails on HIGH/CRITICAL CVEs
+    # that are not assessed as not_affected in the VEX.
+    - name: Verify CVEs with VEX applied
+      uses: docker/scout-action@v1.30.0
+      with:
+        command: cves
+        image: sogis/ccc-service:${{ inputs.release_tag }}
+        only-severities: critical,high
+        exit-code: true
+        vex-location: ${{ runner.temp }}/vex
+        # Scout only accepts VEX authors matching '<.*@docker.com>' by default;
+        # must match "author" in generate_vex.py.
+        vex-author: sogis
+        dockerhub-user: ${{ secrets.CCC_DOCKER_USER }}
+        dockerhub-password: ${{ secrets.CCC_DOCKER_PASS }}
+    - name: Push version tag to Docker Hub
       run: ./gradlew pushImage
+      env:
+        RELEASE_TAG: ${{ inputs.release_tag }}
+    # Copy the tag registry-side so 'latest' points to exactly the verified image.
+    - name: Tag verified image as latest
+      run: docker buildx imagetools create -t sogis/ccc-service:latest "sogis/ccc-service:${RELEASE_TAG}"
       env:
         RELEASE_TAG: ${{ inputs.release_tag }}
