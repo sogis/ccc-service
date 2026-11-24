@@ -11,5 +11,6 @@ bin/
 *.class
 
 docker/ccc/ccc-service.jar
+docker/ccc/ccc-service.openvex.json
 .aider*
 docs/security/__pycache__/

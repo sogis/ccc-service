@@ -24,13 +24,28 @@ bereits behoben sind oder deren verwundbarer Codepfad im Service nicht erreichba
 Die Bewertung jeder gemeldeten CVE (Status `fixed` / `not_affected` mit Begründung)
 wird als [OpenVEX](https://openvex.dev) gepflegt:
 
-- VEX-Dokument: [docs/security/ccc-service.openvex.json](https://github.com/sogis/ccc-service/blob/master/docs/security/ccc-service.openvex.json)
+- VEX-Dokument: [docs/security/ccc-service.openvex.json](https://github.com/sogis/ccc-service/blob/master/docs/security/ccc-service.openvex.json),
+  zusätzlich im Image unter `/home/ccc/ccc-service.openvex.json` (Label `ccc-service.vex`)
 - Generator: [docs/security/generate_vex.py](https://github.com/sogis/ccc-service/blob/master/docs/security/generate_vex.py)
-  (Ablauf zur Aktualisierung nach einem Image-Neubau steht im Kopf des Skripts)
+  (Ablauf bei neuen Scanner-Meldungen steht im Kopf des Skripts)
 
-Das VEX ist an den Digest eines bestimmten Images gebunden. Scan mit Berücksichtigung
-des VEX:
+Das VEX gilt für alle Images von `sogis/ccc-service`; es muss nur bei neu gemeldeten,
+noch nicht bewerteten CVEs ergänzt werden. Scanner lesen es nicht selbst aus dem Image,
+es wird per `--vex` übergeben:
 
 ```
+docker run --rm --entrypoint cat sogis/ccc-service:<tag> /home/ccc/ccc-service.openvex.json > ccc-service.openvex.json
 grype --vex ccc-service.openvex.json sogis/ccc-service:<tag>
+trivy image --vex ccc-service.openvex.json --show-suppressed sogis/ccc-service:<tag>
+```
+
+Trivy wendet das VEX nur auf Images an, die bereits in der Registry liegen (Registry-Digest
+vorhanden); Grype auch auf lokal gebaute Images.
+
+Release-Images tragen das VEX zusätzlich als Docker-Scout-Attestation (mit Tag und Digest
+des Images als Produkt). Beim Release prüft der CI-Workflow mit Docker Scout und bricht bei
+nicht bewerteten HIGH/CRITICAL-CVEs ab:
+
+```
+docker scout cves --only-severity critical,high sogis/ccc-service:<tag>
 ```

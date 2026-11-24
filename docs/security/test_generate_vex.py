@@ -13,7 +13,7 @@ import pytest
 HERE = Path(__file__).parent
 SCRIPT = HERE / "generate_vex.py"
 COMMITTED = HERE / "ccc-service.openvex.json"
-DIGEST = "sha256:" + "ab" * 32
+PRODUCT = "pkg:oci/ccc-service?repository_url=index.docker.io/sogis/ccc-service"
 
 # OpenVEX v0.2.0 vocabulary
 STATUSES = {"not_affected", "affected", "fixed", "under_investigation"}
@@ -25,7 +25,7 @@ JUSTIFICATIONS = {
     "inline_mitigations_already_exist",
 }
 TS = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
-PURL = re.compile(r"^pkg:(maven|apk)/[^@]+/[^@/]+@[^@]+$")
+PURL = re.compile(r"^pkg:(maven|apk)/[^@?]+/[^@?/]+$")  # no version, no qualifiers
 
 
 def run(*args):
@@ -33,22 +33,21 @@ def run(*args):
                           capture_output=True, text=True)
 
 
-def generate(tmp_path, digest=DIGEST, version="7", extra=()):
+def generate(tmp_path, version="7"):
     out = tmp_path / "vex.json"
-    r = run("--digest", digest, "--version", version, "--output", str(out), *extra)
+    r = run("--version", version, "--output", str(out))
     assert r.returncode == 0, r.stderr
     return json.loads(out.read_text(encoding="utf-8"))
 
 
 @pytest.fixture
 def doc(tmp_path):
-    return generate(tmp_path, extra=("--app-version", "ccc-service 9.9.9"))
+    return generate(tmp_path)
 
 
 # --- CLI ---------------------------------------------------------------------
 
-@pytest.mark.parametrize("args", [[], ["--digest", DIGEST], ["--version", "1"],
-                                  ["--digest", DIGEST, "--version", "x"]])
+@pytest.mark.parametrize("args", [[], ["--version", "x"], ["--digest", "sha256:00", "--version", "1"]])
 def test_missing_or_invalid_args_fail(args):
     r = run(*args)
     assert r.returncode == 2
@@ -57,7 +56,7 @@ def test_missing_or_invalid_args_fail(args):
 
 def test_output_reports_statement_count(tmp_path):
     out = tmp_path / "vex.json"
-    r = run("--digest", DIGEST, "--version", "1", "--output", str(out))
+    r = run("--version", "1", "--output", str(out))
     assert re.search(r"^\d+ statements -> ", r.stdout)
 
 
@@ -70,16 +69,26 @@ def test_document_metadata(doc):
     assert doc["version"] == 7
     assert TS.match(doc["timestamp"]) and TS.match(doc["last_updated"])
     assert doc["last_updated"] >= doc["timestamp"]
-    assert DIGEST in doc["tooling"] and "ccc-service 9.9.9" in doc["tooling"]
+    assert doc["tooling"]
 
 
-@pytest.mark.parametrize("given", [DIGEST, "sogis/ccc-service@" + DIGEST])
-def test_product_is_bound_to_digest(tmp_path, given):
-    d = generate(tmp_path, digest=given)
-    expected = ("pkg:oci/ccc-service@" + DIGEST.replace(":", "%3A")
-                + "?repository_url=index.docker.io/sogis/ccc-service")
-    ids = {p["@id"] for s in d["statements"] for p in s["products"]}
-    assert ids == {expected}
+def test_product_applies_to_all_images_of_the_repository(doc):
+    """No digest/tag in the product id, so the VEX survives image rebuilds."""
+    ids = {p["@id"] for s in doc["statements"] for p in s["products"]}
+    assert ids == {PRODUCT}
+
+
+def test_additional_products_for_docker_scout(tmp_path):
+    """--product adds image-specific ids (Docker Scout) to every statement, keeping the generic one."""
+    extra = ["pkg:docker/sogis/ccc-service@1.2.8", "pkg:docker/sogis/ccc-service@sha256:" + "ab" * 32]
+    out = tmp_path / "scout.vex.json"
+    r = run("--version", "3", "--output", str(out), "--product", extra[0], "--product", extra[1])
+    assert r.returncode == 0, r.stderr
+    d = json.loads(out.read_text(encoding="utf-8"))
+    for s in d["statements"]:
+        assert [p["@id"] for p in s["products"]] == [PRODUCT, *extra]
+        subs = {tuple(c["@id"] for c in p["subcomponents"]) for p in s["products"]}
+        assert len(subs) == 1, "all products must carry the same subcomponents"
 
 
 # --- statements ----------------------------------------------------------------
@@ -125,7 +134,8 @@ def test_status_specific_fields(doc):
             assert s.get("action_statement"), n
 
 
-def test_subcomponents_are_versioned_purls(doc):
+def test_subcomponents_are_unversioned_purls(doc):
+    """Versioned subcomponents would stop matching after every package update."""
     for s in doc["statements"]:
         subs = [c["@id"] for p in s["products"] for c in p.get("subcomponents", [])]
         assert subs, s["vulnerability"]["name"]
@@ -149,12 +159,8 @@ def test_alpine_binary_packages_are_listed(doc):
 
 def _normalize(d):
     d = json.loads(json.dumps(d))
-    for k in ("last_updated", "version", "tooling"):
+    for k in ("last_updated", "version"):
         d.pop(k, None)
-    for s in d["statements"]:
-        s.pop("timestamp", None)
-        for p in s["products"]:
-            p["@id"] = re.sub(r"@sha256%3A[0-9a-f]+", "@<digest>", p["@id"])
     return d
 
 
