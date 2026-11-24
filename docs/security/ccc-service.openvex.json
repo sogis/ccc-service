@@ -1,0 +1,1076 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/sogis/ccc-service/blob/master/docs/security/ccc-service.openvex.json",
+  "author": "sogis",
+  "role": "Product maintainer",
+  "timestamp": "2026-11-24T00:00:00Z",
+  "last_updated": "2026-11-24T09:17:01Z",
+  "version": 5,
+  "tooling": "docs/security/generate_vex.py; verified with Grype against sogis/ccc-service@sha256:d4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327 (ccc-service 1.2.7.2, git 33db496)",
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2026-86350"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.60. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-65905"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "DIGEST auth replay bypass; fixed upstream in 10.1.58 (first Maven Central release: 10.1.59). Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-65182"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Security constraint bypass via declaration order; fixed upstream in 10.1.58 (first Maven Central release: 10.1.59). Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-68525"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "FORM auth bypass of POST-only constraint; fixed upstream in 10.1.58 (first Maven Central release: 10.1.59). Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-43512"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41293"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-43515"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-34483"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-34486"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-34487"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@10.1.61"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Tomcat 10.1.54/10.1.55. Image contains tomcat-embed-core 10.1.61 (pinned via ext['tomcat.version'] in build.gradle)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-40973"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework.boot/spring-boot@3.5.16"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "ApplicationTemp temp-dir vulnerability; fixed in Spring Boot 3.5.14. Image contains 3.5.16."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41001",
+        "aliases": [
+          "GHSA-ggg2-9786-hwc8"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework.boot/spring-boot@3.5.16"
+            },
+            {
+              "@id": "pkg:maven/org.springframework.boot/spring-boot-autoconfigure@3.5.16"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Predictable temp/data directory in Artemis auto-configuration; fixed in Spring Boot 3.5.15. Image contains 3.5.16 (Artemis is not on the classpath either)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41842"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "DoS via versioned static resources; static resource handling is auto-configured, so potentially reachable. Fixed in Spring Framework 6.2.19 (pinned via ext['spring-framework.version'])."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41841"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Info disclosure via static resources; potentially reachable via auto-configured static resource handling. Fixed in Spring Framework 6.2.19 (pinned via ext['spring-framework.version'])."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41850"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-expression@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "SpEL algorithmic DoS; the application evaluates no user-supplied SpEL. Fixed in Spring Framework 6.2.19 (pinned via ext['spring-framework.version'])."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41845"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-web@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "XSS via JavaScriptUtils.javaScriptEscape(); not used by the application. Fixed in Spring Framework 6.2.19 (pinned via ext['spring-framework.version'])."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41846"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "XSS via JSP form tags; the application serves no JSPs. Fixed in Spring Framework 6.2.19 (pinned via ext['spring-framework.version'])."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-47884",
+        "aliases": [
+          "GHSA-pc63-qcmh-9cmg"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "XsltView SSRF/RCE. Requires an XsltView used for view rendering via a '/**' mapping without explicit view name. The application defines no XsltView, ViewResolver or view-returning controller and has no template engine; the only controller (StatusPage) is a @RestController returning text/plain. The only view Spring Boot renders is the whitelabel error page (a fixed, non-XSLT view); the default '/**' static-resource mapping serves resources, not views. Fixed for 6.2.x only in 6.2.20 (Spring Enterprise Support only); open-source fix only in 7.0.9 (Spring Boot 4). Grype/NVD lists CVSS 9.8; Spring rates it MEDIUM (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:N/A:N)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-47890",
+        "aliases": [
+          "GHSA-j9f9-w8pj-32f8"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SSE stream corruption with view fragments. Requires sending view fragments over Server-Sent Events with attacker-controlled data. The application uses no SSE (no SseEmitter, ServerSentEvent, text/event-stream), no view fragments and no WebFlux; messages are relayed over WebSocket only. Fixed for 6.2.x only in 6.2.20 (Spring Enterprise Support only); open-source fix only in 7.0.9 (Spring Boot 4). Grype/NVD lists CVSS 9.8; Spring rates it LOW (CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:N/I:L/A:N)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-59889",
+        "aliases": [
+          "GHSA-mhm7-754m-9p8w"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.7"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "@JsonView bypass; fixed in 2.21.6, image contains 2.21.7. The application uses neither @JsonView nor @JsonTypeInfo."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-54513"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.7"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in Jackson 2.21.4; image contains 2.21.7."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-40984"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/io.micrometer/micrometer-core@1.15.12"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "HTTP server instrumentation DoS; reachable via actuator auto-instrumentation. Fixed in Micrometer 1.15.12 (pinned)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-40983"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/io.micrometer/micrometer-core@1.15.12"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "gRPC server instrumentation DoS: no gRPC library is on the classpath and the application exposes no gRPC server. Micrometer is additionally at the fixed version 1.15.12."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-49844"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.apache.logging.log4j/log4j-api@2.26.1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "MapMessage.asJson() NaN/Infinity; fixed in 2.26.1 (pinned). log4j-api is only present transitively via log4j-to-slf4j; the application logs via SLF4J/Logback."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-9828",
+        "aliases": [
+          "GHSA-p47f-322f-whfh"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/ch.qos.logback/logback-core@1.5.34"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Deserialization of untrusted data; fixed in logback 1.5.33. Image contains 1.5.34."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-10532",
+        "aliases": [
+          "GHSA-jhq6-gfmj-v8fx"
+        ]
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/ch.qos.logback/logback-core@1.5.34"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Object injection through HardenedObjectInputStream; fixed in logback 1.5.34. Image contains 1.5.34."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-63073"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in openssl 3.5.8-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains openssl/libcrypto3/libssl3 3.5.9-r1."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-75803"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in openssl 3.5.8-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains openssl/libcrypto3/libssl3 3.5.9-r1."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-63076"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in openssl 3.5.8-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains openssl/libcrypto3/libssl3 3.5.9-r1."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-63072"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in openssl 3.5.8-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains openssl/libcrypto3/libssl3 3.5.9-r1."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-14456"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in openssl 3.5.8-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains openssl/libcrypto3/libssl3 3.5.9-r1."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-34182"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "CMS AuthEnvelopedData authentication bypass; fixed in openssl 3.5.7-r0 (Alpine secdb). Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains 3.5.9-r1. The application does not use OpenSSL CMS in any case (JVM uses JSSE)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-66046"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/libexpat@2.10.0-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in expat 2.8.4-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains libexpat 2.10.0-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-76641"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/libexpat@2.10.0-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in expat 2.8.4-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains libexpat 2.10.0-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-115506"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/libexpat@2.10.0-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in expat 2.10.0-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains libexpat 2.10.0-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-4738"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/zlib@1.4-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in zlib 1.4-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains zlib 1.4-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-111497"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/brotli-libs@1.2.1-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in brotli 1.2.1-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains brotli-libs 1.2.1-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-25646"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/libpng@1.6.59-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in libpng 1.6.55-r0. Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains libpng 1.6.59-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-40930"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/libpng@1.6.59-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed in libpng 1.6.58-r1 (Alpine 3.24). Image (Alpine 3.24.4, 'apk upgrade --no-cache' in docker/Dockerfile) contains libpng 1.6.59-r0."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-23865"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/freetype@2.14.3-r0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Originally reported against freetype 2.14.1-r0. The Alpine secdb lists no affected freetype version for Alpine 3.24, and Grype no longer reports it; the image contains freetype 2.14.3-r0. (The JRE is Eclipse Temurin, not the Alpine openjdk25 package that the secdb also lists.)"
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-60876"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/busybox@1.37.0-r31"
+            },
+            {
+              "@id": "pkg:apk/alpine/busybox-binsh@1.37.0-r31"
+            },
+            {
+              "@id": "pkg:apk/alpine/ssl_client@1.37.0-r31"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Request-line injection in BusyBox wget: wget is never invoked. The only busybox use at runtime is ash parsing the shell-form CMD once at startup before 'exec java' replaces it; ash is not the vulnerable component."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2016-2781"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/coreutils@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-env@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-fmt@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-sha512sum@9.11-r0"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "chroot --userspec TIOCSTI escape: chroot is never invoked; the container runs only the JVM as non-root uid 1001."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-56392"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/coreutils@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-env@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-fmt@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-sha512sum@9.11-r0"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Heap overflow in coreutils unexpand: unexpand is never invoked; the container runs only the JVM."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-56391"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/coreutils@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-env@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-fmt@9.11-r0"
+            },
+            {
+              "@id": "pkg:apk/alpine/coreutils-sha512sum@9.11-r0"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Out-of-bounds read in coreutils uniq -w: uniq is never invoked; the container runs only the JVM."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-124709"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no QUIC. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-107494"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no QUIC. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-95690"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no DTLS. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-84786"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no DANE. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-35190"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no OpenSSL TLS server with Suite B flags. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-121482"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no CMS/PKCS#7 verification. No fixed Alpine package available yet."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-107493"
+      },
+      "timestamp": "2026-11-24T09:17:01Z",
+      "products": [
+        {
+          "@id": "pkg:oci/ccc-service@sha256%3Ad4c67c8baab496bdbc5ec8bcbec44af55de4784195472723ea8443332417e327?repository_url=index.docker.io/sogis/ccc-service",
+          "subcomponents": [
+            {
+              "@id": "pkg:apk/alpine/openssl@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libcrypto3@3.5.9-r1"
+            },
+            {
+              "@id": "pkg:apk/alpine/libssl3@3.5.9-r1"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "System OpenSSL (libcrypto3/libssl3) is not used by the application: TLS is handled by the JVM's own stack (JSSE) and the service uses no PEM_X509_INFO_read_bio_ex(). No fixed Alpine package available yet."
+    }
+  ]
+}

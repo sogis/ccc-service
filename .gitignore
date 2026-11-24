@@ -12,3 +12,4 @@ bin/
 
 docker/ccc/ccc-service.jar
 .aider*
+docs/security/__pycache__/
