@@ -36,7 +36,24 @@ es wird per `--vex` übergeben:
 ```
 docker run --rm --entrypoint cat sogis/ccc-service:<tag> /home/ccc/ccc-service.openvex.json > ccc-service.openvex.json
 grype --vex ccc-service.openvex.json sogis/ccc-service:<tag>
+# oder
 trivy image --vex ccc-service.openvex.json --show-suppressed sogis/ccc-service:<tag>
+```
+
+Variante mit Trivy in Docker:
+```
+docker run --rm --entrypoint cat sogis/ccc-service:latest /home/ccc/ccc-service.openvex.json > ccc-service.openvex.json
+
+docker run --rm \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v trivy-db:/root/.cache/ \
+    -v "$PWD:/vex:ro" \
+    --cpus=4 \
+    aquasec/trivy:latest image \
+    --vex /vex/ccc-service.openvex.json \
+    --show-suppressed \
+    sogis/ccc-service:latest
+
 ```
 
 Trivy wendet das VEX nur auf Images an, die bereits in der Registry liegen (Registry-Digest
