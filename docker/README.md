@@ -42,9 +42,10 @@ trivy image --vex ccc-service.openvex.json --show-suppressed sogis/ccc-service:<
 Trivy wendet das VEX nur auf Images an, die bereits in der Registry liegen (Registry-Digest
 vorhanden); Grype auch auf lokal gebaute Images.
 
-Release-Images tragen das VEX zusätzlich als Docker-Scout-Attestation (mit Tag und Digest
-des Images als Produkt). Beim Release prüft der CI-Workflow mit Docker Scout und bricht bei
-nicht bewerteten HIGH/CRITICAL-CVEs ab:
+Release-Images tragen das VEX zusätzlich als Docker-Scout-Attestation (mit Versions-Tag und
+`latest` als Produkt; Scout ordnet VEX nur über den Tag zu, mit dem das Image angesprochen
+wird). Beim Release prüft der CI-Workflow mit Docker Scout und bricht bei nicht bewerteten
+HIGH/CRITICAL-CVEs ab:
 
 ```
 docker scout cves --only-severity critical,high --vex-author sogis sogis/ccc-service:<tag>

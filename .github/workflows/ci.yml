@@ -63,23 +63,16 @@ jobs:
       run: ./gradlew pushImage
       env:
         RELEASE_TAG: ${{ inputs.release_tag }}
-    - name: Resolve image digest
-      id: img
-      run: |
-        digest=$(docker image inspect "sogis/ccc-service:${RELEASE_TAG}" \
-                   --format '{{index .RepoDigests 0}}' | cut -d@ -f2)
-        echo "digest=${digest}" >> "$GITHUB_OUTPUT"
-      env:
-        RELEASE_TAG: ${{ inputs.release_tag }}
-    # Docker Scout only matches image-specific product ids (pkg:docker/<repo>@<tag|digest>),
-    # so the committed VEX is regenerated with this image's tag and digest added as products.
+    # Docker Scout only matches product ids of the tag an image is referenced by
+    # (pkg:docker/<repo>@<tag>; digest ids and subcomponents did not match in tests), so the
+    # committed VEX is regenerated with the version tag and 'latest' added as products.
     - name: Generate image-specific VEX
       run: |
         mkdir -p "$RUNNER_TEMP/vex"
         version=$(python3 -c 'import json; print(json.load(open("docs/security/ccc-service.openvex.json"))["version"])')
         python3 docs/security/generate_vex.py --version "${version}" \
           --product "pkg:docker/sogis/ccc-service@${RELEASE_TAG}" \
-          --product "pkg:docker/sogis/ccc-service@${{ steps.img.outputs.digest }}" \
+          --product "pkg:docker/sogis/ccc-service@latest" \
           --output "$RUNNER_TEMP/vex/ccc-service.vex.json"
       env:
         RELEASE_TAG: ${{ inputs.release_tag }}

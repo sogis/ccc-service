@@ -4,7 +4,7 @@
   "author": "sogis",
   "role": "Product maintainer",
   "timestamp": "2026-11-24T00:00:00Z",
-  "last_updated": "2026-11-24T11:48:13Z",
+  "last_updated": "2026-11-24T11:59:34Z",
   "version": 7,
   "tooling": "docs/security/generate_vex.py",
   "statements": [

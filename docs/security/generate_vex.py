@@ -14,7 +14,7 @@ Workflow for a new finding:
   5. verify:      grype --vex docs/security/ccc-service.openvex.json sogis/ccc-service:latest
 
 On release, the CI workflow regenerates the VEX with additional image-specific product ids
-(--product pkg:docker/sogis/ccc-service@<tag|digest>, without subcomponents), attaches it to the
+(--product pkg:docker/sogis/ccc-service@<tag>, without subcomponents), attaches it to the
 pushed image as a Docker Scout attestation and fails on HIGH/CRITICAL CVEs that are not assessed
 here. Docker Scout only honours "not_affected" (not "fixed") and only accepts VEX authors passed
 via --vex-author (default: Docker employees only).
@@ -31,8 +31,8 @@ ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDe
 ap.add_argument("--version", type=int, required=True, help="VEX document version (increment on every change)")
 ap.add_argument("--output", default=str(Path(__file__).with_name("ccc-service.openvex.json")))
 ap.add_argument("--product", action="append", default=[], metavar="PURL",
-                help="additional product id (repeatable). Docker Scout only matches image-specific ids of the form"
-                     " pkg:docker/sogis/ccc-service@<tag|digest>; used by the release workflow for the"
+                help="additional product id (repeatable). Docker Scout only matches ids of the form"
+                     " pkg:docker/sogis/ccc-service@<tag>; used by the release workflow for the"
                      " attestation, not for the committed file")
 args = ap.parse_args()
 
@@ -66,8 +66,8 @@ def st(cve, subs, status, aliases=(), ts=ASSESSED, **kw):
     if aliases: vuln["aliases"]=list(aliases)
     s={"vulnerability":vuln,"timestamp":ts,
        "products":[{"@id":PROD,"subcomponents":[{"@id":x} for x in subs]}]
-                  # Docker Scout: no subcomponents, so the statement applies to the whole image (documented
-                  # behaviour); Scout's matching of unversioned subcomponent purls is not documented.
+                  # Docker Scout: no subcomponents, so the statement applies to the whole image. Scout does
+                  # not match unversioned subcomponent purls (tested with docker scout cves).
                   +[{"@id":p} for p in args.product],"status":status}
     s.update(kw); S.append(s)
 def fixed(cve, subs, note, aliases=(), ts=ASSESSED): st(cve, subs, "fixed", aliases, ts, status_notes=note)
